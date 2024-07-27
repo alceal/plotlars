@@ -10,8 +10,8 @@ readme = "README.md"
 homepage = "https://github.com/alceal/plotlars"
 repository = "https://github.com/alceal/plotlars"
 license = "MIT"
-keywords = [""]
-categories = [""]
+keywords = ["chart", "plot", "plotly", "polars", "visualization"]
+categories = ["visualization"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
