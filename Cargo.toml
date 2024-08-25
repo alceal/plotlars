@@ -1,9 +1,9 @@
 [package]
 name = "plotlars"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
 edition = "2021"
-rust-version = "1.80.0"
+rust-version = "1.80.1"
 description = "Plotlars is a Rust library designed to facilitate the integration between the Polars data analysis library and visualization libraries."
 documentation = "https://github.com/alceal/plotlars"
 readme = "README.md"
@@ -12,11 +12,9 @@ repository = "https://github.com/alceal/plotlars"
 license = "MIT"
 keywords = ["chart", "plot", "plotly", "polars", "visualization"]
 categories = ["visualization"]
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.86"
-thiserror = "1.0.63"
-
-[dev-dependencies]
-pretty_assertions = "1.4.0"
+bon = "1.2.0"
+plotly = "0.9.0"
+polars = { version = "0.42", features = ["dtype-categorical", "lazy", "strings"] }
+serde = "1.0.208"
