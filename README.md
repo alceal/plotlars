@@ -101,7 +101,7 @@ Now, compare that to the same plot created using Plotlars:
 ```rust
 use plotlars::{
     ScatterPlot,
-    Plotable,
+    Plot,
     Text,
 };
 
@@ -137,6 +137,10 @@ fn main() {
         .plot();
 }
 ```
+
+This is the output:
+
+![Plot example](https://i.imgur.com/QZx1415.png)
 
 With Plotlars, the same scatter plot is created with significantly less code. The library abstracts away the complexities of dealing with individual plot components and allows the user to specify high-level plot characteristics. This streamlined approach not only saves time but also reduces the potential for errors and makes the code more readable and maintainable.
 
