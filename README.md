@@ -7,7 +7,7 @@
 </p>
 
 
-Plotlars is a versatile Rust library that bridges the gap between the powerful Polars data analysis library and various plotting libraries. It simplifies the process of creating visualizations from data frames, allowing developers to focus on data insights rather than the intricacies of plot creation.
+Plotlars is a versatile Rust library that bridges the gap between the powerful Polars data analysis library and Plotly library. It simplifies the process of creating visualizations from data frames, allowing developers to focus on data insights rather than the intricacies of plot creation.
 
 ## Motivation
 
@@ -28,7 +28,7 @@ use plotly::{
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new("penguins.csv")
+    let dataset = LazyCsvReader::new("notebook/data/penguins.csv")
         .finish().unwrap()
         .select([
             col("species").cast(
