@@ -28,7 +28,7 @@ use plotly::{
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new("notebook/data/penguins.csv")
+    let dataset = LazyCsvReader::new("data/penguins.csv")
         .finish().unwrap()
         .select([
             col("species").cast(
@@ -108,7 +108,7 @@ use plotlars::{
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new("notebook/data/penguins.csv")
+    let dataset = LazyCsvReader::new("data/penguins.csv")
         .finish().unwrap()
         .select([
             col("species").cast(
