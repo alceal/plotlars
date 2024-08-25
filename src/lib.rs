@@ -163,8 +163,8 @@
 //!
 //! ## Acknowledgements
 //!
-//! - Polars: For providing a fast and efficient data manipulation library.
-//! - Plotly: For the inspiration and ideas behind visualization libraries.
+//! - [Polars](https://github.com/pola-rs/polars): For providing a fast and efficient data manipulation library.
+//! - [Plotly](https://github.com/plotly/plotly.rs): For the inspiration and ideas behind visualization libraries.
 //! - Rust Community: For the support and development of an amazing programming language.
 
 #[macro_use]
