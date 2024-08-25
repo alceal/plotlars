@@ -50,9 +50,9 @@ impl ScatterPlot {
     /// ```
     /// ScatterPlot::builder()
     ///     .data(&dataset)
-    ///     .x("x_variable")
-    ///     .y("y_variable")
-    ///     .group("group")
+    ///     .x("body_mass_g")
+    ///     .y("flipper_length_mm")
+    ///     .group("species")
     ///     .opacity(0.5)
     ///     .size(20)
     ///     .colors(vec![
@@ -66,23 +66,26 @@ impl ScatterPlot {
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("body mass (g)")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("flipper length (mm)")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("group")
+    ///         Text::from("species")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Scatter Plot](https://imgur.com/f5vgrNd.png)
+    ///
     #[builder]
     pub fn new(
         // Data

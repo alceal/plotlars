@@ -58,9 +58,9 @@ impl VerticalBoxPlot {
     /// ```
     /// VerticalBoxPlot::builder()
     ///     .data(&dataset)
-    ///     .x("x variable")
-    ///     .y("y variable")
-    ///     .group("group")
+    ///     .x("species")
+    ///     .y("body_mass_g")
+    ///     .group("gender")
     ///     .box_points(true)
     ///     .point_offset(-1.5)
     ///     .jitter(0.01)
@@ -71,28 +71,31 @@ impl VerticalBoxPlot {
     ///         Rgb(0, 0, 255),
     ///     ])
     ///     .plot_title(
-    ///         Text::from("Box Plot")
+    ///         Text::from("Vertical Box Plot")
     ///             .font("Arial")
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("species")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("body mass (g)")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("group")
+    ///         Text::from("gender")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Vertical Box Plot](https://imgur.com/0Zn0mFu.png)
+    ///
     #[builder]
     pub fn new(
         data: &DataFrame,
@@ -240,9 +243,9 @@ impl HorizontalBoxPlot {
     /// ```
     /// HorizontalBoxPlot::builder()
     ///     .data(&dataset)
-    ///     .x("x_variable")
-    ///     .y("y_variable")
-    ///     .group("group")
+    ///     .x("body_mass_g")
+    ///     .y("species")
+    ///     .group("gender")
     ///     .box_points(true)
     ///     .point_offset(-1.5)
     ///     .jitter(0.01)
@@ -253,28 +256,31 @@ impl HorizontalBoxPlot {
     ///         Rgb(0, 0, 255),
     ///     ])
     ///     .plot_title(
-    ///         Text::from("Box Plot")
+    ///         Text::from("Horizontal Box Plot")
     ///             .font("Arial")
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("body mass (g)")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("species")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("group")
+    ///         Text::from("gender")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Horizontal Box Plot](https://imgur.com/Lu92liU.png)
+    ///
     #[builder]
     pub fn new(
         data: &DataFrame,

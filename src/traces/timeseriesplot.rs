@@ -56,8 +56,8 @@ impl TimeSeriesPlot {
     /// TimeSeriesPlot::builder()
     ///     .data(&dataset)
     ///     .x("date")
-    ///     .y("y_variable_1")
-    ///     .aditional_series(vec!["y_variable_2"])
+    ///     .y("series_1")
+    ///     .aditional_series(vec!["series_2"])
     ///     .size(5)
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
@@ -78,18 +78,21 @@ impl TimeSeriesPlot {
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("sales")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("time series")
+    ///         Text::from("series")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Time Series Plot](https://imgur.com/sjxJ2og.png)
+    ///
     #[builder]
     pub fn new(
         // Data
