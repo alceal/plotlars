@@ -50,8 +50,8 @@ impl Histogram {
     /// ```
     /// Histogram::builder()
     ///     .data(&dataset)
-    ///     .x("x_variable")
-    ///     .group("group")
+    ///     .x("body_mass_g")
+    ///     .group("species")
     ///     .opacity(0.5)
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
@@ -64,7 +64,7 @@ impl Histogram {
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("body mass (g)")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
@@ -74,13 +74,16 @@ impl Histogram {
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("group")
+    ///         Text::from("species")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Histogram](https://imgur.com/ZNomy9V.png)
+    ///
     #[builder]
     pub fn new(
         data: &DataFrame,

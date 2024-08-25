@@ -55,17 +55,17 @@ impl LinePlot {
     /// ```
     /// LinePlot::builder()
     ///     .data(&dataset)
-    ///     .x("x_variable")
-    ///     .y("y_variable_1")
-    ///     .aditional_lines(vec!["y_variable_2"])
+    ///     .x("x")
+    ///     .y("sine")
+    ///     .aditional_lines(vec!["cosine"])
     ///     .size(5)
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
     ///         Rgb(0, 255, 0),
     ///     ])
     ///     .line_types(vec![
-    ///         LineType::Dash,
     ///         LineType::Solid,
+    ///         LineType::Dot,
     ///     ])
     ///     .plot_title(
     ///         Text::from("Line Plot")
@@ -73,12 +73,12 @@ impl LinePlot {
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("x")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("y")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
@@ -90,6 +90,9 @@ impl LinePlot {
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Line Plot](https://imgur.com/cOH707b.png)
+    ///
     #[builder]
     pub fn new(
         // Data

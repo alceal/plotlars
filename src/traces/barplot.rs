@@ -55,36 +55,39 @@ impl VerticalBarPlot {
     /// ```
     /// VerticalBarPlot::builder()
     ///     .data(&dataset)
-    ///     .x("x variable")
-    ///     .y("y variable")
-    ///     .group("group")
-    ///     .error("error")
+    ///     .x("animals")
+    ///     .y("values")
+    ///     .group("gender")
+    ///     .error("errors")
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
     ///     ])
     ///     .plot_title(
-    ///         Text::from("Bar Plot")
+    ///         Text::from("Vertical Bar Plot")
     ///             .font("Arial")
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("animal")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("value")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("group")
+    ///         Text::from("gender")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Vertical Bar Plot](https://imgur.com/Fd6DpB0.png)
+    ///
     #[builder]
     pub fn new(
         data: &DataFrame,
@@ -222,36 +225,39 @@ impl HorizontalBarPlot {
     /// ```
     /// HorizontalBarPlot::builder()
     ///     .data(&dataset)
-    ///     .x("x variable")
-    ///     .y("y variable")
-    ///     .group("group")
-    ///     .error("error")
+    ///     .x("values")
+    ///     .y("animals")
+    ///     .group("gender")
+    ///     .error("errors")
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
     ///     ])
     ///     .plot_title(
-    ///         Text::from("Bar Plot")
+    ///         Text::from("Horizontal Bar Plot")
     ///             .font("Arial")
     ///             .size(18)
     ///     )
     ///     .x_title(
-    ///         Text::from("x variable")
+    ///         Text::from("value")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .y_title(
-    ///         Text::from("y variable")
+    ///         Text::from("animal")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .legend_title(
-    ///         Text::from("group")
+    ///         Text::from("gender")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
     ///     .build()
     ///     .plot();
     /// ```
+    ///
+    /// ![Horizontal Bar Plot](https://imgur.com/saoTcNg.png)
+    ///
     #[builder]
     pub fn new(
         data: &DataFrame,
