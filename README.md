@@ -7,11 +7,11 @@
 </p>
 
 
-Plotlars is a versatile Rust library that bridges the gap between the powerful Polars data analysis library and Plotly library. It simplifies the process of creating visualizations from data frames, allowing developers to focus on data insights rather than the intricacies of plot creation.
+Plotlars is a versatile Rust library that acts as a wrapper around the Plotly crate, bridging the gap between the powerful Polars data analysis library and Plotly. It simplifies the process of creating visualizations from data frames, allowing developers to focus on data insights rather than the intricacies of plot creation.
 
 ## Motivation
 
-The creation of Plotlars was driven by the need to simplify the process of creating complex plots in Rust, particularly when working with the powerful Polars data manipulation library. Generating visualizations often requires extensive boilerplate code and deep knowledge of both the plotting library and the data structure. This complexity can be a significant hurdle, especially for users who need to focus on analyzing and interpreting data rather than wrestling with intricate plotting logic.
+The creation of Plotlars was driven by the need to simplify the process of creating complex plots in Rust, particularly when working with the powerful Polars data manipulation library. Generating visualizations often requires extensive boilerplate code and deep knowledge of both the plotting library (Plotly) and the data structure. This complexity can be a significant hurdle, especially for users who need to focus on analyzing and interpreting data rather than wrestling with intricate plotting logic.
 
 To illustrate this, consider the following example where a scatter plot is created without Plotlars:
 
@@ -140,7 +140,7 @@ fn main() {
 
 This is the output:
 
-![Plot example](https://i.imgur.com/QZx1415.png)
+![Plot example](https://imgur.com/PkQ9fsc.png)
 
 With Plotlars, the same scatter plot is created with significantly less code. The library abstracts away the complexities of dealing with individual plot components and allows the user to specify high-level plot characteristics. This streamlined approach not only saves time but also reduces the potential for errors and makes the code more readable and maintainable.
 
