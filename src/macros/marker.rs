@@ -1,4 +1,4 @@
-/// Do not use it.
+#[doc(hidden)]
 #[macro_export]
 macro_rules! marker {
     ( $( $x:ident ),* ) => {{
