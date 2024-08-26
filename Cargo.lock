@@ -151,8 +151,7 @@ checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 [[package]]
 name = "bon"
 version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32e4c5fa2da1ff5ce802338a5c34eb28c62da9d6144d1f52612473dbbc7b3a51"
+source = "git+https://github.com/elastio/bon#c5285102fd9f9fdec0b467d2f75eb8a18bf03c6e"
 dependencies = [
  "bon-macros",
 ]
@@ -160,8 +159,7 @@ dependencies = [
 [[package]]
 name = "bon-macros"
 version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c378eb299098565855276f54d0c01cbee8af3eaea1722f37dcedce2aebd5bb3"
+source = "git+https://github.com/elastio/bon#c5285102fd9f9fdec0b467d2f75eb8a18bf03c6e"
 dependencies = [
  "darling",
  "ident_case",

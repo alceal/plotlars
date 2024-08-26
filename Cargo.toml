@@ -14,7 +14,7 @@ keywords = ["chart", "plot", "plotly", "polars", "visualization"]
 categories = ["visualization"]
 
 [dependencies]
-bon = "1.2.0"
+bon = { git = "https://github.com/elastio/bon" }
 plotly = "0.9.0"
 polars = { version = "0.42", features = ["dtype-categorical", "lazy", "strings"] }
 serde = "1.0.208"

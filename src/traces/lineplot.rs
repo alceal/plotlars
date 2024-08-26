@@ -93,7 +93,7 @@ impl LinePlot {
     ///
     /// ![Line Plot](https://imgur.com/cOH707b.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
         data: &DataFrame,

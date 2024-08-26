@@ -93,7 +93,7 @@ impl TimeSeriesPlot {
     ///
     /// ![Time Series Plot](https://imgur.com/sjxJ2og.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
         data: &DataFrame,
