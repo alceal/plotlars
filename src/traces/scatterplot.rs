@@ -86,7 +86,7 @@ impl ScatterPlot {
     ///
     /// ![Scatter Plot](https://imgur.com/f5vgrNd.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
         data: &DataFrame,
