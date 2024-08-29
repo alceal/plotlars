@@ -21,6 +21,12 @@ cliff.toml
 # Coverage
 lcov.info
 
+# markdownlint
+.markdownlint.json
+
+# justfile
+justfile
+
 # MacOS
 # General
 .DS_Store
@@ -72,4 +78,3 @@ target/
 notebook
 
 **/main*.rs
-.markdownlint.json
