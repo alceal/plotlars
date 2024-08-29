@@ -64,10 +64,10 @@ fn main() {
         .unique().unwrap();
 
     let layout = Layout::new()
-        .title(Title::new("Penguin Flipper Length vs Body Mass"))
-        .x_axis(Axis::new().title(Title::new("Body Mass (g)")))
-        .y_axis(Axis::new().title(Title::new("Flipper Length (mm)")))
-        .legend(Legend::new().title(Title::new("Species")));
+        .title(Title::with_text("Penguin Flipper Length vs Body Mass"))
+        .x_axis(Axis::new().title(Title::with_text("Body Mass (g)")))
+        .y_axis(Axis::new().title(Title::with_text("Flipper Length (mm)")))
+        .legend(Legend::new().title(Title::with_text("Species")));
 
     let mut plot = Plot::new();
     plot.set_layout(layout);

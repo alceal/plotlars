@@ -88,7 +88,7 @@ impl VerticalBarPlot {
     ///
     /// ![Vertical Bar Plot](https://imgur.com/Fd6DpB0.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
         x: String,
@@ -258,7 +258,7 @@ impl HorizontalBarPlot {
     ///
     /// ![Horizontal Bar Plot](https://imgur.com/saoTcNg.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
         x: String,

@@ -96,7 +96,7 @@ impl VerticalBoxPlot {
     ///
     /// ![Vertical Box Plot](https://imgur.com/0Zn0mFu.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
         x: String,
@@ -281,7 +281,7 @@ impl HorizontalBoxPlot {
     ///
     /// ![Horizontal Box Plot](https://imgur.com/Lu92liU.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
         x: String,
