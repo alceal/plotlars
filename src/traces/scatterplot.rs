@@ -116,7 +116,7 @@ impl ScatterPlot {
         let box_points = None;
         let point_offset = None;
         let jitter = None;
-        let aditional_series = None;
+        let additional_series = None;
         let line_types = None;
 
         let traces = Self::create_traces(
@@ -128,7 +128,7 @@ impl ScatterPlot {
             box_points,
             point_offset,
             jitter,
-            aditional_series,
+            additional_series,
             opacity,
             size,
             colors,
