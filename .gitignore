@@ -72,4 +72,3 @@ target/
 notebook
 
 **/main*.rs
-.markdownlint.json
