@@ -37,7 +37,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         box_points: Option<bool>,
         point_offset: Option<f64>,
         jitter: Option<f64>,
-        #[allow(unused_variables)] aditional_series: Option<Vec<&str>>,
+        #[allow(unused_variables)] additional_series: Option<Vec<&str>>,
         opacity: Option<f64>,
         size: Option<usize>,
         colors: Option<Vec<Rgb>>,

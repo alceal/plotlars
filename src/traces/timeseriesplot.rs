@@ -37,7 +37,7 @@ impl TimeSeriesPlot {
     /// * `data` - A reference to the `DataFrame` containing the data to be plotted.
     /// * `x` - A string specifying the column name to be used for the x-axis, typically representing time or dates.
     /// * `y` - A string specifying the column name to be used for the y-axis, typically representing the primary metric.
-    /// * `aditional_series` - An optional vector of strings specifying additional y-axis columns to be plotted as series.
+    /// * `additional_series` - An optional vector of strings specifying additional y-axis columns to be plotted as series.
     /// * `size` - An optional `usize` specifying the size of the markers or line thickness.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot lines.
     /// * `line_types` - An optional vector of `LineType` specifying the types of lines (e.g., solid, dashed) for each plotted series.
@@ -57,7 +57,7 @@ impl TimeSeriesPlot {
     ///     .data(&dataset)
     ///     .x("date")
     ///     .y("series_1")
-    ///     .aditional_series(vec!["series_2"])
+    ///     .additional_series(vec!["series_2"])
     ///     .size(5)
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
@@ -99,7 +99,7 @@ impl TimeSeriesPlot {
         data: &DataFrame,
         x: String,
         y: String,
-        aditional_series: Option<Vec<&str>>,
+        additional_series: Option<Vec<&str>>,
         // Marker
         size: Option<usize>,
         colors: Option<Vec<Rgb>>,
@@ -135,7 +135,7 @@ impl TimeSeriesPlot {
             box_points,
             point_offset,
             jitter,
-            aditional_series,
+            additional_series,
             opacity,
             size,
             colors,
@@ -191,7 +191,7 @@ impl Trace for TimeSeriesPlot {
         box_points: Option<bool>,
         point_offset: Option<f64>,
         jitter: Option<f64>,
-        aditional_series: Option<Vec<&str>>,
+        additional_series: Option<Vec<&str>>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Vec<Rgb>>,
@@ -222,10 +222,10 @@ impl Trace for TimeSeriesPlot {
 
         traces.push(trace);
 
-        if let Some(aditional_series) = aditional_series {
-            let aditional_series = aditional_series.into_iter();
+        if let Some(additional_series) = additional_series {
+            let additional_series = additional_series.into_iter();
 
-            for (i, series) in aditional_series.enumerate() {
+            for (i, series) in additional_series.enumerate() {
                 let series_mark = Self::set_color(&mark, &color, i + 1);
 
                 let series_line = Self::set_line_type(&line, &line_type, i + 1);

@@ -124,7 +124,7 @@ impl VerticalBoxPlot {
 
         // Trace
         let error = None;
-        let aditional_series = None;
+        let additional_series = None;
 
         let size = None;
         let line_types = None;
@@ -138,7 +138,7 @@ impl VerticalBoxPlot {
             box_points,
             point_offset,
             jitter,
-            aditional_series,
+            additional_series,
             opacity,
             size,
             colors,
@@ -309,7 +309,7 @@ impl HorizontalBoxPlot {
 
         // Trace
         let error = None;
-        let aditional_series = None;
+        let additional_series = None;
 
         let size = None;
         let line_type = None;
@@ -323,7 +323,7 @@ impl HorizontalBoxPlot {
             box_points,
             point_offset,
             jitter,
-            aditional_series,
+            additional_series,
             opacity,
             size,
             colors,

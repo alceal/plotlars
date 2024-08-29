@@ -84,7 +84,7 @@ impl Histogram {
     ///
     /// ![Histogram](https://imgur.com/ZNomy9V.png)
     ///
-    #[builder]
+    #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
         x: String,
@@ -111,7 +111,7 @@ impl Histogram {
         let box_points = None;
         let point_offset = None;
         let jitter = None;
-        let aditional_series = None;
+        let additional_series = None;
 
         let size = None;
         let line_types = None;
@@ -125,7 +125,7 @@ impl Histogram {
             box_points,
             point_offset,
             jitter,
-            aditional_series,
+            additional_series,
             opacity,
             size,
             colors,
