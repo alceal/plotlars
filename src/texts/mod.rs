@@ -92,3 +92,15 @@ impl Text {
         self
     }
 }
+
+impl From<&str> for Text {
+    fn from(content: &str) -> Self {
+        Self::from(content.to_string())
+    }
+}
+
+impl From<String> for Text {
+    fn from(content: String) -> Self {
+        Self::from(content)
+    }
+}
