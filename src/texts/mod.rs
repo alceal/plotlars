@@ -146,3 +146,9 @@ impl From<String> for Text {
         Self::from(content)
     }
 }
+
+impl From<&String> for Text {
+    fn from(content: &String) -> Self {
+        Self::from(content)
+    }
+}
