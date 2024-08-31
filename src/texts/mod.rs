@@ -1,12 +1,26 @@
 use crate::colors::Rgb;
 
 /// A structure representing text with customizable content, font, size, and color.
-#[derive(Default)]
 pub struct Text {
     pub content: String,
     pub font: String,
     pub size: usize,
     pub color: Rgb,
+    pub x: f64,
+    pub y: f64,
+}
+
+impl Default for Text {
+    fn default() -> Self {
+        Text {
+            content: String::new(),
+            font: String::new(),
+            size: 0,
+            color: Rgb::default(),
+            x: 0.5,
+            y: 0.9,
+        }
+    }
 }
 
 impl Text {
@@ -89,6 +103,34 @@ impl Text {
     /// ```
     pub fn color(mut self, color: Rgb) -> Self {
         self.color = color;
+        self
+    }
+
+    /// Sets the x-coordinate for the object.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - A `f64` value representing the x-coordinate.
+    ///
+    /// # Returns
+    ///
+    /// Returns the modified object with the updated x-coordinate.
+    pub fn x(mut self, x: f64) -> Self {
+        self.x = x;
+        self
+    }
+
+    /// Sets the y-coordinate for the object.
+    ///
+    /// # Arguments
+    ///
+    /// * `y` - A `f64` value representing the y-coordinate.
+    ///
+    /// # Returns
+    ///
+    /// Returns the modified object with the updated y-coordinate.
+    pub fn y(mut self, y: f64) -> Self {
+        self.y = y;
         self
     }
 }

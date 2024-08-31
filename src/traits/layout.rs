@@ -41,15 +41,18 @@ pub(crate) trait LayoutPlotly {
     }
 
     fn create_title(title_details: Text) -> Title {
-        Title::with_text(title_details.content).font(
-            Font::new()
-                .family(title_details.font.as_str())
-                .size(title_details.size)
-                .color(Rgb::new(
-                    title_details.color.0,
-                    title_details.color.1,
-                    title_details.color.2,
-                )),
-        )
+        Title::with_text(title_details.content)
+            .font(
+                Font::new()
+                    .family(title_details.font.as_str())
+                    .size(title_details.size)
+                    .color(Rgb::new(
+                        title_details.color.0,
+                        title_details.color.1,
+                        title_details.color.2,
+                    )),
+            )
+            .x(title_details.x)
+            .y(title_details.y)
     }
 }
