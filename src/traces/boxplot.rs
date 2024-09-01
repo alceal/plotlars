@@ -17,10 +17,8 @@ use crate::{
     aesthetics::{line::Line, mark::Mark},
     colors::Rgb,
     texts::Text,
-    traits::layout::LayoutPlotly,
-    traits::plot::Plot,
-    traits::polar::Polar,
-    traits::trace::Trace,
+    traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
+    Axis,
 };
 
 /// A structure representing a vertical bar plot.
@@ -111,7 +109,9 @@ impl VerticalBoxPlot {
         // Layout
         plot_title: Option<Text>,
         x_title: Option<Text>,
+        x_axis: Option<&Axis>,
         y_title: Option<Text>,
+        y_axis: Option<&Axis>,
         legend_title: Option<Text>,
     ) -> Self {
         let x_col = x.as_str();
@@ -120,7 +120,15 @@ impl VerticalBoxPlot {
         // Layout
         let bar_mode = None;
 
-        let layout = Self::create_layout(bar_mode, plot_title, x_title, y_title, legend_title);
+        let layout = Self::create_layout(
+            bar_mode,
+            plot_title,
+            x_title,
+            x_axis,
+            y_title,
+            y_axis,
+            legend_title,
+        );
 
         // Trace
         let error = None;
@@ -296,7 +304,9 @@ impl HorizontalBoxPlot {
         // Layout
         plot_title: Option<Text>,
         x_title: Option<Text>,
+        x_axis: Option<&Axis>,
         y_title: Option<Text>,
+        y_axis: Option<&Axis>,
         legend_title: Option<Text>,
     ) -> Self {
         let x_col = x.as_str();
@@ -305,7 +315,15 @@ impl HorizontalBoxPlot {
         // Layout
         let bar_mode = None;
 
-        let layout = Self::create_layout(bar_mode, plot_title, x_title, y_title, legend_title);
+        let layout = Self::create_layout(
+            bar_mode,
+            plot_title,
+            x_title,
+            x_axis,
+            y_title,
+            y_axis,
+            legend_title,
+        );
 
         // Trace
         let error = None;

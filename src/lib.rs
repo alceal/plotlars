@@ -5,12 +5,14 @@
 mod macros;
 
 mod aesthetics;
+mod axis;
 mod colors;
 mod texts;
 mod traces;
 mod traits;
 
 pub use crate::aesthetics::line::LineType;
+pub use crate::axis::{Axis, AxisPosition, AxisType, TickDirection, ValueExponent};
 pub use crate::colors::Rgb;
 pub use crate::texts::Text;
 pub use crate::traces::barplot::{HorizontalBarPlot, VerticalBarPlot};
