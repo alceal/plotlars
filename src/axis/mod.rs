@@ -6,6 +6,11 @@ use plotly::{
 use crate::Rgb;
 
 /// A structure representing an axis with customizable properties such as position, type, color, ticks, and grid lines.
+///
+/// Examples:
+///
+/// ![example 1](https://imgur.com/YvfFQfb.png)
+/// ![example 2](https://imgur.com/CbFCEB2.png)
 #[derive(Default, Clone)]
 pub struct Axis {
     pub(crate) show_axis: Option<bool>,
