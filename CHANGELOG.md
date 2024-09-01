@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2024-09-01
+
+### 🚀 Features
+
+- Implement From trait for Text to convert from &str and String
+- Add plot title position
+- Add axis module for customizing plot axes
+- Add write_html method
+
+### ⚙️ Miscellaneous Tasks
+
+- Update pacth
+- Update marker.rs to use #[doc(hidden)] attribute
+- Add data for examples
+- Update plotlars library to version 0.2.2
+- Update documentation link in Cargo.toml
+- Update Polars and Plotly library links in README.md and lib.rs
+- Add images to documentation
+- Update text
+- Update plotlars library to version 0.2.3
+- The crate documentation is the README file
+- Add .markdownlint.json
+- Reformat the text
+- Justfile to .gitignore
+- Remove justfile
+- Fix typo in variable name "aditional_series" to "additional_series"
+- Fix typo in variable name "aditional_series" to "additional_series"
+- Add From trait implementation for Text to convert from &String
+- Change field visibility
+
+### Update
+
+- CHANGELOG.md
+- Add link to data and fix text
+- Update dataset path
+
 ## [0.2.0] - 2024-08-25
 
 ### 🚀 Features
