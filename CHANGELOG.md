@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Implement From trait for Text to convert from &str and String
 - Add plot title position
+- Add From trait implementation for Text to convert from &String
 - Add axis module for customizing plot axes
 - Add write_html method
 
@@ -29,10 +30,10 @@ All notable changes to this project will be documented in this file.
 - Remove justfile
 - Fix typo
 - Fix typo
-- Add From trait implementation for Text to convert from &String
 - Change field visibility
 - Update plotlars dependency to version 0.3.0
 - Update bon dependency to version 2.1.0
+- Add version 0.3.0 and fix typos
 
 ### Update
 
