@@ -2,12 +2,12 @@ use crate::colors::Rgb;
 
 /// A structure representing text with customizable content, font, size, and color.
 pub struct Text {
-    pub content: String,
-    pub font: String,
-    pub size: usize,
-    pub color: Rgb,
-    pub x: f64,
-    pub y: f64,
+    pub(crate) content: String,
+    pub(crate) font: String,
+    pub(crate) size: usize,
+    pub(crate) color: Rgb,
+    pub(crate) x: f64,
+    pub(crate) y: f64,
 }
 
 impl Default for Text {
