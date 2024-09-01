@@ -1,6 +1,6 @@
 [package]
 name = "plotlars"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
 edition = "2021"
 rust-version = "1.80.1"
