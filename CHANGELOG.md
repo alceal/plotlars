@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### ⚙️ Miscellaneous Tasks
 
-- Update pacth
+- Update patch
 - Update marker.rs to use #[doc(hidden)] attribute
 - Add data for examples
 - Update plotlars library to version 0.2.2
@@ -27,16 +27,19 @@ All notable changes to this project will be documented in this file.
 - Reformat the text
 - Justfile to .gitignore
 - Remove justfile
-- Fix typo in variable name "aditional_series" to "additional_series"
-- Fix typo in variable name "aditional_series" to "additional_series"
+- Fix typo
+- Fix typo
 - Add From trait implementation for Text to convert from &String
 - Change field visibility
+- Update plotlars dependency to version 0.3.0
+- Update bon dependency to version 2.1.0
 
 ### Update
 
 - CHANGELOG.md
 - Add link to data and fix text
 - Update dataset path
+- Update Changelog
 
 ## [0.2.0] - 2024-08-25
 
