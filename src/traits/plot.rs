@@ -4,16 +4,16 @@ use plotly::{Layout, Plot as Plotly, Trace};
 
 /// A trait representing a generic plot that can be displayed or rendered.
 pub trait Plot {
-    #[allow(dead_code)]
     fn get_layout(&self) -> &Layout;
-    #[allow(dead_code)]
+
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>>;
-    #[allow(dead_code)]
+
     fn plot(self)
     where
         Self: Sized,
     {
         let mut plot = Plotly::new();
+
         plot.set_layout(self.get_layout().clone());
         plot.add_traces(self.get_traces().clone());
 
@@ -21,5 +21,17 @@ pub trait Plot {
             Ok(_) => plot.notebook_display(),
             _ => plot.show(),
         }
+    }
+
+    fn write_html(self, path: impl Into<String>)
+    where
+        Self: Sized,
+    {
+        let mut plot = Plotly::new();
+
+        plot.set_layout(self.get_layout().clone());
+        plot.add_traces(self.get_traces().clone());
+
+        plot.write_html(path.into());
     }
 }
