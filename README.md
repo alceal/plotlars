@@ -142,10 +142,10 @@ fn main() {
         .group("species")
         .size(10)
         .opacity(0.5)
-        .plot_title(Text::from("Penguin Flipper Length vs Body Mass"))
-        .x_title(Text::from("Body Mass (g)"))
-        .y_title(Text::from("Flipper Length (mm)"))
-        .legend_title(Text::from("Species"))
+        .plot_title("Penguin Flipper Length vs Body Mass")
+        .x_title("Body Mass (g)")
+        .y_title("Flipper Length (mm)")
+        .legend_title("Species")
         .build()
         .plot();
 }

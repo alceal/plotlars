@@ -9,7 +9,62 @@ use crate::Rgb;
 ///
 /// Examples:
 ///
+/// ```
+/// let axis_format = Axis::new()
+///     .show_line(true)
+///     .tick_direction(TickDirection::OutSide)
+///     .value_thousands(true)
+///     .show_grid(false);
+///
+/// ScatterPlot::builder()
+///     .data(&dataset)
+///     .x("body_mass_g")
+///     .y("flipper_length_mm")
+///     .group("species")
+///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0), Rgb(0, 0, 255)])
+///     .opacity(0.5)
+///     .size(20)
+///     .plot_title(
+///         Text::from("Scatter Plot")
+///             .font("Arial")
+///             .size(20)
+///             .x(0.045)
+///     )
+///     .x_title("body mass (g)")
+///     .y_title("flipper length (mm)")
+///     .legend_title("species")
+///     .x_axis(&axis_format)
+///     .y_axis(&axis_format)
+///     .build()
+///     .plot();
+/// ```
+///
 /// ![example 1](https://imgur.com/YvfFQfb.png)
+///
+/// ```
+/// let axis_format = Axis::new()
+///     .axis_type(AxisType::Log)
+///     .show_line(true)
+///     .tick_direction(TickDirection::OutSide)
+///     .value_exponent(plotlars::ValueExponent::Power)
+///     .axis_position(AxisPosition::Right);
+///
+/// LinePlot::builder()
+///     .data(&log_log_dataset)
+///     .x("x")
+///     .y("y")
+///     .x_axis(&axis_format)
+///     .y_axis(&axis_format)
+///     .plot_title(
+///         Text::from("log-log Plot")
+///             .font("Arial")
+///             .size(20)
+///             .x(0.955)
+///     )
+///     .build()
+///     .plot();
+/// ```
+///
 /// ![example 2](https://imgur.com/CbFCEB2.png)
 #[derive(Default, Clone)]
 pub struct Axis {
@@ -45,12 +100,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns a new `Axis` instance with all properties set to `None` or default values.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new();
-    /// ```
     pub fn new() -> Self {
         Axis::default()
     }
@@ -64,12 +113,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated visibility.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().show_axis(true);
-    /// ```
     pub fn show_axis(mut self, bool: bool) -> Self {
         self.show_axis = Some(bool);
         self
@@ -84,12 +127,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated position.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().axis_position(AxisPosition::Bottom);
-    /// ```
     pub fn axis_position(mut self, position: AxisPosition) -> Self {
         self.axis_position = Some(position);
         self
@@ -104,12 +141,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated type.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().axis_type(AxisType::Linear);
-    /// ```
     pub fn axis_type(mut self, axis_type: AxisType) -> Self {
         self.axis_type = Some(axis_type);
         self
@@ -124,12 +155,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated value color.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().value_color(Rgb(255, 0, 0));
-    /// ```
     pub fn value_color(mut self, color: Rgb) -> Self {
         self.value_color = Some(color);
         self
@@ -144,12 +169,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated value range.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().value_range(vec![0.0, 100.0]);
-    /// ```
     pub fn value_range(mut self, range: Vec<f64>) -> Self {
         self.value_range = Some(range);
         self
@@ -164,12 +183,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated setting.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().value_thousands(true);
-    /// ```
     pub fn value_thousands(mut self, bool: bool) -> Self {
         self.value_thousands = Some(bool);
         self
@@ -184,12 +197,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated exponent format.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().value_exponent(ValueExponent::SmallE);
-    /// ```
     pub fn value_exponent(mut self, exponent: ValueExponent) -> Self {
         self.value_exponent = Some(exponent);
         self
@@ -204,12 +211,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick values.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_values(vec![0.0, 50.0, 100.0]);
-    /// ```
     pub fn tick_values(mut self, tick_values: Vec<f64>) -> Self {
         self.tick_values = Some(tick_values);
         self
@@ -224,12 +225,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick labels.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_labels(vec!["Low", "Medium", "High"]);
-    /// ```
     pub fn tick_labels(mut self, tick_labels: Vec<impl Into<String>>) -> Self {
         self.tick_labels = Some(tick_labels.into_iter().map(|x| x.into()).collect());
         self
@@ -244,12 +239,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick direction.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_direction(TickDirection::OutSide);
-    /// ```
     pub fn tick_direction(mut self, tick_direction: TickDirection) -> Self {
         self.tick_direction = Some(tick_direction);
         self
@@ -264,12 +253,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick length.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_length(10);
-    /// ```
     pub fn tick_length(mut self, tick_length: usize) -> Self {
         self.tick_length = Some(tick_length);
         self
@@ -284,12 +267,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick width.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_width(2);
-    /// ```
     pub fn tick_width(mut self, tick_width: usize) -> Self {
         self.tick_width = Some(tick_width);
         self
@@ -304,12 +281,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick color.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_color(Rgb(0, 0, 0));
-    /// ```
     pub fn tick_color(mut self, tick_color: Rgb) -> Self {
         self.tick_color = Some(tick_color);
         self
@@ -324,12 +295,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick angle.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_angle(45.0);
-    /// ```
     pub fn tick_angle(mut self, tick_angle: f64) -> Self {
         self.tick_angle = Some(tick_angle);
         self
@@ -344,12 +309,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated tick font.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().tick_font("Arial");
-    /// ```
     pub fn tick_font(mut self, tick_font: impl Into<String>) -> Self {
         self.tick_font = Some(tick_font.into());
         self
@@ -364,12 +323,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated axis line visibility.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().show_line(true);
-    /// ```
     pub fn show_line(mut self, bool: bool) -> Self {
         self.show_line = Some(bool);
         self
@@ -384,12 +337,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated axis line color.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().line_color(Rgb(0, 0, 0));
-    /// ```
     pub fn line_color(mut self, color: Rgb) -> Self {
         self.line_color = Some(color);
         self
@@ -404,12 +351,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated axis line width.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().line_width(2);
-    /// ```
     pub fn line_width(mut self, width: usize) -> Self {
         self.line_width = Some(width);
         self
@@ -424,12 +365,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated grid line visibility.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().show_grid(true);
-    /// ```
     pub fn show_grid(mut self, bool: bool) -> Self {
         self.show_grid = Some(bool);
         self
@@ -444,12 +379,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated grid line color.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().grid_color(Rgb(200, 200, 200));
-    /// ```
     pub fn grid_color(mut self, color: Rgb) -> Self {
         self.grid_color = Some(color);
         self
@@ -464,12 +393,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated grid line width.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().grid_width(1);
-    /// ```
     pub fn grid_width(mut self, width: usize) -> Self {
         self.grid_width = Some(width);
         self
@@ -484,12 +407,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated zero line visibility.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().show_zero_line(true);
-    /// ```
     pub fn show_zero_line(mut self, bool: bool) -> Self {
         self.show_zero_line = Some(bool);
         self
@@ -504,12 +421,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated zero line color.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().zero_line_color(Rgb(0, 0, 0));
-    /// ```
     pub fn zero_line_color(mut self, color: Rgb) -> Self {
         self.zero_line_color = Some(color);
         self
@@ -524,12 +435,6 @@ impl Axis {
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated zero line width.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let axis = Axis::new().zero_line_width(2);
-    /// ```
     pub fn zero_line_width(mut self, width: usize) -> Self {
         self.zero_line_width = Some(width);
         self

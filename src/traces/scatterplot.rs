@@ -38,6 +38,8 @@ impl ScatterPlot {
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
     /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
+    /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
+    /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
     ///
     /// # Returns
     ///
@@ -98,10 +100,10 @@ impl ScatterPlot {
         // Layout
         plot_title: Option<Text>,
         x_title: Option<Text>,
-        x_axis: Option<&Axis>,
         y_title: Option<Text>,
-        y_axis: Option<&Axis>,
         legend_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
     ) -> Self {
         let x_col = x.as_str();
         let y_col = y.as_str();
