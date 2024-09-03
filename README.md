@@ -183,6 +183,8 @@ environment. This integration is made possible through the use of the
 [evcxr project](https://github.com/evcxr/evcxr), which provides a Jupyter kernel
 for the Rust programming language.
 
+![Jupyter notebook](https://imgur.com/zvFDzjj.png)
+
 **With Polars, evcxr, and Plotlars, data science in Rust leaps to the next level
 , making powerful data analysis and visualization more accessible and efficient
 than ever before.**
