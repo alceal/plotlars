@@ -175,6 +175,18 @@ cargo add plotlars
   plot types.
 - Customization: Modify plot appearance with an intuitive API.
 
+## Plotlars in Jupyter Notebooks
+
+Plotlars seamlessly integrates with Jupyter Notebooks, allowing you to leverage
+the power of interactive data visualization directly within your notebook
+environment. This integration is made possible through the use of the
+[evcxr project](https://github.com/evcxr/evcxr), which provides a Jupyter kernel
+for the Rust programming language.
+
+**With Polars, evcxr, and Plotlars, data science in Rust leaps to the next level
+, making powerful data analysis and visualization more accessible and efficient
+than ever before.**
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE.txt file for details.
@@ -185,5 +197,7 @@ This project is licensed under the MIT License. See the LICENSE.txt file for det
   efficient data manipulation library.
 - [Plotly](https://github.com/plotly/plotly.rs): For the inspiration and ideas
   behind visualization libraries.
+- [Evcxr](https://github.com/evcxr/evcxr): For enabling the use of Rust in
+  Jupyter Notebooks.
 - Rust Community: For the support and development of an amazing programming
   language.
