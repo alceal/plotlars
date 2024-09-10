@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2024-09-10
+
+### 🚀 Features
+
+- Add Legend module
+
+### 🚜 Refactor
+
+- Refactor Axis module to use Self instead of Axis in new() method
+
+### ⚙️ Miscellaneous Tasks
+
+- Add examples for Axis module
+- Update plotlars dependency to version 0.3.1
+- Update documentation
+- Update plotlars dependency to version 0.3.2
+- Add Jupyter section
+- Update plotlars dependency to version 0.3.3
+- Update Jupyter section and add image to README
+- Update documentation
+- Update dependencies
+- Update plotlars to version 0.4.0
+
 ## [0.3.0] - 2024-09-01
 
 ### 🚀 Features
@@ -34,6 +57,10 @@ All notable changes to this project will be documented in this file.
 - Update plotlars dependency to version 0.3.0
 - Update bon dependency to version 2.1.0
 - Add version 0.3.0 and fix typos
+
+### Chote
+
+- Update features
 
 ### Update
 
