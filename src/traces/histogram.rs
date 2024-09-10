@@ -14,7 +14,7 @@ use crate::{
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis,
+    Axis, Legend,
 };
 
 /// A structure representing a histogram.
@@ -99,6 +99,7 @@ impl Histogram {
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
     ) -> Self {
         let x_col = x.as_str();
 
@@ -113,6 +114,7 @@ impl Histogram {
             y_title,
             y_axis,
             legend_title,
+            legend,
         );
 
         // Trace
