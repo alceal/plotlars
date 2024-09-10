@@ -110,7 +110,7 @@ impl Text {
     ///
     /// # Arguments
     ///
-    /// * `x` - A `f64` value representing the x-coordinate.
+    /// * `x` - A `f64` value representing the x-coordinate. It only works in the plot title.
     ///
     /// # Returns
     ///
@@ -124,7 +124,7 @@ impl Text {
     ///
     /// # Arguments
     ///
-    /// * `y` - A `f64` value representing the y-coordinate.
+    /// * `y` - A `f64` value representing the y-coordinate. It only works in the plot title.
     ///
     /// # Returns
     ///
