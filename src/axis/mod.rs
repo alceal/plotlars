@@ -101,7 +101,7 @@ impl Axis {
     ///
     /// Returns a new `Axis` instance with all properties set to `None` or default values.
     pub fn new() -> Self {
-        Axis::default()
+        Self::default()
     }
 
     /// Sets the visibility of the axis.
