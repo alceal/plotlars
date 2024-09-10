@@ -18,7 +18,7 @@ use crate::{
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis,
+    Axis, Legend,
 };
 
 /// A structure representing a vertical bar plot.
@@ -103,6 +103,7 @@ impl VerticalBarPlot {
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
     ) -> Self {
         let x_col = x.as_str();
         let y_col = y.as_str();
@@ -118,6 +119,7 @@ impl VerticalBarPlot {
             y_title,
             y_axis,
             legend_title,
+            legend,
         );
 
         // Trace
@@ -285,6 +287,7 @@ impl HorizontalBarPlot {
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
     ) -> Self {
         let x_col = x.as_str();
         let y_col = y.as_str();
@@ -300,6 +303,7 @@ impl HorizontalBarPlot {
             y_title,
             y_axis,
             legend_title,
+            legend,
         );
 
         // Trace
