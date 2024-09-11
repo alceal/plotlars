@@ -1,6 +1,6 @@
 //! This module provides implementations for vertical and horizontal bar plots using the Plotly library.
 //!
-//! The `VerticalBarPlot` and `HorizontalBarPlot` structs allow for the creation and customization of bar plots
+//! The `BarPlot` struct allow for the creation and customization of bar plots
 //! with various options for data, layout, and aesthetics.
 
 #![allow(deprecated)]
