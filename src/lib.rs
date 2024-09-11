@@ -18,7 +18,7 @@ pub use crate::colors::Rgb;
 pub use crate::legend::Legend;
 pub use crate::texts::Text;
 pub use crate::traces::barplot::{BarPlot, HorizontalBarPlot, VerticalBarPlot};
-pub use crate::traces::boxplot::{HorizontalBoxPlot, VerticalBoxPlot};
+pub use crate::traces::boxplot::{BoxPlot, HorizontalBoxPlot, VerticalBoxPlot};
 pub use crate::traces::histogram::Histogram;
 pub use crate::traces::lineplot::LinePlot;
 pub use crate::traces::scatterplot::ScatterPlot;
