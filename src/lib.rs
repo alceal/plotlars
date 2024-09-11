@@ -1,5 +1,5 @@
 #![doc = include_str!("../README.md")]
-#![allow(clippy::needless_doctest_main)]
+#![allow(clippy::needless_doctest_main, deprecated)]
 
 #[macro_use]
 mod macros;
@@ -17,8 +17,7 @@ pub use crate::axis::{Axis, AxisPosition, AxisType, TickDirection, ValueExponent
 pub use crate::colors::Rgb;
 pub use crate::legend::Legend;
 pub use crate::texts::Text;
-// pub use crate::traces::barplot::{BarPlot, HorizontalBarPlot, VerticalBarPlot};
-pub use crate::traces::barplot::BarPlot;
+pub use crate::traces::barplot::{BarPlot, HorizontalBarPlot, VerticalBarPlot};
 pub use crate::traces::boxplot::{HorizontalBoxPlot, VerticalBoxPlot};
 pub use crate::traces::histogram::Histogram;
 pub use crate::traces::lineplot::LinePlot;
