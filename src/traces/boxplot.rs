@@ -7,14 +7,14 @@ use bon::bon;
 
 use plotly::{
     box_plot::BoxPoints,
-    common::{Line as LinePlotly, Marker, Orientation},
+    common::{Line as LinePlotly, Marker, Orientation as OrientationPlotly},
     BoxPlot, Layout, Trace as TracePlotly,
 };
 
 use polars::frame::DataFrame;
 
 use crate::{
-    aesthetics::{line::Line, mark::Mark},
+    aesthetics::{line::Line, mark::Mark, orientation::Orientation},
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
@@ -135,6 +135,7 @@ impl VerticalBoxPlot {
         );
 
         // Trace
+        let orientation = None;
         let error = None;
         let additional_series = None;
 
@@ -145,6 +146,7 @@ impl VerticalBoxPlot {
             data,
             x_col,
             y_col,
+            orientation,
             group,
             error,
             box_points,
@@ -171,6 +173,7 @@ impl Trace for VerticalBoxPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
         box_points: Option<bool>,
@@ -334,6 +337,7 @@ impl HorizontalBoxPlot {
         );
 
         // Trace
+        let orientation = None;
         let error = None;
         let additional_series = None;
 
@@ -344,6 +348,7 @@ impl HorizontalBoxPlot {
             data,
             x_col,
             y_col,
+            orientation,
             group,
             error,
             box_points,
@@ -370,6 +375,7 @@ impl Trace for HorizontalBoxPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
         box_points: Option<bool>,
@@ -384,7 +390,7 @@ impl Trace for HorizontalBoxPlot {
         let mut trace = BoxPlot::default()
             .x(x_data)
             .y(y_data)
-            .orientation(Orientation::Horizontal);
+            .orientation(OrientationPlotly::Horizontal);
 
         if let Some(all) = box_points {
             if all {

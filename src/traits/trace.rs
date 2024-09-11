@@ -7,7 +7,7 @@ use polars::frame::DataFrame;
 
 use crate::{
     aesthetics::{line::Line, mark::Mark},
-    LineType, Rgb,
+    LineType, Orientation, Rgb,
 };
 
 use crate::traits::polar::Polar;
@@ -18,6 +18,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        orientation: Option<Orientation>,
         group_name: Option<&str>,
         error: Option<String>,
         box_points: Option<bool>,
@@ -32,6 +33,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        orientation: Option<Orientation>,
         group: Option<String>,
         error: Option<String>,
         box_points: Option<bool>,
@@ -67,6 +69,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                         &subset,
                         x_col,
                         y_col,
+                        orientation.clone(),
                         Some(group_name),
                         error.clone(),
                         box_points,
@@ -88,6 +91,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                     data,
                     x_col,
                     y_col,
+                    orientation,
                     group_name,
                     error,
                     box_points,

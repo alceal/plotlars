@@ -14,7 +14,7 @@ use crate::{
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend,
+    Axis, Legend, Orientation,
 };
 
 /// A structure representing a histogram.
@@ -119,6 +119,7 @@ impl Histogram {
 
         // Trace
         let y_col = "";
+        let orientation = None;
         let error = None;
         let box_points = None;
         let point_offset = None;
@@ -132,6 +133,7 @@ impl Histogram {
             data,
             x_col,
             y_col,
+            orientation,
             group,
             error,
             box_points,
@@ -158,6 +160,7 @@ impl Trace for Histogram {
         data: &DataFrame,
         x_col: &str,
         #[allow(unused_variables)] y_col: &str,
+        #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
         #[allow(unused_variables)] box_points: Option<bool>,
