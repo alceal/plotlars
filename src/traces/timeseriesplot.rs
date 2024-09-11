@@ -17,7 +17,7 @@ use crate::{
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend,
+    Axis, Legend, Orientation,
 };
 
 /// A structure representing a time series plot.
@@ -131,6 +131,7 @@ impl TimeSeriesPlot {
         );
 
         // Trace
+        let orientation = None;
         let group = None;
         let error = None;
         let box_points = None;
@@ -142,6 +143,7 @@ impl TimeSeriesPlot {
             data,
             x_col,
             y_col,
+            orientation,
             group,
             error,
             box_points,
@@ -168,6 +170,7 @@ impl Trace for TimeSeriesPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
         #[allow(unused_variables)] box_points: Option<bool>,
@@ -198,6 +201,7 @@ impl Trace for TimeSeriesPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        orientation: Option<Orientation>,
         #[allow(unused_variables)] group: Option<String>,
         error: Option<String>,
         box_points: Option<bool>,
@@ -223,6 +227,7 @@ impl Trace for TimeSeriesPlot {
             data,
             x_col,
             y_col,
+            orientation.clone(),
             group_name,
             error.clone(),
             box_points,
@@ -255,6 +260,7 @@ impl Trace for TimeSeriesPlot {
                     &subset,
                     x_col,
                     series,
+                    orientation.clone(),
                     group_name,
                     error.clone(),
                     box_points,

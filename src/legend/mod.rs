@@ -1,6 +1,4 @@
-use plotly::common::Orientation as OrientationPlotly;
-
-use crate::Rgb;
+use crate::{Orientation, Rgb};
 
 /// A structure representing a customizable plot legend with properties such as background color, border, font, orientation, and position.
 ///
@@ -145,26 +143,5 @@ impl Legend {
     pub fn y(mut self, y: f64) -> Self {
         self.y = Some(y);
         self
-    }
-}
-
-/// Enumeration representing the orientation of the legend.
-#[derive(Clone)]
-pub enum Orientation {
-    Horizontal,
-    Vertical,
-}
-
-impl Orientation {
-    /// Converts `Orientation` to the corresponding `OrientationPlotly` from the `plotly` crate.
-    ///
-    /// # Returns
-    ///
-    /// Returns the corresponding `OrientationPlotly`.
-    pub fn get_orientation(&self) -> OrientationPlotly {
-        match self {
-            Self::Horizontal => OrientationPlotly::Horizontal,
-            Self::Vertical => OrientationPlotly::Vertical,
-        }
     }
 }

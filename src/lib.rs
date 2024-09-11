@@ -12,12 +12,13 @@ mod texts;
 mod traces;
 mod traits;
 
-pub use crate::aesthetics::line::LineType;
+pub use crate::aesthetics::{line::LineType, orientation::Orientation};
 pub use crate::axis::{Axis, AxisPosition, AxisType, TickDirection, ValueExponent};
 pub use crate::colors::Rgb;
-pub use crate::legend::{Legend, Orientation};
+pub use crate::legend::Legend;
 pub use crate::texts::Text;
-pub use crate::traces::barplot::{HorizontalBarPlot, VerticalBarPlot};
+// pub use crate::traces::barplot::{BarPlot, HorizontalBarPlot, VerticalBarPlot};
+pub use crate::traces::barplot::BarPlot;
 pub use crate::traces::boxplot::{HorizontalBoxPlot, VerticalBoxPlot};
 pub use crate::traces::histogram::Histogram;
 pub use crate::traces::lineplot::LinePlot;
