@@ -7,7 +7,7 @@ use crate::Rgb;
 
 /// A structure representing an axis with customizable properties such as position, type, color, ticks, and grid lines.
 ///
-/// Examples:
+/// **Examples**
 ///
 /// ```
 /// let axis_format = Axis::new()

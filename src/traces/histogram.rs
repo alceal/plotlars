@@ -33,6 +33,7 @@ impl Histogram {
     /// * `x` - A string specifying the column name to be used for the x-axis.
     /// * `group` - An optional string specifying the column name to be used for grouping data points.
     /// * `opacity` - An optional f64 value specifying the opacity of the plot markers (range: 0.0 to 1.0).
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -45,7 +46,7 @@ impl Histogram {
     ///
     /// Returns an instance of `Histogram`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// Histogram::builder()
@@ -83,7 +84,6 @@ impl Histogram {
     /// ```
     ///
     /// ![Histogram](https://imgur.com/ZNomy9V.png)
-    ///
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
@@ -91,6 +91,7 @@ impl Histogram {
         group: Option<String>,
         // Marker
         opacity: Option<f64>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -142,6 +143,7 @@ impl Histogram {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );

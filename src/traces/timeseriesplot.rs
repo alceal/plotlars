@@ -37,6 +37,7 @@ impl TimeSeriesPlot {
     /// * `y` - A string specifying the column name to be used for the y-axis, typically representing the primary metric.
     /// * `additional_series` - An optional vector of strings specifying additional y-axis columns to be plotted as series.
     /// * `size` - An optional `usize` specifying the size of the markers or line thickness.
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot lines.
     /// * `line_types` - An optional vector of `LineType` specifying the types of lines (e.g., solid, dashed) for each plotted series.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
@@ -50,7 +51,7 @@ impl TimeSeriesPlot {
     ///
     /// Returns an instance of `TimeSeriesPlot`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// TimeSeriesPlot::builder()
@@ -92,7 +93,6 @@ impl TimeSeriesPlot {
     /// ```
     ///
     /// ![Time Series Plot](https://imgur.com/sjxJ2og.png)
-    ///
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
@@ -102,6 +102,7 @@ impl TimeSeriesPlot {
         additional_series: Option<Vec<&str>>,
         // Marker
         size: Option<usize>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         line_types: Option<Vec<LineType>>,
         // Layout
@@ -152,6 +153,7 @@ impl TimeSeriesPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );
@@ -210,7 +212,8 @@ impl Trace for TimeSeriesPlot {
         additional_series: Option<Vec<&str>>,
         opacity: Option<f64>,
         size: Option<usize>,
-        color: Option<Vec<Rgb>>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
         line_type: Option<Vec<LineType>>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mut traces: Vec<Box<dyn TracePlotly + 'static>> = Vec::new();
@@ -218,7 +221,7 @@ impl Trace for TimeSeriesPlot {
         let mark = Self::create_marker(opacity, size);
         let line = Self::create_line();
 
-        let series_mark = Self::set_color(&mark, &color, 0);
+        let series_mark = Self::set_color(&mark, &color, &colors, 0);
         let series_line = Self::set_line_type(&line, &line_type, 0);
 
         let group_name = Some(y_col);
@@ -243,7 +246,7 @@ impl Trace for TimeSeriesPlot {
             let additional_series = additional_series.into_iter();
 
             for (i, series) in additional_series.enumerate() {
-                let series_mark = Self::set_color(&mark, &color, i + 1);
+                let series_mark = Self::set_color(&mark, &color, &colors, i + 1);
 
                 let series_line = Self::set_line_type(&line, &line_type, i + 1);
 
