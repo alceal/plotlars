@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2024-09-13
+
+### 🚀 Features
+
+- Add new BarPlot struct with orientation field; deprecate VerticalBarPlot and HorizontalBarPlot
+- Update BoxPlot struct to handle both vertical and horizontal box plots
+- Add `color` argument
+- Customize the shape of the marker
+- Add optional shape and add line width for line and time series plots
+
+### ⚙️ Miscellaneous Tasks
+
+- Deprecate VerticalBarPlot and HorizontalBarPlot
+- Update documentation
+
 ## [0.4.0] - 2024-09-10
 
 ### 🚀 Features
@@ -23,6 +38,7 @@ All notable changes to this project will be documented in this file.
 - Update Jupyter section and add image to README
 - Update documentation
 - Update dependencies
+- Update plotlars to version 0.4.0
 - Update plotlars to version 0.4.0
 
 ## [0.3.0] - 2024-09-01
