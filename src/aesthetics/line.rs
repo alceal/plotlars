@@ -41,6 +41,7 @@ pub(crate) trait Line {
     fn set_line_type(
         line: &LinePlotly,
         line_types: &Option<Vec<LineType>>,
+        width: Option<f64>,
         index: usize,
     ) -> LinePlotly {
         let mut updated_line = line.clone();
@@ -50,6 +51,10 @@ pub(crate) trait Line {
                 let line_style = Self::convert_line_type(line_type);
                 updated_line = updated_line.dash(line_style);
             }
+        }
+
+        if let Some(width) = width {
+            updated_line = updated_line.width(width);
         }
 
         updated_line

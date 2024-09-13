@@ -24,6 +24,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         box_points: Option<bool>,
         point_offset: Option<f64>,
         jitter: Option<f64>,
+        with_shape: Option<bool>,
         marker: Marker,
         line: LinePlotly,
     ) -> Box<dyn TracePlotly + 'static>;
@@ -44,9 +45,11 @@ pub(crate) trait Trace: Polar + Mark + Line {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         line_types: Option<Vec<LineType>>,
+        line_width: Option<f64>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mark = Self::create_marker(opacity, size);
         let mut line = Self::create_line();
@@ -65,7 +68,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                     let group_mark = Self::set_color(&mark, &color, &colors, i);
                     let group_mark = Self::set_shape(&group_mark, &shape, &shapes, i);
 
-                    line = Self::set_line_type(&line, &line_types, i);
+                    line = Self::set_line_type(&line, &line_types, line_width, i);
 
                     let subset = Self::filter_data_by_group(data, group_col, group_name);
 
@@ -79,6 +82,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                         box_points,
                         point_offset,
                         jitter,
+                        with_shape,
                         group_mark,
                         line.clone(),
                     );
@@ -102,6 +106,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                     box_points,
                     point_offset,
                     jitter,
+                    with_shape,
                     mark,
                     line,
                 );

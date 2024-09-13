@@ -43,6 +43,7 @@ impl ScatterPlot {
     /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
     ///
@@ -133,6 +134,8 @@ impl ScatterPlot {
         let jitter = None;
         let additional_series = None;
         let line_types = None;
+        let with_shape = None;
+        let line_width = None;
 
         let traces = Self::create_traces(
             data,
@@ -149,9 +152,11 @@ impl ScatterPlot {
             size,
             color,
             colors,
+            with_shape,
             shape,
             shapes,
             line_types,
+            line_width,
         );
 
         Self { traces, layout }
@@ -174,6 +179,7 @@ impl Trace for ScatterPlot {
         #[allow(unused_variables)] box_points: Option<bool>,
         #[allow(unused_variables)] point_offset: Option<f64>,
         #[allow(unused_variables)] jitter: Option<f64>,
+        #[allow(unused_variables)] with_shape: Option<bool>,
         marker: Marker,
         #[allow(unused_variables)] line: LinePlotly,
     ) -> Box<dyn TracePlotly + 'static> {

@@ -39,15 +39,18 @@ impl LinePlot {
     /// * `size` - An optional `usize` specifying the size of the markers or line thickness.
     /// * `color` - An optional `Rgb` value specifying the color of the marker to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the color for the markers to be used for the plot.
+    /// * `with_shape` - An optional `bool` indicating whether to use shapes for markers in the plot.
     /// * `shape` - An optional `Shape` specifying the shape of the markers.
     /// * `shapes` - An optional `Vec<Shape>` specifying multiple shapes for the markers.
     /// * `line_types` - An optional vector of `LineType` specifying the types of lines (e.g., solid, dashed) for each plotted line.
+    /// * `line_width` - An optional `f64` specifying the width of the plotted lines.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
     /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
     ///
@@ -61,15 +64,10 @@ impl LinePlot {
     ///     .x("x")
     ///     .y("sine")
     ///     .additional_lines(vec!["cosine"])
-    ///     .size(5)
-    ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///         Rgb(0, 255, 0),
-    ///     ])
-    ///     .line_types(vec![
-    ///         LineType::Solid,
-    ///         LineType::Dot,
-    ///     ])
+    ///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
+    ///     .line_types(vec![LineType::Solid, LineType::Dot])
+    ///     .line_width(5.0)
+    ///     .with_shape(false)
     ///     .plot_title(
     ///         Text::from("Line Plot")
     ///             .font("Arial")
@@ -94,7 +92,7 @@ impl LinePlot {
     ///     .plot();
     /// ```
     ///
-    /// ![Line Plot](https://imgur.com/cOH707b.png)
+    /// ![Line Plot](https://imgur.com/0mqVyqX.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
@@ -106,9 +104,11 @@ impl LinePlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         line_types: Option<Vec<LineType>>,
+        line_width: Option<f64>,
         // Layout
         plot_title: Option<Text>,
         x_title: Option<Text>,
@@ -159,9 +159,11 @@ impl LinePlot {
             size,
             color,
             colors,
+            with_shape,
             shape,
             shapes,
             line_types,
+            line_width,
         );
 
         Self { traces, layout }
@@ -184,16 +186,22 @@ impl Trace for LinePlot {
         #[allow(unused_variables)] box_points: Option<bool>,
         #[allow(unused_variables)] point_offset: Option<f64>,
         #[allow(unused_variables)] jitter: Option<f64>,
+        with_shape: Option<bool>,
         marker: Marker,
         line: LinePlotly,
     ) -> Box<dyn TracePlotly + 'static> {
         let x_data = Self::get_numeric_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
 
-        let mut trace = Scatter::default()
-            .x(x_data)
-            .y(y_data)
-            .mode(Mode::LinesMarkers);
+        let mut trace = Scatter::default().x(x_data).y(y_data);
+
+        if let Some(with_shape) = with_shape {
+            if with_shape {
+                trace = trace.mode(Mode::LinesMarkers);
+            } else {
+                trace = trace.mode(Mode::Lines);
+            }
+        }
 
         trace = trace.marker(marker);
         trace = trace.line(line);
@@ -220,9 +228,11 @@ impl Trace for LinePlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         line_type: Option<Vec<LineType>>,
+        line_width: Option<f64>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mut traces: Vec<Box<dyn TracePlotly + 'static>> = Vec::new();
 
@@ -233,7 +243,7 @@ impl Trace for LinePlot {
 
         let series_mark = Self::set_shape(&series_mark, &shape, &shapes, 0);
 
-        let series_line = Self::set_line_type(&line, &line_type, 0);
+        let series_line = Self::set_line_type(&line, &line_type, line_width, 0);
 
         let group_name = Some(y_col);
 
@@ -247,6 +257,7 @@ impl Trace for LinePlot {
             box_points,
             point_offset,
             jitter,
+            with_shape,
             series_mark,
             series_line,
         );
@@ -261,7 +272,7 @@ impl Trace for LinePlot {
 
                 let series_mark = Self::set_shape(&series_mark, &shape, &shapes, i + 1);
 
-                let series_line = Self::set_line_type(&line, &line_type, i + 1);
+                let series_line = Self::set_line_type(&line, &line_type, line_width, i + 1);
 
                 let subset = data
                     .clone()
@@ -282,6 +293,7 @@ impl Trace for LinePlot {
                     box_points,
                     point_offset,
                     jitter,
+                    with_shape,
                     series_mark,
                     series_line,
                 );
