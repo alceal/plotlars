@@ -12,7 +12,7 @@ use crate::{
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend, Orientation,
+    Axis, Legend, Orientation, Shape,
 };
 
 /// A structure representing a scatter plot.
@@ -33,8 +33,10 @@ impl ScatterPlot {
     /// * `group` - An optional string specifying the column name to be used for grouping data points.
     /// * `opacity` - An optional f64 value specifying the opacity of the plot markers (range: 0.0 to 1.0).
     /// * `size` - An optional `usize` specifying the size of the markers.
-    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
-    /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
+    /// * `color` - An optional `Rgb` value specifying the color of the marker to be used for the plot.
+    /// * `colors` - An optional vector of `Rgb` values specifying the color for the markers to be used for the plot.
+    /// * `shape` - An optional `Shape` specifying the shape of the markers.
+    /// * `shapes` - An optional `Vec<Shape>` specifying multiple shapes for the markers.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
@@ -49,43 +51,40 @@ impl ScatterPlot {
     /// **Example**
     ///
     /// ```
+    /// let axis_format = Axis::new()
+    ///     .show_line(true)
+    ///     .tick_direction(TickDirection::OutSide)
+    ///     .value_thousands(true);
+    ///
     /// ScatterPlot::builder()
     ///     .data(&dataset)
     ///     .x("body_mass_g")
     ///     .y("flipper_length_mm")
     ///     .group("species")
     ///     .opacity(0.5)
-    ///     .size(20)
+    ///     .size(12)
     ///     .colors(vec![
     ///         Rgb(255, 0, 0),
     ///         Rgb(0, 255, 0),
     ///         Rgb(0, 0, 255),
     ///     ])
+    ///     .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
     ///     .plot_title(
     ///         Text::from("Scatter Plot")
     ///             .font("Arial")
-    ///             .size(18)
+    ///             .size(20)
+    ///             .x(0.045)
     ///     )
-    ///     .x_title(
-    ///         Text::from("body mass (g)")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .y_title(
-    ///         Text::from("flipper length (mm)")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .legend_title(
-    ///         Text::from("species")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
+    ///     .x_title("body mass (g)")
+    ///     .y_title("flipper length (mm)")
+    ///     .legend_title("species")
+    ///     .x_axis(&axis_format)
+    ///     .y_axis(&axis_format)
     ///     .build()
     ///     .plot();
     /// ```
     ///
-    /// ![Scatter Plot](https://imgur.com/f5vgrNd.png)
+    /// ![Scatter Plot](https://imgur.com/LQm4we9.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
@@ -98,6 +97,8 @@ impl ScatterPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
         // Layout
         plot_title: Option<Text>,
         x_title: Option<Text>,
@@ -148,6 +149,8 @@ impl ScatterPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 

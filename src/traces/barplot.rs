@@ -170,6 +170,8 @@ impl BarPlot {
 
         let opacity = None;
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_types = None;
 
         let traces = Self::create_traces(
@@ -187,6 +189,8 @@ impl BarPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 
@@ -412,6 +416,8 @@ impl VerticalBarPlot {
 
         let opacity = None;
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_types = None;
 
         let traces = Self::create_traces(
@@ -429,6 +435,8 @@ impl VerticalBarPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 
@@ -603,6 +611,8 @@ impl HorizontalBarPlot {
 
         let opacity = None;
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_type = None;
 
         let traces = Self::create_traces(
@@ -620,6 +630,8 @@ impl HorizontalBarPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_type,
         );
 
