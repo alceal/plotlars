@@ -44,6 +44,7 @@ impl BoxPlot {
     /// * `point_offset` - An optional f64 value specifying the horizontal offset for individual data points when `box_points` is enabled.
     /// * `jitter` - An optional f64 value indicating the amount of jitter (random noise) to apply to individual data points for visibility.
     /// * `opacity` - An optional f64 value specifying the opacity of the plot markers (range: 0.0 to 1.0).
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -56,7 +57,7 @@ impl BoxPlot {
     ///
     /// Returns an instance of `BoxPlot`.
     ///
-    /// # Example
+    /// **Examples**
     ///
     /// ```
     /// BoxPlot::builder()
@@ -153,6 +154,7 @@ impl BoxPlot {
         jitter: Option<f64>,
         // Marker
         opacity: Option<f64>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -200,6 +202,7 @@ impl BoxPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );
@@ -358,6 +361,7 @@ impl VerticalBoxPlot {
     /// * `point_offset` - An optional f64 value specifying the horizontal offset for individual data points when `box_points` is enabled.
     /// * `jitter` - An optional f64 value indicating the amount of jitter (random noise) to apply to individual data points for visibility.
     /// * `opacity` - An optional f64 value specifying the opacity of the plot markers (range: 0.0 to 1.0).
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -370,7 +374,7 @@ impl VerticalBoxPlot {
     ///
     /// Returns an instance of `VerticalBoxPlot`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// VerticalBoxPlot::builder()
@@ -412,7 +416,6 @@ impl VerticalBoxPlot {
     /// ```
     ///
     /// ![Vertical Box Plot](https://imgur.com/0Zn0mFu.png)
-    ///
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
@@ -424,6 +427,7 @@ impl VerticalBoxPlot {
         jitter: Option<f64>,
         // Marker
         opacity: Option<f64>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -472,6 +476,7 @@ impl VerticalBoxPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );
@@ -564,6 +569,7 @@ impl HorizontalBoxPlot {
     /// * `point_offset` - An optional f64 value specifying the horizontal offset for individual data points when `box_points` is enabled.
     /// * `jitter` - An optional f64 value indicating the amount of jitter (random noise) to apply to individual data points for visibility.
     /// * `opacity` - An optional f64 value specifying the opacity of the plot markers (range: 0.0 to 1.0).
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -576,7 +582,7 @@ impl HorizontalBoxPlot {
     ///
     /// Returns an instance of `HorizontalBoxPlot`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// HorizontalBoxPlot::builder()
@@ -618,7 +624,6 @@ impl HorizontalBoxPlot {
     /// ```
     ///
     /// ![Horizontal Box Plot](https://imgur.com/Lu92liU.png)
-    ///
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
@@ -630,6 +635,7 @@ impl HorizontalBoxPlot {
         jitter: Option<f64>,
         // Marker
         opacity: Option<f64>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -678,6 +684,7 @@ impl HorizontalBoxPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_type,
         );

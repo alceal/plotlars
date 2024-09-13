@@ -41,6 +41,7 @@ impl BarPlot {
     /// * `orientation` - An optional `Orientation` enum specifying whether the plot should be horizontal or vertical.
     /// * `group` - An optional string specifying the column name to be used for grouping data points.
     /// * `error` - An optional string specifying the column name containing error values for the y-axis data.
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -53,7 +54,7 @@ impl BarPlot {
     ///
     /// Returns an instance of `BarPlot`.
     ///
-    /// # Example
+    /// **Examples**
     ///
     /// ```
     /// BarPlot::builder()
@@ -63,9 +64,7 @@ impl BarPlot {
     ///     .orientation(Orientation::Vertical)
     ///     .group("gender")
     ///     .error("errors")
-    ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///     ])
+    ///     .color(Rgb(255, 0, 0))
     ///     .plot_title(
     ///         Text::from("Vertical Bar Plot")
     ///             .font("Arial")
@@ -135,6 +134,7 @@ impl BarPlot {
         group: Option<String>,
         error: Option<String>,
         // Marker
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -185,6 +185,7 @@ impl BarPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );
@@ -318,6 +319,7 @@ impl VerticalBarPlot {
     /// * `y` - A string specifying the column name to be used for the y-axis.
     /// * `group` - An optional string specifying the column name to be used for grouping data points.
     /// * `error` - An optional string specifying the column name containing error values for the y-axis data.
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -330,7 +332,7 @@ impl VerticalBarPlot {
     ///
     /// Returns an instance of `VerticalBarPlot`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// VerticalBarPlot::builder()
@@ -339,9 +341,7 @@ impl VerticalBarPlot {
     ///     .y("values")
     ///     .group("gender")
     ///     .error("errors")
-    ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///     ])
+    ///     .color(Rgb(255, 0, 0))
     ///     .plot_title(
     ///         Text::from("Vertical Bar Plot")
     ///             .font("Arial")
@@ -375,6 +375,7 @@ impl VerticalBarPlot {
         group: Option<String>,
         error: Option<String>,
         // Marker
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -426,6 +427,7 @@ impl VerticalBarPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );
@@ -508,6 +510,7 @@ impl HorizontalBarPlot {
     /// * `y` - A string specifying the column name to be used for the y-axis.
     /// * `group` - An optional string specifying the column name to be used for grouping data points.
     /// * `error` - An optional string specifying the column name containing error values for the x-axis data.
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -520,7 +523,7 @@ impl HorizontalBarPlot {
     ///
     /// Returns an instance of `HorizontalBarPlot`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// HorizontalBarPlot::builder()
@@ -529,9 +532,7 @@ impl HorizontalBarPlot {
     ///     .y("animals")
     ///     .group("gender")
     ///     .error("errors")
-    ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///     ])
+    ///     .color(Rgb(255, 0, 0))
     ///     .plot_title(
     ///         Text::from("Horizontal Bar Plot")
     ///             .font("Arial")
@@ -557,7 +558,6 @@ impl HorizontalBarPlot {
     /// ```
     ///
     /// ![Horizontal Bar Plot](https://imgur.com/saoTcNg.png)
-    ///
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
@@ -566,6 +566,7 @@ impl HorizontalBarPlot {
         group: Option<String>,
         error: Option<String>,
         // Marker
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -617,6 +618,7 @@ impl HorizontalBarPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_type,
         );

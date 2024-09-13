@@ -2,7 +2,7 @@ use crate::{Orientation, Rgb};
 
 /// A structure representing a customizable plot legend with properties such as background color, border, font, orientation, and position.
 ///
-/// Examples:
+/// **Example**
 ///
 /// ```
 /// let legend_format = Legend::new()

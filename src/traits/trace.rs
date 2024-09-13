@@ -42,6 +42,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         #[allow(unused_variables)] additional_series: Option<Vec<&str>>,
         opacity: Option<f64>,
         size: Option<usize>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         line_types: Option<Vec<LineType>>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
@@ -59,7 +60,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                 let groups = unique_groups.iter().map(|s| s.as_str());
 
                 for (i, group_name) in groups.enumerate() {
-                    let group_mark = Self::set_color(&mark, &colors, i);
+                    let group_mark = Self::set_color(&mark, &color, &colors, i);
 
                     line = Self::set_line_type(&line, &line_types, i);
 
@@ -85,7 +86,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                 let group_name = None;
                 let mut mark = mark.clone();
 
-                mark = Self::set_color(&mark, &colors, 0);
+                mark = Self::set_color(&mark, &color, &colors, 0);
 
                 let trace = Self::create_trace(
                     data,

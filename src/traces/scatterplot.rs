@@ -33,6 +33,7 @@ impl ScatterPlot {
     /// * `group` - An optional string specifying the column name to be used for grouping data points.
     /// * `opacity` - An optional f64 value specifying the opacity of the plot markers (range: 0.0 to 1.0).
     /// * `size` - An optional `usize` specifying the size of the markers.
+    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
     /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -45,7 +46,7 @@ impl ScatterPlot {
     ///
     /// Returns an instance of `ScatterPlot`.
     ///
-    /// # Example
+    /// **Example**
     ///
     /// ```
     /// ScatterPlot::builder()
@@ -85,7 +86,6 @@ impl ScatterPlot {
     /// ```
     ///
     /// ![Scatter Plot](https://imgur.com/f5vgrNd.png)
-    ///
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
@@ -96,6 +96,7 @@ impl ScatterPlot {
         // Marker
         opacity: Option<f64>,
         size: Option<usize>,
+        color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         // Layout
         plot_title: Option<Text>,
@@ -145,6 +146,7 @@ impl ScatterPlot {
             additional_series,
             opacity,
             size,
+            color,
             colors,
             line_types,
         );
