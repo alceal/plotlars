@@ -128,6 +128,8 @@ impl Histogram {
         let additional_series = None;
 
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_types = None;
 
         let traces = Self::create_traces(
@@ -145,6 +147,8 @@ impl Histogram {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 

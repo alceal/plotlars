@@ -187,6 +187,8 @@ impl BoxPlot {
         let additional_series = None;
 
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_types = None;
 
         let traces = Self::create_traces(
@@ -204,6 +206,8 @@ impl BoxPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 
@@ -461,6 +465,8 @@ impl VerticalBoxPlot {
         let additional_series = None;
 
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_types = None;
 
         let traces = Self::create_traces(
@@ -478,6 +484,8 @@ impl VerticalBoxPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 
@@ -669,6 +677,8 @@ impl HorizontalBoxPlot {
         let additional_series = None;
 
         let size = None;
+        let shape = None;
+        let shapes = None;
         let line_type = None;
 
         let traces = Self::create_traces(
@@ -686,6 +696,8 @@ impl HorizontalBoxPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_type,
         );
 

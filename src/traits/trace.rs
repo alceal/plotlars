@@ -7,7 +7,7 @@ use polars::frame::DataFrame;
 
 use crate::{
     aesthetics::{line::Line, mark::Mark},
-    LineType, Orientation, Rgb,
+    LineType, Orientation, Rgb, Shape,
 };
 
 use crate::traits::polar::Polar;
@@ -44,6 +44,8 @@ pub(crate) trait Trace: Polar + Mark + Line {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
         line_types: Option<Vec<LineType>>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mark = Self::create_marker(opacity, size);
@@ -61,6 +63,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
 
                 for (i, group_name) in groups.enumerate() {
                     let group_mark = Self::set_color(&mark, &color, &colors, i);
+                    let group_mark = Self::set_shape(&group_mark, &shape, &shapes, i);
 
                     line = Self::set_line_type(&line, &line_types, i);
 
@@ -87,6 +90,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                 let mut mark = mark.clone();
 
                 mark = Self::set_color(&mark, &color, &colors, 0);
+                mark = Self::set_shape(&mark, &shape, &shapes, 0);
 
                 let trace = Self::create_trace(
                     data,

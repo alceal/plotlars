@@ -17,7 +17,7 @@ use crate::{
     colors::Rgb,
     texts::Text,
     traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend, Orientation,
+    Axis, Legend, Orientation, Shape,
 };
 
 /// A structure representing a time series plot.
@@ -37,8 +37,10 @@ impl TimeSeriesPlot {
     /// * `y` - A string specifying the column name to be used for the y-axis, typically representing the primary metric.
     /// * `additional_series` - An optional vector of strings specifying additional y-axis columns to be plotted as series.
     /// * `size` - An optional `usize` specifying the size of the markers or line thickness.
-    /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot.
-    /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot lines.
+    /// * `color` - An optional `Rgb` value specifying the color of the marker to be used for the plot.
+    /// * `colors` - An optional vector of `Rgb` values specifying the color for the markers to be used for the plot.
+    /// * `shape` - An optional `Shape` specifying the shape of the markers.
+    /// * `shapes` - An optional `Vec<Shape>` specifying multiple shapes for the markers.
     /// * `line_types` - An optional vector of `LineType` specifying the types of lines (e.g., solid, dashed) for each plotted series.
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
@@ -60,14 +62,9 @@ impl TimeSeriesPlot {
     ///     .y("series_1")
     ///     .additional_series(vec!["series_2"])
     ///     .size(5)
-    ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///         Rgb(0, 255, 0),
-    ///     ])
-    ///     .line_types(vec![
-    ///         LineType::Dash,
-    ///         LineType::Solid,
-    ///     ])
+    ///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
+    ///     .line_types(vec![LineType::Dash, LineType::Solid])
+    ///     .shapes(vec![Shape::Circle, Shape::Square])
     ///     .plot_title(
     ///         Text::from("Time Series Plot")
     ///             .font("Arial")
@@ -92,7 +89,7 @@ impl TimeSeriesPlot {
     ///     .plot();
     /// ```
     ///
-    /// ![Time Series Plot](https://imgur.com/sjxJ2og.png)
+    /// ![Time Series Plot](https://imgur.com/2I3z0Fi.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data
@@ -104,6 +101,8 @@ impl TimeSeriesPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
         line_types: Option<Vec<LineType>>,
         // Layout
         plot_title: Option<Text>,
@@ -155,6 +154,8 @@ impl TimeSeriesPlot {
             size,
             color,
             colors,
+            shape,
+            shapes,
             line_types,
         );
 
@@ -214,6 +215,8 @@ impl Trace for TimeSeriesPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
         line_type: Option<Vec<LineType>>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mut traces: Vec<Box<dyn TracePlotly + 'static>> = Vec::new();
@@ -222,6 +225,9 @@ impl Trace for TimeSeriesPlot {
         let line = Self::create_line();
 
         let series_mark = Self::set_color(&mark, &color, &colors, 0);
+
+        let series_mark = Self::set_shape(&series_mark, &shape, &shapes, 0);
+
         let series_line = Self::set_line_type(&line, &line_type, 0);
 
         let group_name = Some(y_col);
@@ -247,6 +253,8 @@ impl Trace for TimeSeriesPlot {
 
             for (i, series) in additional_series.enumerate() {
                 let series_mark = Self::set_color(&mark, &color, &colors, i + 1);
+
+                let series_mark = Self::set_shape(&series_mark, &shape, &shapes, i + 1);
 
                 let series_line = Self::set_line_type(&line, &line_type, i + 1);
 

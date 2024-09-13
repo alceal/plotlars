@@ -1,6 +1,6 @@
 use plotly::common::Marker;
 
-use crate::Rgb;
+use crate::{Rgb, Shape};
 
 pub(crate) trait Mark {
     fn create_marker(mut opacity: Option<f64>, mut size: Option<usize>) -> Marker {
@@ -38,12 +38,29 @@ pub(crate) trait Mark {
             }
         }
 
-        // if let Some(colors) = colors {
-        //     if let Some(rgb) = colors.get(index) {
-        //         let group_color = plotly::color::Rgb::new(rgb.0, rgb.1, rgb.2);
-        //         updated_marker = updated_marker.color(group_color);
-        //     }
-        // }
+        updated_marker
+    }
+
+    fn set_shape(
+        marker: &Marker,
+        shape: &Option<Shape>,
+        shapes: &Option<Vec<Shape>>,
+        index: usize,
+    ) -> Marker {
+        let mut updated_marker = marker.clone();
+
+        match shape {
+            Some(shape) => {
+                updated_marker = updated_marker.symbol(shape.get_shape());
+            }
+            None => {
+                if let Some(shapes) = shapes {
+                    if let Some(shape) = shapes.get(index) {
+                        updated_marker = updated_marker.symbol(shape.get_shape());
+                    }
+                }
+            }
+        }
 
         updated_marker
     }
