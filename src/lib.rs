@@ -14,7 +14,7 @@ mod traces;
 mod traits;
 
 pub use crate::aesthetics::{line::LineType, orientation::Orientation};
-pub use crate::axis::{Axis, AxisPosition, AxisType, TickDirection, ValueExponent};
+pub use crate::axis::{Axis, AxisSide, AxisType, TickDirection, ValueExponent};
 pub use crate::colors::Rgb;
 pub use crate::legend::Legend;
 pub use crate::shapes::Shape;

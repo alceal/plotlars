@@ -1,5 +1,5 @@
 use plotly::{
-    common::{AxisSide, ExponentFormat},
+    common::{AxisSide as AxisSidePlotly, ExponentFormat},
     layout::{AxisType as AxisTypePlotly, TicksDirection},
 };
 
@@ -69,7 +69,8 @@ use crate::Rgb;
 #[derive(Default, Clone)]
 pub struct Axis {
     pub(crate) show_axis: Option<bool>,
-    pub(crate) axis_position: Option<AxisPosition>,
+    pub(crate) axis_side: Option<AxisSide>,
+    pub(crate) axis_position: Option<f64>,
     pub(crate) axis_type: Option<AxisType>,
     pub(crate) value_color: Option<Rgb>,
     pub(crate) value_range: Option<Vec<f64>>,
@@ -118,16 +119,30 @@ impl Axis {
         self
     }
 
+    /// Sets the side of the axis.
+    ///
+    /// # Arguments
+    ///
+    /// * `side` - An `AxisSide` enum value representing the side of the axis.
+    ///
+    /// # Returns
+    ///
+    /// Returns the `Axis` instance with the updated side.
+    pub fn axis_side(mut self, side: AxisSide) -> Self {
+        self.axis_side = Some(side);
+        self
+    }
+
     /// Sets the position of the axis.
     ///
     /// # Arguments
     ///
-    /// * `position` - An `AxisPosition` enum value representing the position of the axis.
+    /// * `position` - A `f64` value representing the position of the axis.
     ///
     /// # Returns
     ///
     /// Returns the `Axis` instance with the updated position.
-    pub fn axis_position(mut self, position: AxisPosition) -> Self {
+    pub fn axis_position(mut self, position: f64) -> Self {
         self.axis_position = Some(position);
         self
     }
@@ -451,7 +466,7 @@ impl From<&Axis> for Axis {
 #[derive(Clone)]
 pub enum TickDirection {
     OutSide,
-    Inside,
+    InSide,
 }
 
 impl TickDirection {
@@ -463,32 +478,32 @@ impl TickDirection {
     pub fn get_direction(&self) -> TicksDirection {
         match self {
             TickDirection::OutSide => TicksDirection::Outside,
-            TickDirection::Inside => TicksDirection::Inside,
+            TickDirection::InSide => TicksDirection::Inside,
         }
     }
 }
 
 /// Enumeration representing the position of the axis.
 #[derive(Clone)]
-pub enum AxisPosition {
+pub enum AxisSide {
     Top,
     Bottom,
     Left,
     Right,
 }
 
-impl AxisPosition {
+impl AxisSide {
     /// Converts `AxisPosition` to the corresponding `AxisSide` from the `plotly` crate.
     ///
     /// # Returns
     ///
     /// Returns the corresponding `AxisSide`.
-    pub fn get_position(&self) -> AxisSide {
+    pub fn get_side(&self) -> AxisSidePlotly {
         match self {
-            AxisPosition::Top => AxisSide::Top,
-            AxisPosition::Bottom => AxisSide::Bottom,
-            AxisPosition::Left => AxisSide::Left,
-            AxisPosition::Right => AxisSide::Right,
+            AxisSide::Top => AxisSidePlotly::Top,
+            AxisSide::Bottom => AxisSidePlotly::Bottom,
+            AxisSide::Left => AxisSidePlotly::Left,
+            AxisSide::Right => AxisSidePlotly::Right,
         }
     }
 }

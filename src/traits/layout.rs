@@ -103,8 +103,8 @@ pub(crate) trait LayoutPlotly {
             x_axis_format = x_axis_format.visible(visible);
         }
 
-        if let Some(axis_position) = axis_details.axis_position {
-            x_axis_format = x_axis_format.side(axis_position.get_position());
+        if let Some(axis_position) = axis_details.axis_side {
+            x_axis_format = x_axis_format.side(axis_position.get_side());
         }
 
         if let Some(axis_type) = axis_details.axis_type {
@@ -200,6 +200,10 @@ pub(crate) trait LayoutPlotly {
 
         if let Some(zero_line_width) = axis_details.zero_line_width {
             x_axis_format = x_axis_format.zero_line_width(zero_line_width);
+        }
+
+        if let Some(axis_position) = axis_details.axis_position {
+            x_axis_format = x_axis_format.position(axis_position);
         }
 
         x_axis_format
