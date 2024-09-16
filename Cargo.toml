@@ -14,7 +14,11 @@ keywords = ["chart", "plot", "plotly", "polars", "visualization"]
 categories = ["visualization"]
 
 [dependencies]
-bon = "2.2.1"
-plotly = "0.9.1"
-polars = { version = "0.42", features = ["dtype-categorical", "lazy", "strings"] }
+bon = "2.3.0"
+plotly = "0.10.0"
+polars = { version = "0.43.1", features = [
+    "dtype-categorical",
+    "lazy",
+    "strings",
+] }
 serde = "1.0.210"
