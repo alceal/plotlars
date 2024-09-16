@@ -7,7 +7,7 @@ use crate::Rgb;
 
 /// A structure representing an axis with customizable properties such as position, type, color, ticks, and grid lines.
 ///
-/// **Examples**
+/// **Example**
 ///
 /// ```
 /// let axis_format = Axis::new()
@@ -39,33 +39,7 @@ use crate::Rgb;
 ///     .plot();
 /// ```
 ///
-/// ![example 1](https://imgur.com/YvfFQfb.png)
-///
-/// ```
-/// let axis_format = Axis::new()
-///     .axis_type(AxisType::Log)
-///     .show_line(true)
-///     .tick_direction(TickDirection::OutSide)
-///     .value_exponent(plotlars::ValueExponent::Power)
-///     .axis_position(AxisPosition::Right);
-///
-/// LinePlot::builder()
-///     .data(&log_log_dataset)
-///     .x("x")
-///     .y("y")
-///     .x_axis(&axis_format)
-///     .y_axis(&axis_format)
-///     .plot_title(
-///         Text::from("log-log Plot")
-///             .font("Arial")
-///             .size(20)
-///             .x(0.955)
-///     )
-///     .build()
-///     .plot();
-/// ```
-///
-/// ![example 2](https://imgur.com/CbFCEB2.png)
+/// ![example](https://imgur.com/9jfO8RU.png)
 #[derive(Default, Clone)]
 pub struct Axis {
     pub(crate) show_axis: Option<bool>,
