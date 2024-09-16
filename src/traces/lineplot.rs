@@ -47,9 +47,9 @@ impl LinePlot {
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
-    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
@@ -60,28 +60,37 @@ impl LinePlot {
     ///
     /// ```
     /// LinePlot::builder()
-    ///     .data(&dataset)
+    ///     .data(&lineplot_dataset)
     ///     .x("x")
     ///     .y("sine")
     ///     .additional_lines(vec!["cosine"])
     ///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
     ///     .line_types(vec![LineType::Solid, LineType::Dot])
-    ///     .line_width(5.0)
+    ///     .line_width(3.0)
     ///     .with_shape(false)
     ///     .plot_title(
     ///         Text::from("Line Plot")
     ///             .font("Arial")
     ///             .size(18)
     ///     )
-    ///     .x_title(
-    ///         Text::from("x")
-    ///             .font("Arial")
-    ///             .size(15)
+    ///     .x_axis(
+    ///        &Axis::new()
+    ///            .tick_direction(TickDirection::OutSide)
+    ///            .axis_position(0.5)
+    ///            .tick_values(vec![
+    ///                0.5 * std::f64::consts::PI,
+    ///                std::f64::consts::PI,
+    ///                1.5 * std::f64::consts::PI,
+    ///                2.0 * std::f64::consts::PI,
+    ///            ])
+    ///            .tick_labels(vec!["π/2", "π", "3π/2", "2π"])
     ///     )
-    ///     .y_title(
-    ///         Text::from("y")
-    ///             .font("Arial")
-    ///             .size(15)
+    ///     .y_axis(
+    ///        &Axis::new()
+    ///            .tick_direction(TickDirection::OutSide)
+    ///            .clone()
+    ///            .tick_values(vec![-1.0, 0.0, 1.0])
+    ///            .tick_labels(vec!["-1", "0", "1"])
     ///     )
     ///     .legend_title(
     ///         Text::from("series")
@@ -92,7 +101,7 @@ impl LinePlot {
     ///     .plot();
     /// ```
     ///
-    /// ![Line Plot](https://imgur.com/0mqVyqX.png)
+    /// ![Line Plot](https://imgur.com/PaXG300.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data

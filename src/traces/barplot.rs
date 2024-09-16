@@ -46,26 +46,31 @@ impl BarPlot {
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
-    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
     ///
     /// Returns an instance of `BarPlot`.
     ///
-    /// **Examples**
+    /// **Example**
     ///
     /// ```
+    /// let legend = Legend::new()
+    ///     .orientation(Orientation::Horizontal)
+    ///     .y(1.0)
+    ///     .x(0.4);
+    ///
     /// BarPlot::builder()
-    ///     .data(&dataset)
+    ///     .data(&barplot_dataset)
     ///     .labels("animals")
     ///     .values("values")
     ///     .orientation(Orientation::Vertical)
     ///     .group("gender")
     ///     .error("errors")
-    ///     .color(Rgb(255, 0, 0))
+    ///     .colors(vec![Rgb(255, 127, 80), Rgb(64, 224, 208)])
     ///     .plot_title(
     ///         Text::from("Vertical Bar Plot")
     ///             .font("Arial")
@@ -86,46 +91,12 @@ impl BarPlot {
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .legend(&legend)
     ///     .build()
     ///     .plot();
     /// ```
     ///
-    /// ![Vertical Bar Plot](https://imgur.com/Fd6DpB0.png)
-    ///
-    /// ```
-    /// BarPlot::builder()
-    ///     .data(&dataset)
-    ///     .labels("animals")
-    ///     .values("values")
-    ///     .orientation(Orientation::Horizontal)
-    ///     .group("gender")
-    ///     .error("errors")
-    ///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
-    ///     .plot_title(
-    ///         Text::from("Horizontal Bar Plot")
-    ///             .font("Arial")
-    ///             .size(18)
-    ///     )
-    ///     .x_title(
-    ///         Text::from("value")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .y_title(
-    ///         Text::from("animal")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .legend_title(
-    ///         Text::from("gender")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .build()
-    ///     .plot();
-    /// ```
-    ///
-    /// ![Horizontal Bar Plot](https://imgur.com/saoTcNg.png)
+    /// ![Bar Plot](https://imgur.com/2alZlO5.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
