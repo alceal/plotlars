@@ -1,4 +1,4 @@
-//! This module provides implementations for vertical and horizontal box plots using the Plotly library.
+//! This module provides implementations for box plots using the Plotly library.
 //!
 //! The `BoxPlot` structs allow for the creation and customization of box plots
 //! with various options for data, layout, and aesthetics.
