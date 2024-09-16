@@ -47,9 +47,9 @@ impl TimeSeriesPlot {
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
-    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
@@ -60,7 +60,7 @@ impl TimeSeriesPlot {
     ///
     /// ```
     /// TimeSeriesPlot::builder()
-    ///     .data(&dataset)
+    ///     .data(&timeseries_dataset)
     ///     .x("date")
     ///     .y("series_1")
     ///     .additional_series(vec!["series_2"])
@@ -88,11 +88,16 @@ impl TimeSeriesPlot {
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .legend(
+    ///         &Legend::new()
+    ///             .x(0.05)
+    ///             .y(0.9)
+    ///     )
     ///     .build()
     ///     .plot();
     /// ```
     ///
-    /// ![Time Series Plot](https://imgur.com/2I3z0Fi.png)
+    /// ![Time Series Plot](https://imgur.com/k0FShJp.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data

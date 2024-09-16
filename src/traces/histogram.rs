@@ -38,9 +38,9 @@ impl Histogram {
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
-    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
@@ -50,15 +50,24 @@ impl Histogram {
     /// **Example**
     ///
     /// ```
+    /// let axis_format = Axis::new()
+    ///     .show_line(true)
+    ///     .show_grid(true)
+    ///     .value_thousands(true)
+    ///     .tick_direction(TickDirection::OutSide);
+    ///
+    /// let legend_format = Legend::new()
+    ///     .x(0.9);
+    ///
     /// Histogram::builder()
-    ///     .data(&dataset)
+    ///     .data(&scatterplot_dataset)
     ///     .x("body_mass_g")
     ///     .group("species")
     ///     .opacity(0.5)
     ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///         Rgb(0, 255, 0),
-    ///         Rgb(0, 0, 255),
+    ///         Rgb(255, 165, 0),
+    ///         Rgb(147, 112, 219),
+    ///         Rgb(46, 139, 87),
     ///     ])
     ///     .plot_title(
     ///         Text::from("Histogram")
@@ -70,21 +79,24 @@ impl Histogram {
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .x_axis(&axis_format)
     ///     .y_title(
     ///         Text::from("count")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .y_axis(&axis_format)
     ///     .legend_title(
     ///         Text::from("species")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .legend(&legend_format)
     ///     .build()
     ///     .plot();
     /// ```
     ///
-    /// ![Histogram](https://imgur.com/ZNomy9V.png)
+    /// ![Histogram](https://imgur.com/w2oiuIo.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,

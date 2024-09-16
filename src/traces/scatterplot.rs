@@ -40,9 +40,9 @@ impl ScatterPlot {
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
-    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
@@ -58,34 +58,39 @@ impl ScatterPlot {
     ///     .value_thousands(true);
     ///
     /// ScatterPlot::builder()
-    ///     .data(&dataset)
+    ///     .data(&scatterplot_dataset)
     ///     .x("body_mass_g")
     ///     .y("flipper_length_mm")
     ///     .group("species")
     ///     .opacity(0.5)
     ///     .size(12)
     ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///         Rgb(0, 255, 0),
-    ///         Rgb(0, 0, 255),
+    ///         Rgb(178, 34, 34),
+    ///         Rgb(65, 105, 225),
+    ///         Rgb(255, 140, 0),
     ///     ])
     ///     .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
     ///     .plot_title(
     ///         Text::from("Scatter Plot")
     ///             .font("Arial")
     ///             .size(20)
-    ///             .x(0.045)
+    ///             .x(0.065)
     ///     )
     ///     .x_title("body mass (g)")
     ///     .y_title("flipper length (mm)")
     ///     .legend_title("species")
-    ///     .x_axis(&axis_format)
-    ///     .y_axis(&axis_format)
+    ///     .x_axis(&axis_format.clone().value_range(vec![2500.0, 6500.0]))
+    ///     .y_axis(&axis_format.clone().value_range(vec![170.0, 240.0]))
+    ///     .legend(
+    ///         &Legend::new()
+    ///             .x(0.85)
+    ///             .y(0.15)
+    ///     )
     ///     .build()
     ///     .plot();
     /// ```
     ///
-    /// ![Scatter Plot](https://imgur.com/LQm4we9.png)
+    /// ![Scatter Plot](https://imgur.com/9jfO8RU.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         // Data

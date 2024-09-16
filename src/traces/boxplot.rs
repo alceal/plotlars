@@ -49,20 +49,27 @@ impl BoxPlot {
     /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
     /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
     /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
-    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
     /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+    /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
     /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
     ///
     /// # Returns
     ///
     /// Returns an instance of `BoxPlot`.
     ///
-    /// **Examples**
+    /// **Example**
     ///
     /// ```
+    /// let axis_format = Axis::new()
+    ///     .value_thousands(true);
+    ///
+    /// let legend_format = Legend::new()
+    ///     .border_width(1)
+    ///     .x(0.9);
+    ///
     /// BoxPlot::builder()
-    ///     .data(&dataset)
+    ///     .data(&scatterplot_dataset)
     ///     .labels("species")
     ///     .values("body_mass_g")
     ///     .orientation(Orientation::Vertical)
@@ -72,12 +79,12 @@ impl BoxPlot {
     ///     .jitter(0.01)
     ///     .opacity(0.1)
     ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///         Rgb(0, 255, 0),
-    ///         Rgb(0, 0, 255),
+    ///         Rgb(0, 191, 255),
+    ///         Rgb(57, 255, 20),
+    ///         Rgb(255, 105, 180),
     ///     ])
     ///     .plot_title(
-    ///         Text::from("Vertical Box Plot")
+    ///         Text::from("Box Plot")
     ///             .font("Arial")
     ///             .size(18)
     ///     )
@@ -91,58 +98,18 @@ impl BoxPlot {
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .y_axis(&axis_format)
     ///     .legend_title(
     ///         Text::from("gender")
     ///             .font("Arial")
     ///             .size(15)
     ///     )
+    ///     .legend(&legend_format)
     ///     .build()
     ///     .plot();
     /// ```
     ///
-    /// ![Vertical Box Plot](https://imgur.com/0Zn0mFu.png)
-    ///
-    /// ```
-    /// BoxPlot::builder()
-    ///     .data(&dataset)
-    ///     .labels("species")
-    ///     .values("body_mass_g")
-    ///     .orientation(Orientation::Horizontal)
-    ///     .group("gender")
-    ///     .box_points(true)
-    ///     .point_offset(-1.5)
-    ///     .jitter(0.01)
-    ///     .opacity(0.1)
-    ///     .colors(vec![
-    ///         Rgb(255, 0, 0),
-    ///         Rgb(0, 255, 0),
-    ///         Rgb(0, 0, 255),
-    ///     ])
-    ///     .plot_title(
-    ///         Text::from("Horizontal Box Plot")
-    ///             .font("Arial")
-    ///             .size(18)
-    ///     )
-    ///     .x_title(
-    ///         Text::from("body mass (g)")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .y_title(
-    ///         Text::from("species")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .legend_title(
-    ///         Text::from("gender")
-    ///             .font("Arial")
-    ///             .size(15)
-    ///     )
-    ///     .build()
-    ///     .plot();
-    /// ```
-    ///
-    /// ![Horizontal Box Plot](https://imgur.com/Lu92liU.png)
+    /// ![Box Plot](https://imgur.com/uj1LY90.png)
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
