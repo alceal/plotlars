@@ -20,7 +20,7 @@
 >
 > ```toml
 > [dependencies]
-> plotlars = { git = "https://github.com/user/plotlars", branch = "fix/polars-issue" }
+> plotlars = { git = "https://github.com/alceal/plotlars", branch = "fix/polars-issue" }
 > ```
 >
 > If you’re using a Rust notebook, you can include the dependency using:
