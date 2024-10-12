@@ -11,6 +11,23 @@
     </a>
 </p>
 
+> ## <span style="color: red; font-weight: bold;">⚠️ Important Note</span>
+>
+> **Due to an issue in the `polars` crate, you must install the `plotlars` crate
+> from its GitHub repository to ensure proper functionality.**
+>
+> To include the GitHub version of `plotlars` with the fix in your project, add the following line to your `Cargo.toml` file, specifying the `fix/polars-issue` branch:
+>
+> ```toml
+> [dependencies]
+> plotlars = { git = "https://github.com/user/plotlars", branch = "fix/polars-issue" }
+> ```
+>
+> If you’re using a Rust notebook, you can include the dependency using:
+>```
+> :dep plotlars = { git = "https://github.com/alceal/plotlars", branch = "fix/polars-issue" }
+> ```
+
 Plotlars is a versatile Rust library that acts as a wrapper around the Plotly
 crate, bridging the gap between the powerful Polars data analysis library and
 Plotly. It simplifies the process of creating visualizations from data frames,

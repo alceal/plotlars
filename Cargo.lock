@@ -846,7 +846,7 @@ dependencies = [
 
 [[package]]
 name = "plotlars"
-version = "0.5.0"
+version = "0.5.2"
 dependencies = [
  "bon",
  "plotly",
