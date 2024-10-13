@@ -15,8 +15,9 @@ categories = ["visualization"]
 
 [dependencies]
 bon = "2.3.0"
+ndarray = "0.16.1"
 plotly = "0.10.0"
-polars = { version = "0.43.1", features = [
+polars = { git = "https://github.com/pola-rs/polars", rev = "1fa409c6c903c82a7265527c08a0683e2c2a3083", features = [
     "dtype-categorical",
     "lazy",
     "strings",
