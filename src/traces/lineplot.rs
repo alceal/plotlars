@@ -1,7 +1,7 @@
 use bon::bon;
 use plotly::{
     common::{Line as LinePlotly, Marker, Mode},
-    Layout, Scatter, Trace as TracePlotly,
+    Layout as LayoutPlotly, Scatter, Trace as TracePlotly,
 };
 
 use polars::{
@@ -16,14 +16,14 @@ use crate::{
     },
     colors::Rgb,
     texts::Text,
-    traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend, Orientation, Shape,
+    traits::{layout::Layout, plot::Plot, polar::Polar, trace::Trace},
+    Axis, ColorBar, Legend, Orientation, Shape,
 };
 
 /// A structure representing a line plot.
 pub struct LinePlot {
     traces: Vec<Box<dyn TracePlotly + 'static>>,
-    layout: Layout,
+    layout: LayoutPlotly,
 }
 
 #[bon]
@@ -144,6 +144,8 @@ impl LinePlot {
             legend,
         );
 
+        let z_column = "";
+
         // Trace
         let orientation = None;
         let group = None;
@@ -152,11 +154,13 @@ impl LinePlot {
         let point_offset = None;
         let jitter = None;
         let opacity = None;
+        let color_bar = None;
 
         let traces = Self::create_traces(
             data,
             x_col,
             y_col,
+            z_column,
             orientation,
             group,
             error,
@@ -173,13 +177,14 @@ impl LinePlot {
             shapes,
             line_types,
             line_width,
+            color_bar,
         );
 
         Self { traces, layout }
     }
 }
 
-impl LayoutPlotly for LinePlot {}
+impl Layout for LinePlot {}
 impl Polar for LinePlot {}
 impl Mark for LinePlot {}
 impl Line for LinePlot {}
@@ -189,6 +194,7 @@ impl Trace for LinePlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        #[allow(unused_variables)] z_col: &str,
         #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
@@ -198,6 +204,7 @@ impl Trace for LinePlot {
         with_shape: Option<bool>,
         marker: Marker,
         line: LinePlotly,
+        #[allow(unused_variables)] color_bar: Option<&ColorBar>,
     ) -> Box<dyn TracePlotly + 'static> {
         let x_data = Self::get_numeric_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
@@ -226,6 +233,7 @@ impl Trace for LinePlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        z_col: &str,
         orientation: Option<Orientation>,
         #[allow(unused_variables)] group: Option<String>,
         error: Option<String>,
@@ -242,6 +250,7 @@ impl Trace for LinePlot {
         shapes: Option<Vec<Shape>>,
         line_type: Option<Vec<LineType>>,
         line_width: Option<f64>,
+        color_bar: Option<&ColorBar>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mut traces: Vec<Box<dyn TracePlotly + 'static>> = Vec::new();
 
@@ -260,6 +269,7 @@ impl Trace for LinePlot {
             data,
             x_col,
             y_col,
+            z_col,
             orientation.clone(),
             group_name,
             error.clone(),
@@ -269,6 +279,7 @@ impl Trace for LinePlot {
             with_shape,
             series_mark,
             series_line,
+            color_bar,
         );
 
         traces.push(trace);
@@ -296,6 +307,7 @@ impl Trace for LinePlot {
                     &subset,
                     x_col,
                     series,
+                    z_col,
                     orientation.clone(),
                     group_name,
                     error.clone(),
@@ -305,6 +317,7 @@ impl Trace for LinePlot {
                     with_shape,
                     series_mark,
                     series_line,
+                    color_bar,
                 );
 
                 traces.push(trace);
@@ -316,7 +329,7 @@ impl Trace for LinePlot {
 }
 
 impl Plot for LinePlot {
-    fn get_layout(&self) -> &Layout {
+    fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }
 

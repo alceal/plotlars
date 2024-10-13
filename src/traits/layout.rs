@@ -2,13 +2,13 @@ use plotly::{
     color::Rgb as RgbPlotly,
     common::{Font, Title},
     layout::{Axis as AxisPlotly, BarMode, BoxMode, Legend as LegendPlotly},
-    Layout,
+    Layout as LayoutPlotly,
 };
 
 use crate::{Axis, Legend, Text};
 
 #[allow(clippy::too_many_arguments)]
-pub(crate) trait LayoutPlotly {
+pub(crate) trait Layout {
     fn create_layout(
         bar_mode: Option<BarMode>,
         plot_title: Option<Text>,
@@ -18,8 +18,8 @@ pub(crate) trait LayoutPlotly {
         y_axis: Option<&Axis>,
         legend_title: Option<Text>,
         legend: Option<&Legend>,
-    ) -> Layout {
-        let mut layout = Layout::new().box_mode(BoxMode::Group);
+    ) -> LayoutPlotly {
+        let mut layout = LayoutPlotly::new().box_mode(BoxMode::Group);
         let mut x_axis_format = AxisPlotly::new();
         let mut y_axis_format = AxisPlotly::new();
         let mut legend_format = LegendPlotly::new();

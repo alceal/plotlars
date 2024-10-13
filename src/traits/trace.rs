@@ -7,7 +7,7 @@ use polars::frame::DataFrame;
 
 use crate::{
     aesthetics::{line::Line, mark::Mark},
-    LineType, Orientation, Rgb, Shape,
+    ColorBar, LineType, Orientation, Rgb, Shape,
 };
 
 use crate::traits::polar::Polar;
@@ -18,6 +18,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        z_col: &str,
         orientation: Option<Orientation>,
         group_name: Option<&str>,
         error: Option<String>,
@@ -27,6 +28,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         with_shape: Option<bool>,
         marker: Marker,
         line: LinePlotly,
+        color_bar: Option<&ColorBar>,
     ) -> Box<dyn TracePlotly + 'static>;
 
     #[allow(clippy::too_many_arguments)]
@@ -34,6 +36,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        z_col: &str,
         orientation: Option<Orientation>,
         group: Option<String>,
         error: Option<String>,
@@ -50,6 +53,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
         shapes: Option<Vec<Shape>>,
         line_types: Option<Vec<LineType>>,
         line_width: Option<f64>,
+        color_bar: Option<&ColorBar>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mark = Self::create_marker(opacity, size);
         let mut line = Self::create_line();
@@ -76,6 +80,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                         &subset,
                         x_col,
                         y_col,
+                        z_col,
                         orientation.clone(),
                         Some(group_name),
                         error.clone(),
@@ -85,6 +90,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                         with_shape,
                         group_mark,
                         line.clone(),
+                        color_bar,
                     );
                     traces.push(trace);
                 }
@@ -100,6 +106,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                     data,
                     x_col,
                     y_col,
+                    z_col,
                     orientation,
                     group_name,
                     error,
@@ -109,6 +116,7 @@ pub(crate) trait Trace: Polar + Mark + Line {
                     with_shape,
                     mark,
                     line,
+                    color_bar,
                 );
 
                 traces.push(trace);

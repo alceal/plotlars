@@ -4,7 +4,7 @@ use plotly::{
     common::{Line as LinePlotly, Marker},
     histogram::HistFunc,
     layout::BarMode,
-    Histogram as HistogramPlotly, Layout, Trace as TracePlotly,
+    Histogram as HistogramPlotly, Layout as LayoutPlotly, Trace as TracePlotly,
 };
 
 use polars::frame::DataFrame;
@@ -13,14 +13,14 @@ use crate::{
     aesthetics::{line::Line, mark::Mark},
     colors::Rgb,
     texts::Text,
-    traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend, Orientation,
+    traits::{layout::Layout, plot::Plot, polar::Polar, trace::Trace},
+    Axis, ColorBar, Legend, Orientation,
 };
 
 /// A structure representing a histogram.
 pub struct Histogram {
     traces: Vec<Box<dyn TracePlotly + 'static>>,
-    layout: Layout,
+    layout: LayoutPlotly,
 }
 
 #[bon]
@@ -131,6 +131,8 @@ impl Histogram {
             legend,
         );
 
+        let z_column = "";
+
         // Trace
         let y_col = "";
         let orientation = None;
@@ -146,11 +148,13 @@ impl Histogram {
         let shapes = None;
         let line_types = None;
         let line_width = None;
+        let color_bar = None;
 
         let traces = Self::create_traces(
             data,
             x_col,
             y_col,
+            z_column,
             orientation,
             group,
             error,
@@ -167,13 +171,14 @@ impl Histogram {
             shapes,
             line_types,
             line_width,
+            color_bar,
         );
 
         Self { traces, layout }
     }
 }
 
-impl LayoutPlotly for Histogram {}
+impl Layout for Histogram {}
 impl Polar for Histogram {}
 impl Mark for Histogram {}
 impl Line for Histogram {}
@@ -183,6 +188,7 @@ impl Trace for Histogram {
         data: &DataFrame,
         x_col: &str,
         #[allow(unused_variables)] y_col: &str,
+        #[allow(unused_variables)] z_col: &str,
         #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
@@ -192,6 +198,7 @@ impl Trace for Histogram {
         #[allow(unused_variables)] with_shape: Option<bool>,
         marker: Marker,
         #[allow(unused_variables)] line: LinePlotly,
+        #[allow(unused_variables)] color_bar: Option<&ColorBar>,
     ) -> Box<dyn TracePlotly + 'static> {
         let x_data = Self::get_numeric_column(data, x_col);
 
@@ -210,7 +217,7 @@ impl Trace for Histogram {
 }
 
 impl Plot for Histogram {
-    fn get_layout(&self) -> &Layout {
+    fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }
 

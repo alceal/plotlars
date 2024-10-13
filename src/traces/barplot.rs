@@ -8,7 +8,7 @@ use bon::bon;
 use plotly::{
     common::{ErrorData, ErrorType, Line as LinePlotly, Marker},
     layout::BarMode,
-    Bar, Layout, Trace as TracePlotly,
+    Bar, Layout as LayoutPlotly, Trace as TracePlotly,
 };
 
 use polars::frame::DataFrame;
@@ -17,14 +17,14 @@ use crate::{
     aesthetics::{line::Line, mark::Mark},
     colors::Rgb,
     texts::Text,
-    traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend, Orientation,
+    traits::{layout::Layout, plot::Plot, polar::Polar, trace::Trace},
+    Axis, ColorBar, Legend, Orientation,
 };
 
 /// A structure representing a bar plot.
 pub struct BarPlot {
     traces: Vec<Box<dyn TracePlotly + 'static>>,
-    layout: Layout,
+    layout: LayoutPlotly,
 }
 
 #[bon]
@@ -132,6 +132,8 @@ impl BarPlot {
             legend,
         );
 
+        let z_column = "";
+
         // Trace
         let box_points = None;
         let point_offset = None;
@@ -145,11 +147,13 @@ impl BarPlot {
         let shapes = None;
         let line_types = None;
         let line_width = None;
+        let color_bar = None;
 
         let traces = Self::create_traces(
             data,
             value_column,
             label_column,
+            z_column,
             orientation,
             group,
             error,
@@ -166,13 +170,14 @@ impl BarPlot {
             shapes,
             line_types,
             line_width,
+            color_bar,
         );
 
         Self { traces, layout }
     }
 }
 
-impl LayoutPlotly for BarPlot {}
+impl Layout for BarPlot {}
 impl Polar for BarPlot {}
 impl Mark for BarPlot {}
 impl Line for BarPlot {}
@@ -182,6 +187,7 @@ impl Trace for BarPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        #[allow(unused_variables)] z_col: &str,
         orientation: Option<Orientation>,
         group_name: Option<&str>,
         error: Option<String>,
@@ -191,6 +197,7 @@ impl Trace for BarPlot {
         #[allow(unused_variables)] with_shape: Option<bool>,
         marker: Marker,
         #[allow(unused_variables)] line: LinePlotly,
+        #[allow(unused_variables)] color_bar: Option<&ColorBar>,
     ) -> Box<dyn TracePlotly + 'static> {
         let value_data = Self::get_numeric_column(data, x_col);
         let category_data = Self::get_string_column(data, y_col);
@@ -269,7 +276,7 @@ impl Trace for BarPlot {
 }
 
 impl Plot for BarPlot {
-    fn get_layout(&self) -> &Layout {
+    fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }
 

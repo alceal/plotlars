@@ -1,7 +1,7 @@
 use bon::bon;
 use plotly::{
     common::{Line as LinePlotly, Marker, Mode},
-    Layout, Scatter, Trace as TracePlotly,
+    Layout as LayoutPlotly, Scatter, Trace as TracePlotly,
 };
 
 use polars::{
@@ -16,14 +16,14 @@ use crate::{
     },
     colors::Rgb,
     texts::Text,
-    traits::{layout::LayoutPlotly, plot::Plot, polar::Polar, trace::Trace},
-    Axis, Legend, Orientation, Shape,
+    traits::{layout::Layout, plot::Plot, polar::Polar, trace::Trace},
+    Axis, ColorBar, Legend, Orientation, Shape,
 };
 
 /// A structure representing a time series plot.
 pub struct TimeSeriesPlot {
     traces: Vec<Box<dyn TracePlotly + 'static>>,
-    layout: Layout,
+    layout: LayoutPlotly,
 }
 
 #[bon]
@@ -140,6 +140,8 @@ impl TimeSeriesPlot {
             legend,
         );
 
+        let z_column = "";
+
         // Trace
         let orientation = None;
         let group = None;
@@ -148,11 +150,13 @@ impl TimeSeriesPlot {
         let point_offset = None;
         let jitter = None;
         let opacity = None;
+        let color_bar = None;
 
         let traces = Self::create_traces(
             data,
             x_col,
             y_col,
+            z_column,
             orientation,
             group,
             error,
@@ -169,13 +173,14 @@ impl TimeSeriesPlot {
             shapes,
             line_types,
             line_width,
+            color_bar,
         );
 
         Self { traces, layout }
     }
 }
 
-impl LayoutPlotly for TimeSeriesPlot {}
+impl Layout for TimeSeriesPlot {}
 impl Polar for TimeSeriesPlot {}
 impl Mark for TimeSeriesPlot {}
 impl Line for TimeSeriesPlot {}
@@ -185,6 +190,7 @@ impl Trace for TimeSeriesPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        #[allow(unused_variables)] z_col: &str,
         #[allow(unused_variables)] orientation: Option<Orientation>,
         group_name: Option<&str>,
         #[allow(unused_variables)] error: Option<String>,
@@ -194,6 +200,7 @@ impl Trace for TimeSeriesPlot {
         with_shape: Option<bool>,
         marker: Marker,
         line: LinePlotly,
+        #[allow(unused_variables)] color_bar: Option<&ColorBar>,
     ) -> Box<dyn TracePlotly + 'static> {
         let x_data = Self::get_string_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
@@ -222,6 +229,7 @@ impl Trace for TimeSeriesPlot {
         data: &DataFrame,
         x_col: &str,
         y_col: &str,
+        z_col: &str,
         orientation: Option<Orientation>,
         #[allow(unused_variables)] group: Option<String>,
         error: Option<String>,
@@ -238,6 +246,7 @@ impl Trace for TimeSeriesPlot {
         shapes: Option<Vec<Shape>>,
         line_type: Option<Vec<LineType>>,
         line_width: Option<f64>,
+        color_bar: Option<&ColorBar>,
     ) -> Vec<Box<dyn TracePlotly + 'static>> {
         let mut traces: Vec<Box<dyn TracePlotly + 'static>> = Vec::new();
 
@@ -256,6 +265,7 @@ impl Trace for TimeSeriesPlot {
             data,
             x_col,
             y_col,
+            z_col,
             orientation.clone(),
             group_name,
             error.clone(),
@@ -265,6 +275,7 @@ impl Trace for TimeSeriesPlot {
             with_shape,
             series_mark,
             series_line,
+            color_bar,
         );
 
         traces.push(trace);
@@ -292,6 +303,7 @@ impl Trace for TimeSeriesPlot {
                     &subset,
                     x_col,
                     series,
+                    z_col,
                     orientation.clone(),
                     group_name,
                     error.clone(),
@@ -301,6 +313,7 @@ impl Trace for TimeSeriesPlot {
                     with_shape,
                     series_mark,
                     series_line,
+                    color_bar,
                 );
 
                 traces.push(trace);
@@ -312,7 +325,7 @@ impl Trace for TimeSeriesPlot {
 }
 
 impl Plot for TimeSeriesPlot {
-    fn get_layout(&self) -> &Layout {
+    fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }
 
