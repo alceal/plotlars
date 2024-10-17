@@ -148,7 +148,7 @@ impl BoxPlot {
             legend,
         );
 
-        let z_column = "";
+        let z_col = "";
 
         // Trace
         let error = None;
@@ -166,7 +166,7 @@ impl BoxPlot {
             data,
             value_column,
             label_column,
-            z_column,
+            z_col,
             orientation,
             group,
             error,

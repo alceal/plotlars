@@ -131,7 +131,7 @@ impl Histogram {
             legend,
         );
 
-        let z_column = "";
+        let z_col = "";
 
         // Trace
         let y_col = "";
@@ -154,7 +154,7 @@ impl Histogram {
             data,
             x_col,
             y_col,
-            z_column,
+            z_col,
             orientation,
             group,
             error,

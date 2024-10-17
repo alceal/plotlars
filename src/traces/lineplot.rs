@@ -144,7 +144,7 @@ impl LinePlot {
             legend,
         );
 
-        let z_column = "";
+        let z_col = "";
 
         // Trace
         let orientation = None;
@@ -160,7 +160,7 @@ impl LinePlot {
             data,
             x_col,
             y_col,
-            z_column,
+            z_col,
             orientation,
             group,
             error,

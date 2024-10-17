@@ -37,6 +37,11 @@ impl ColorBar {
         self
     }
 
+    // pub fn value_exponent(mut self, exponent: ValueExponent) -> Self {
+    //     self.value_exponent = Some(exponent);
+    //     self
+    // }
+
     pub fn x(mut self, x: f64) -> Self {
         self.x = Some(x);
         self

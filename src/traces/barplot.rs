@@ -132,7 +132,7 @@ impl BarPlot {
             legend,
         );
 
-        let z_column = "";
+        let z_col = "";
 
         // Trace
         let box_points = None;
@@ -153,7 +153,7 @@ impl BarPlot {
             data,
             value_column,
             label_column,
-            z_column,
+            z_col,
             orientation,
             group,
             error,
