@@ -17,7 +17,7 @@ categories = ["visualization"]
 bon = "2.3.0"
 plotly = "0.10.0"
 polars = { version = "0.43.1", features = [
-    "dtype-categorical",
+    # "dtype-categorical",
     "lazy",
     "strings",
 ] }
