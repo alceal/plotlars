@@ -140,8 +140,13 @@ fn main() {
         .x("body_mass_g")
         .y("flipper_length_mm")
         .group("species")
-        .size(10)
         .opacity(0.5)
+        .size(12)
+        .colors(vec![
+            Rgb(178, 34, 34),
+            Rgb(65, 105, 225),
+            Rgb(255, 140, 0),
+        ])
         .plot_title("Penguin Flipper Length vs Body Mass")
         .x_title("Body Mass (g)")
         .y_title("Flipper Length (mm)")
@@ -153,7 +158,7 @@ fn main() {
 
 This is the output:
 
-![Plot example](https://imgur.com/PkQ9fsc.png)
+![Plot example](https://imgur.com/QMkmhNh.png)
 
 With Plotlars, the same scatter plot is created with significantly less code.
 The library abstracts away the complexities of dealing with individual plot

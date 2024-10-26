@@ -1,28 +1,22 @@
 #![doc = include_str!("../README.md")]
-#![allow(clippy::needless_doctest_main, deprecated)]
+#![allow(clippy::needless_doctest_main)]
 
-#[macro_use]
-mod macros;
+mod common;
+mod components;
+mod plots;
 
-mod aesthetics;
-mod axis;
-mod colors;
-mod legend;
-mod shapes;
-mod texts;
-mod traces;
-mod traits;
-
-pub use crate::aesthetics::{line::LineType, orientation::Orientation};
-pub use crate::axis::{Axis, AxisSide, AxisType, TickDirection, ValueExponent};
-pub use crate::colors::Rgb;
-pub use crate::legend::Legend;
-pub use crate::shapes::Shape;
-pub use crate::texts::Text;
-pub use crate::traces::barplot::BarPlot;
-pub use crate::traces::boxplot::BoxPlot;
-pub use crate::traces::histogram::Histogram;
-pub use crate::traces::lineplot::LinePlot;
-pub use crate::traces::scatterplot::ScatterPlot;
-pub use crate::traces::timeseriesplot::TimeSeriesPlot;
-pub use crate::traits::plot::Plot;
+pub use crate::common::plot::Plot;
+pub use crate::components::axis::{Axis, AxisSide, AxisType, TickDirection};
+pub use crate::components::color::Rgb;
+pub use crate::components::exponent::ValueExponent;
+pub use crate::components::legend::Legend;
+pub use crate::components::line::Line;
+pub use crate::components::orientation::Orientation;
+pub use crate::components::shape::Shape;
+pub use crate::components::text::Text;
+pub use crate::plots::barplot::BarPlot;
+pub use crate::plots::boxplot::BoxPlot;
+pub use crate::plots::histogram::Histogram;
+pub use crate::plots::lineplot::LinePlot;
+pub use crate::plots::scatterplot::ScatterPlot;
+pub use crate::plots::timeseriesplot::TimeSeriesPlot;
