@@ -48,7 +48,6 @@ impl TickDirection {
         }
     }
 
-    #[allow(dead_code)]
     pub(crate) fn to_plotly_ticks(&self) -> Ticks {
         match self {
             TickDirection::OutSide => Ticks::Outside,

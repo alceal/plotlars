@@ -1,9 +1,11 @@
 pub(crate) mod axis;
 pub(crate) mod color;
+pub(crate) mod colorbar;
 pub(crate) mod exponent;
 pub(crate) mod legend;
 pub(crate) mod line;
 pub(crate) mod orientation;
+pub(crate) mod palette;
 pub(crate) mod shape;
 pub(crate) mod text;
 pub(crate) mod tick;
