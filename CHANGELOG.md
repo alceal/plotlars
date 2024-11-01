@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2024-11-01
+
+### 🚀 Features
+
+- New `axis_position` method and the old one has been renamed to `axis_side` and the corresponding enum values have been updated
+- Add HeatMap
+
+### 🚜 Refactor
+
+- [**breaking**] Remove deprecated structures VerticalBarPlot, HorizontalBarPlot, VerticalBoxPlot, HorizontalBoxPlot
+- A deep refactoring
+
+### 📚 Documentation
+
+- Update documentation examples
+- Update documentation examples
+- Remove reference to vertical and horizontal bar/box plots
+- Add important note about using GitHub version of plotlars due to polars issue
+- Fix github link
+
+### ⚙️ Miscellaneous Tasks
+
+- Update dependencies in Cargo.toml
+- Remove the important note
+- Remove Polars dtype-categorical feature
+- Bump to version 0.5.3
+- Refactor code
+
 ## [0.5.0] - 2024-09-13
 
 ### 🚀 Features
@@ -16,6 +44,8 @@ All notable changes to this project will be documented in this file.
 
 - Deprecate VerticalBarPlot and HorizontalBarPlot
 - Update documentation
+- Update CHANGELOG.md
+- Update version to 0.5.0
 
 ## [0.4.0] - 2024-09-10
 
