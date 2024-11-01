@@ -53,7 +53,7 @@ pub enum Orientation {
 }
 
 impl Orientation {
-    pub(crate) fn get_orientation(&self) -> OrientationPlotly {
+    pub(crate) fn to_plotly(&self) -> OrientationPlotly {
         match self {
             Self::Horizontal => OrientationPlotly::Horizontal,
             Self::Vertical => OrientationPlotly::Vertical,

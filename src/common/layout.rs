@@ -1,6 +1,5 @@
 use plotly::{
-    color::Rgb as RgbPlotly,
-    common::{Font, Title},
+    common::Font,
     layout::{Axis as AxisPlotly, Legend as LegendPlotly},
     Layout as LayoutPlotly,
 };
@@ -21,7 +20,7 @@ pub(crate) trait Layout {
         let mut layout = LayoutPlotly::new();
 
         if let Some(title) = plot_title {
-            layout = layout.title(Self::set_title(title));
+            layout = layout.title(title.to_plotly());
         }
 
         layout = layout.x_axis(Self::set_axis(x_title, x_axis));
@@ -30,23 +29,12 @@ pub(crate) trait Layout {
         layout
     }
 
-    fn set_title(title: Text) -> Title {
-        Title::with_text(title.content)
-            .font(
-                Font::new()
-                    .family(title.font.as_str())
-                    .size(title.size)
-                    .color(RgbPlotly::new(title.color.0, title.color.1, title.color.2)),
-            )
-            .x(title.x)
-            .y(title.y)
-    }
-
+    // TODO:  Move axis functions to Axis struct like colorbar
     fn set_axis(title: Option<Text>, format: Option<&Axis>) -> AxisPlotly {
         let mut axis = AxisPlotly::new();
 
         if let Some(title) = title {
-            axis = axis.title(Self::set_title(title));
+            axis = axis.title(title.to_plotly());
         }
 
         if let Some(format) = format {
@@ -56,11 +44,12 @@ pub(crate) trait Layout {
         axis
     }
 
+    // TODO:  Move legend functions to Axis struct like colorbar
     fn set_legend(title: Option<Text>, format: Option<&Legend>) -> LegendPlotly {
         let mut legend = LegendPlotly::new();
 
         if let Some(title) = title {
-            legend = legend.title(Self::set_title(title));
+            legend = legend.title(title.to_plotly());
         }
 
         if let Some(format) = format {
@@ -76,15 +65,15 @@ pub(crate) trait Layout {
         }
 
         if let Some(axis_position) = &format.axis_side {
-            axis = axis.side(axis_position.get_side());
+            axis = axis.side(axis_position.to_plotly());
         }
 
         if let Some(axis_type) = &format.axis_type {
-            axis = axis.type_(axis_type.get_type());
+            axis = axis.type_(axis_type.to_plotly());
         }
 
         if let Some(color) = format.value_color {
-            axis = axis.color(RgbPlotly::new(color.0, color.1, color.2));
+            axis = axis.color(color.to_plotly());
         }
 
         if let Some(range) = &format.value_range {
@@ -96,7 +85,7 @@ pub(crate) trait Layout {
         }
 
         if let Some(exponent) = &format.value_exponent {
-            axis = axis.exponent_format(exponent.get_exponent());
+            axis = axis.exponent_format(exponent.to_plotly());
         }
 
         if let Some(range_values) = &format.tick_values {
@@ -108,7 +97,7 @@ pub(crate) trait Layout {
         }
 
         if let Some(tick_direction) = &format.tick_direction {
-            axis = axis.ticks(tick_direction.get_direction());
+            axis = axis.ticks(tick_direction.to_plotly_tickdirection());
         }
 
         if let Some(tick_length) = format.tick_length {
@@ -119,8 +108,8 @@ pub(crate) trait Layout {
             axis = axis.tick_width(tick_width.to_owned());
         }
 
-        if let Some(tick_color) = format.tick_color {
-            axis = axis.tick_color(RgbPlotly::new(tick_color.0, tick_color.1, tick_color.2));
+        if let Some(color) = format.tick_color {
+            axis = axis.tick_color(color.to_plotly());
         }
 
         if let Some(tick_angle) = format.tick_angle {
@@ -135,8 +124,8 @@ pub(crate) trait Layout {
             axis = axis.show_line(show_line.to_owned());
         }
 
-        if let Some(line_color) = format.line_color {
-            axis = axis.line_color(RgbPlotly::new(line_color.0, line_color.1, line_color.2));
+        if let Some(color) = format.line_color {
+            axis = axis.line_color(color.to_plotly());
         }
 
         if let Some(line_width) = format.line_width {
@@ -147,8 +136,8 @@ pub(crate) trait Layout {
             axis = axis.show_grid(show_grid.to_owned());
         }
 
-        if let Some(grid_color) = format.grid_color {
-            axis = axis.grid_color(RgbPlotly::new(grid_color.0, grid_color.1, grid_color.2));
+        if let Some(color) = format.grid_color {
+            axis = axis.grid_color(color.to_plotly());
         }
 
         if let Some(grid_width) = format.grid_width {
@@ -159,12 +148,8 @@ pub(crate) trait Layout {
             axis = axis.zero_line(show_zero_line.to_owned());
         }
 
-        if let Some(zero_line_color) = format.zero_line_color {
-            axis = axis.zero_line_color(RgbPlotly::new(
-                zero_line_color.0,
-                zero_line_color.1,
-                zero_line_color.2,
-            ));
+        if let Some(color) = format.zero_line_color {
+            axis = axis.zero_line_color(color.to_plotly());
         }
 
         if let Some(zero_line_width) = format.zero_line_width {
@@ -180,11 +165,11 @@ pub(crate) trait Layout {
 
     fn set_legend_format(mut legend: LegendPlotly, format: &Legend) -> LegendPlotly {
         if let Some(color) = format.background_color {
-            legend = legend.background_color(RgbPlotly::new(color.0, color.1, color.2));
+            legend = legend.background_color(color.to_plotly());
         }
 
         if let Some(color) = format.border_color {
-            legend = legend.border_color(RgbPlotly::new(color.0, color.1, color.2));
+            legend = legend.border_color(color.to_plotly());
         }
 
         if let Some(width) = format.border_width {
@@ -196,7 +181,7 @@ pub(crate) trait Layout {
         }
 
         if let Some(orientation) = &format.orientation {
-            legend = legend.orientation(orientation.get_orientation());
+            legend = legend.orientation(orientation.to_plotly());
         }
 
         if let Some(x) = format.x {

@@ -1,4 +1,4 @@
-use plotly::color::Color;
+use plotly::color::{Color, Rgb as RgbPlotly};
 use serde::Serialize;
 
 /// A structure representing an RGB color with red, green, and blue components.
@@ -51,5 +51,12 @@ pub struct Rgb(
     /// Blue component
     pub u8,
 );
+
+impl Rgb {
+    #[allow(clippy::wrong_self_convention)]
+    pub(crate) fn to_plotly(&self) -> RgbPlotly {
+        RgbPlotly::new(self.0, self.1, self.2)
+    }
+}
 
 impl Color for Rgb {}

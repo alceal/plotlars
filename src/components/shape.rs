@@ -215,7 +215,8 @@ pub enum Shape {
 }
 
 impl Shape {
-    pub(crate) fn get_shape(&self) -> MarkerSymbol {
+    #[allow(clippy::wrong_self_convention)]
+    pub(crate) fn to_plotly(&self) -> MarkerSymbol {
         match self {
             Shape::Circle => MarkerSymbol::Circle,
             Shape::CircleOpen => MarkerSymbol::CircleOpen,

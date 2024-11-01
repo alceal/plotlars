@@ -248,7 +248,7 @@ impl BarPlot {
                 let mut trace = Bar::default()
                     .x(labels)
                     .y(values)
-                    .orientation(orientation.get_orientation());
+                    .orientation(orientation.to_plotly());
 
                 if let Some(error) = error {
                     let error = Self::get_numeric_column(data, error)
@@ -271,7 +271,7 @@ impl BarPlot {
                 let mut trace = Bar::default()
                     .x(values)
                     .y(labels)
-                    .orientation(orientation.get_orientation());
+                    .orientation(orientation.to_plotly());
 
                 if let Some(error) = error {
                     let error = Self::get_numeric_column(data, error)

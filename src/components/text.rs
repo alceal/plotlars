@@ -1,3 +1,5 @@
+use plotly::common::{Font, Title};
+
 use crate::components::Rgb;
 
 /// A structure representing text with customizable content, font, size, and color.
@@ -47,6 +49,7 @@ use crate::components::Rgb;
 ///     .plot();
 /// ```
 /// ![Example](https://imgur.com/4outoUQ.png)
+#[derive(Clone)]
 pub struct Text {
     pub(crate) content: String,
     pub(crate) font: String,
@@ -138,6 +141,18 @@ impl Text {
     pub fn y(mut self, y: f64) -> Self {
         self.y = y;
         self
+    }
+
+    pub(crate) fn to_plotly(&self) -> Title {
+        Title::with_text(&self.content)
+            .font(
+                Font::new()
+                    .family(self.font.as_str())
+                    .size(self.size)
+                    .color(self.color.to_plotly()),
+            )
+            .x(self.x)
+            .y(self.y)
     }
 }
 
