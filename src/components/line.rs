@@ -47,7 +47,8 @@ pub enum Line {
 }
 
 impl Line {
-    pub(crate) fn get_line_type(&self) -> DashType {
+    #[allow(clippy::wrong_self_convention)]
+    pub(crate) fn to_plotly(&self) -> DashType {
         match self {
             Line::Solid => DashType::Solid,
             Line::Dot => DashType::Dot,

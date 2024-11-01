@@ -65,13 +65,13 @@ pub(crate) trait Marker {
         index: usize,
     ) -> MarkerPlotly {
         if let Some(shape) = shape {
-            marker = marker.symbol(shape.get_shape());
+            marker = marker.symbol(shape.to_plotly());
             return marker;
         }
 
         if let Some(shapes) = shapes {
             if let Some(shape) = shapes.get(index) {
-                marker = marker.symbol(shape.get_shape());
+                marker = marker.symbol(shape.to_plotly());
             }
         }
 

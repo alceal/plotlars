@@ -30,13 +30,13 @@ pub(crate) trait Line {
         index: usize,
     ) -> LinePlotly {
         if let Some(style) = style {
-            line = line.dash(style.get_line_type());
+            line = line.dash(style.to_plotly());
             return line;
         }
 
         if let Some(styles) = styles {
             if let Some(style) = styles.get(index) {
-                line = line.dash(style.get_line_type());
+                line = line.dash(style.to_plotly());
             }
         }
 

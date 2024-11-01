@@ -1,9 +1,6 @@
-use plotly::{
-    common::AxisSide as AxisSidePlotly,
-    layout::{AxisType as AxisTypePlotly, TicksDirection},
-};
+use plotly::{common::AxisSide as AxisSidePlotly, layout::AxisType as AxisTypePlotly};
 
-use crate::components::{Rgb, ValueExponent};
+use crate::components::{Rgb, TickDirection, ValueExponent};
 
 /// A structure representing a customizable axis.
 ///
@@ -177,9 +174,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_values` - A vector of `f64` values representing the tick values.
-    pub fn tick_values(mut self, tick_values: Vec<f64>) -> Self {
-        self.tick_values = Some(tick_values);
+    /// * `values` - A vector of `f64` values representing the tick values.
+    pub fn tick_values(mut self, values: Vec<f64>) -> Self {
+        self.tick_values = Some(values);
         self
     }
 
@@ -187,9 +184,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_labels` - A vector of values that can be converted into `String`, representing the tick labels.
-    pub fn tick_labels(mut self, tick_labels: Vec<impl Into<String>>) -> Self {
-        self.tick_labels = Some(tick_labels.into_iter().map(|x| x.into()).collect());
+    /// * `labels` - A vector of values that can be converted into `String`, representing the tick labels.
+    pub fn tick_labels(mut self, labels: Vec<impl Into<String>>) -> Self {
+        self.tick_labels = Some(labels.into_iter().map(|x| x.into()).collect());
         self
     }
 
@@ -197,9 +194,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_direction` - A `TickDirection` enum value representing the direction of the ticks.
-    pub fn tick_direction(mut self, tick_direction: TickDirection) -> Self {
-        self.tick_direction = Some(tick_direction);
+    /// * `direction` - A `TickDirection` enum value representing the direction of the ticks.
+    pub fn tick_direction(mut self, direction: TickDirection) -> Self {
+        self.tick_direction = Some(direction);
         self
     }
 
@@ -207,9 +204,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_length` - A `usize` value representing the length of the ticks.
-    pub fn tick_length(mut self, tick_length: usize) -> Self {
-        self.tick_length = Some(tick_length);
+    /// * `length` - A `usize` value representing the length of the ticks.
+    pub fn tick_length(mut self, length: usize) -> Self {
+        self.tick_length = Some(length);
         self
     }
 
@@ -217,9 +214,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_width` - A `usize` value representing the width of the ticks.
-    pub fn tick_width(mut self, tick_width: usize) -> Self {
-        self.tick_width = Some(tick_width);
+    /// * `width` - A `usize` value representing the width of the ticks.
+    pub fn tick_width(mut self, width: usize) -> Self {
+        self.tick_width = Some(width);
         self
     }
 
@@ -227,9 +224,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_color` - An `Rgb` struct representing the color of the ticks.
-    pub fn tick_color(mut self, tick_color: Rgb) -> Self {
-        self.tick_color = Some(tick_color);
+    /// * `color` - An `Rgb` struct representing the color of the ticks.
+    pub fn tick_color(mut self, color: Rgb) -> Self {
+        self.tick_color = Some(color);
         self
     }
 
@@ -237,9 +234,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_angle` - A `f64` value representing the angle of the ticks in degrees.
-    pub fn tick_angle(mut self, tick_angle: f64) -> Self {
-        self.tick_angle = Some(tick_angle);
+    /// * `angle` - A `f64` value representing the angle of the ticks in degrees.
+    pub fn tick_angle(mut self, angle: f64) -> Self {
+        self.tick_angle = Some(angle);
         self
     }
 
@@ -247,9 +244,9 @@ impl Axis {
     ///
     /// # Argument
     ///
-    /// * `tick_font` - A value that can be converted into a `String`, representing the font name for the tick labels.
-    pub fn tick_font(mut self, tick_font: impl Into<String>) -> Self {
-        self.tick_font = Some(tick_font.into());
+    /// * `font` - A value that can be converted into a `String`, representing the font name for the tick labels.
+    pub fn tick_font(mut self, font: impl Into<String>) -> Self {
+        self.tick_font = Some(font.into());
         self
     }
 
@@ -400,7 +397,7 @@ pub enum AxisSide {
 }
 
 impl AxisSide {
-    pub(crate) fn get_side(&self) -> AxisSidePlotly {
+    pub(crate) fn to_plotly(&self) -> AxisSidePlotly {
         match self {
             AxisSide::Top => AxisSidePlotly::Top,
             AxisSide::Bottom => AxisSidePlotly::Bottom,
@@ -465,7 +462,7 @@ pub enum AxisType {
 }
 
 impl AxisType {
-    pub(crate) fn get_type(&self) -> AxisTypePlotly {
+    pub(crate) fn to_plotly(&self) -> AxisTypePlotly {
         match self {
             AxisType::Default => AxisTypePlotly::Default,
             AxisType::Linear => AxisTypePlotly::Linear,
@@ -473,53 +470,6 @@ impl AxisType {
             AxisType::Date => AxisTypePlotly::Date,
             AxisType::Category => AxisTypePlotly::Category,
             AxisType::MultiCategory => AxisTypePlotly::MultiCategory,
-        }
-    }
-}
-
-/// Enumeration representing the direction of axis ticks.
-///
-/// # Example
-///
-/// ```rust
-/// use plotlars::{Axis, Plot, ScatterPlot, TickDirection};
-///
-/// let x = vec![1];
-/// let y  = vec![1];
-///
-/// let dataset = DataFrame::new(vec![
-///     Series::new("x".into(), x),
-///     Series::new("y".into(), y),
-/// ]).unwrap();
-///
-/// ScatterPlot::builder()
-///     .data(&dataset)
-///     .x("x")
-///     .y("y")
-///     .x_axis(
-///         &Axis::new()
-///             .tick_direction(TickDirection::OutSide)
-///     )
-///     .y_axis(
-///         &Axis::new()
-///             .tick_direction(TickDirection::InSide)
-///     )
-///     .build()
-///     .plot();
-/// ```
-///
-/// ![Example](https://imgur.com/9DSwJnx.png)
-#[derive(Clone)]
-pub enum TickDirection {
-    OutSide,
-    InSide,
-}
-
-impl TickDirection {
-    pub(crate) fn get_direction(&self) -> TicksDirection {
-        match self {
-            TickDirection::OutSide => TicksDirection::Outside,
-            TickDirection::InSide => TicksDirection::Inside,
         }
     }
 }

@@ -271,7 +271,7 @@ impl BoxPlot {
                 let mut trace = BoxPlotly::default()
                     .x(category_data)
                     .y(value_data)
-                    .orientation(orientation.get_orientation());
+                    .orientation(orientation.to_plotly());
 
                 if let Some(all) = box_points {
                     if all {
@@ -301,7 +301,7 @@ impl BoxPlot {
                 let mut trace = BoxPlotly::default()
                     .x(value_data)
                     .y(category_data)
-                    .orientation(orientation.get_orientation());
+                    .orientation(orientation.to_plotly());
 
                 if let Some(all) = box_points {
                     if all {

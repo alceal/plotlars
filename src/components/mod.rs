@@ -6,6 +6,7 @@ pub(crate) mod line;
 pub(crate) mod orientation;
 pub(crate) mod shape;
 pub(crate) mod text;
+pub(crate) mod tick;
 
 pub(crate) use axis::Axis;
 pub(crate) use color::Rgb;
@@ -15,3 +16,4 @@ pub(crate) use line::Line;
 pub(crate) use orientation::Orientation;
 pub(crate) use shape::Shape;
 pub(crate) use text::Text;
+pub(crate) use tick::TickDirection;

@@ -42,7 +42,7 @@ pub enum ValueExponent {
 }
 
 impl ValueExponent {
-    pub(crate) fn get_exponent(&self) -> ExponentFormat {
+    pub(crate) fn to_plotly(&self) -> ExponentFormat {
         match self {
             ValueExponent::None => ExponentFormat::None,
             ValueExponent::SmallE => ExponentFormat::SmallE,
