@@ -1,6 +1,9 @@
-use plotly::{common::AxisSide as AxisSidePlotly, layout::AxisType as AxisTypePlotly};
+use plotly::{
+    common::{AxisSide as AxisSidePlotly, Font},
+    layout::{Axis as AxisPlotly, AxisType as AxisTypePlotly},
+};
 
-use crate::components::{Rgb, TickDirection, ValueExponent};
+use crate::components::{Rgb, Text, TickDirection, ValueExponent};
 
 /// A structure representing a customizable axis.
 ///
@@ -338,6 +341,124 @@ impl Axis {
     pub fn zero_line_width(mut self, width: usize) -> Self {
         self.zero_line_width = Some(width);
         self
+    }
+
+    pub(crate) fn set_axis(title: Option<Text>, format: Option<&Axis>) -> AxisPlotly {
+        let mut axis = AxisPlotly::new();
+
+        if let Some(title) = title {
+            axis = axis.title(title.to_plotly());
+        }
+
+        if let Some(format) = format {
+            axis = Self::set_format(axis, format);
+        }
+
+        axis
+    }
+
+    fn set_format(mut axis: AxisPlotly, format: &Axis) -> AxisPlotly {
+        if let Some(visible) = format.show_axis {
+            axis = axis.visible(visible.to_owned());
+        }
+
+        if let Some(axis_position) = &format.axis_side {
+            axis = axis.side(axis_position.to_plotly());
+        }
+
+        if let Some(axis_type) = &format.axis_type {
+            axis = axis.type_(axis_type.to_plotly());
+        }
+
+        if let Some(color) = format.value_color {
+            axis = axis.color(color.to_plotly());
+        }
+
+        if let Some(range) = &format.value_range {
+            axis = axis.range(range.to_owned());
+        }
+
+        if let Some(thousands) = format.value_thousands {
+            axis = axis.separate_thousands(thousands.to_owned());
+        }
+
+        if let Some(exponent) = &format.value_exponent {
+            axis = axis.exponent_format(exponent.to_plotly());
+        }
+
+        if let Some(range_values) = &format.tick_values {
+            axis = axis.tick_values(range_values.to_owned());
+        }
+
+        if let Some(tick_text) = &format.tick_labels {
+            axis = axis.tick_text(tick_text.to_owned());
+        }
+
+        if let Some(tick_direction) = &format.tick_direction {
+            axis = axis.ticks(tick_direction.to_plotly_tickdirection());
+        }
+
+        if let Some(tick_length) = format.tick_length {
+            axis = axis.tick_length(tick_length.to_owned());
+        }
+
+        if let Some(tick_width) = format.tick_width {
+            axis = axis.tick_width(tick_width.to_owned());
+        }
+
+        if let Some(color) = format.tick_color {
+            axis = axis.tick_color(color.to_plotly());
+        }
+
+        if let Some(tick_angle) = format.tick_angle {
+            axis = axis.tick_angle(tick_angle.to_owned());
+        }
+
+        if let Some(font) = &format.tick_font {
+            axis = axis.tick_font(Font::new().family(font.as_str()));
+        }
+
+        if let Some(show_line) = format.show_line {
+            axis = axis.show_line(show_line.to_owned());
+        }
+
+        if let Some(color) = format.line_color {
+            axis = axis.line_color(color.to_plotly());
+        }
+
+        if let Some(line_width) = format.line_width {
+            axis = axis.line_width(line_width.to_owned());
+        }
+
+        if let Some(show_grid) = format.show_grid {
+            axis = axis.show_grid(show_grid.to_owned());
+        }
+
+        if let Some(color) = format.grid_color {
+            axis = axis.grid_color(color.to_plotly());
+        }
+
+        if let Some(grid_width) = format.grid_width {
+            axis = axis.grid_width(grid_width.to_owned());
+        }
+
+        if let Some(show_zero_line) = format.show_zero_line {
+            axis = axis.zero_line(show_zero_line.to_owned());
+        }
+
+        if let Some(color) = format.zero_line_color {
+            axis = axis.zero_line_color(color.to_plotly());
+        }
+
+        if let Some(zero_line_width) = format.zero_line_width {
+            axis = axis.zero_line_width(zero_line_width.to_owned());
+        }
+
+        if let Some(axis_position) = format.axis_position {
+            axis = axis.position(axis_position.to_owned());
+        }
+
+        axis
     }
 }
 
