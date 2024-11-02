@@ -1,4 +1,6 @@
-use crate::{Orientation, Rgb};
+use plotly::{common::Font, layout::Legend as LegendPlotly};
+
+use crate::{Orientation, Rgb, Text};
 
 /// A structure representing a customizable plot legend.
 ///
@@ -129,5 +131,51 @@ impl Legend {
     pub fn y(mut self, y: f64) -> Self {
         self.y = Some(y);
         self
+    }
+
+    pub(crate) fn set_legend(title: Option<Text>, format: Option<&Legend>) -> LegendPlotly {
+        let mut legend = LegendPlotly::new();
+
+        if let Some(title) = title {
+            legend = legend.title(title.to_plotly());
+        }
+
+        if let Some(format) = format {
+            legend = Self::set_format(legend, format);
+        }
+
+        legend
+    }
+
+    fn set_format(mut legend: LegendPlotly, format: &Legend) -> LegendPlotly {
+        if let Some(color) = format.background_color {
+            legend = legend.background_color(color.to_plotly());
+        }
+
+        if let Some(color) = format.border_color {
+            legend = legend.border_color(color.to_plotly());
+        }
+
+        if let Some(width) = format.border_width {
+            legend = legend.border_width(width);
+        }
+
+        if let Some(font) = &format.font {
+            legend = legend.font(Font::new().family(font.as_str()));
+        }
+
+        if let Some(orientation) = &format.orientation {
+            legend = legend.orientation(orientation.to_plotly());
+        }
+
+        if let Some(x) = format.x {
+            legend = legend.x(x);
+        }
+
+        if let Some(y) = format.y {
+            legend = legend.y(y);
+        }
+
+        legend
     }
 }
