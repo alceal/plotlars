@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2024-11-06
+
+### 🚀 Features
+
+- Add Scatter3dPlot
+
+### 🚜 Refactor
+
+- Move set_axis and set_legend to Axis and Legend modules
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG
+- Bump to version 0.6.0
+- Update dependencies
+- Remove kaleido dependency
+- Bump to version 0.7.0
+
 ## [0.6.0] - 2024-11-01
 
 ### 🚀 Features
