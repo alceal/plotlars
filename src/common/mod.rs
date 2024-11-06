@@ -7,5 +7,5 @@ pub(crate) mod polar;
 pub(crate) use layout::Layout;
 pub(crate) use line::Line;
 pub(crate) use mark::Marker;
-pub(crate) use plot::Plot;
+pub(crate) use plot::PlotHelper;
 pub(crate) use polar::Polar;
