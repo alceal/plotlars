@@ -1865,7 +1865,6 @@ version = "0.6.0"
 dependencies = [
  "bon",
  "plotly",
- "plotly_kaleido",
  "polars",
  "serde",
 ]
