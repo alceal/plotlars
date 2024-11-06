@@ -11,7 +11,7 @@ use polars::{
 };
 
 use crate::{
-    common::{Layout, Line, Marker, Plot, Polar},
+    common::{Layout, Line, Marker, PlotHelper, Polar},
     components::{Axis, Legend, Line as LineStyle, Rgb, Shape, Text},
 };
 
@@ -119,13 +119,18 @@ impl TimeSeriesPlot {
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> Self {
+        let z_title = None;
+        let z_axis = None;
+
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
+            z_title,
             legend_title,
             x_axis,
             y_axis,
+            z_axis,
             legend,
         );
 
@@ -259,7 +264,7 @@ impl Line for TimeSeriesPlot {}
 impl Marker for TimeSeriesPlot {}
 impl Polar for TimeSeriesPlot {}
 
-impl Plot for TimeSeriesPlot {
+impl PlotHelper for TimeSeriesPlot {
     fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }

@@ -6,7 +6,7 @@ use polars::frame::DataFrame;
 use serde::Serialize;
 
 use crate::{
-    common::{Layout, Marker, Plot, Polar},
+    common::{Layout, Marker, PlotHelper, Polar},
     components::{Axis, Text},
     ColorBar, Palette,
 };
@@ -71,8 +71,8 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/5uFih4M.png)
 pub struct HeatMap {
-    traces: Vec<Box<dyn Trace + 'static>>,
-    layout: LayoutPlotly,
+    pub traces: Vec<Box<dyn Trace + 'static>>,
+    pub layout: LayoutPlotly,
 }
 
 #[bon]
@@ -96,14 +96,18 @@ impl HeatMap {
     ) -> Self {
         let legend = None;
         let legend_title = None;
+        let z_title = None;
+        let z_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
+            z_title,
             legend_title,
             x_axis,
             y_axis,
+            z_axis,
             legend,
         );
 
@@ -259,7 +263,7 @@ impl Layout for HeatMap {}
 impl Marker for HeatMap {}
 impl Polar for HeatMap {}
 
-impl Plot for HeatMap {
+impl PlotHelper for HeatMap {
     fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }
