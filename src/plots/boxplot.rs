@@ -6,6 +6,7 @@ use plotly::{
 };
 
 use polars::frame::DataFrame;
+use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
@@ -106,6 +107,7 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/uj1LY90.png)
+#[derive(Clone, Serialize)]
 pub struct BoxPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
