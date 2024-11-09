@@ -9,6 +9,7 @@ use polars::{
     frame::DataFrame,
     prelude::{col, IntoLazy},
 };
+use serde::Serialize;
 
 use crate::{
     common::{Layout, Line, Marker, PlotHelper, Polar},
@@ -89,6 +90,7 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/1GaGFbk.png)
+#[derive(Clone, Serialize)]
 pub struct TimeSeriesPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,

@@ -6,6 +6,7 @@ use plotly::{
 };
 
 use polars::frame::DataFrame;
+use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
@@ -89,6 +90,7 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/BXlxKfg.png)
+#[derive(Clone, Serialize)]
 pub struct Scatter3dPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,

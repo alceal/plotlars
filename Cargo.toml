@@ -21,3 +21,4 @@ polars = { version = "0.44.2", features = [
     "strings",
 ] }
 serde = "1.0.214"
+serde_json = "1.0.132"

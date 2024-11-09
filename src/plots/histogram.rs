@@ -6,6 +6,7 @@ use plotly::{
 };
 
 use polars::frame::DataFrame;
+use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
@@ -98,6 +99,7 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/w2oiuIo.png)
+#[derive(Clone, Serialize)]
 pub struct Histogram {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,

@@ -70,6 +70,7 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/5uFih4M.png)
+#[derive(Clone, Serialize)]
 pub struct HeatMap {
     pub traces: Vec<Box<dyn Trace + 'static>>,
     pub layout: LayoutPlotly,

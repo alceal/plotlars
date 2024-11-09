@@ -1,12 +1,15 @@
 use std::env;
 
 use plotly::{Layout, Plot as Plotly, Trace};
+use serde::Serialize;
 
 /// A trait representing a generic plot that can be displayed or rendered.
 pub trait Plot {
     fn plot(&self);
 
     fn write_html(&self, path: impl Into<String>);
+
+    fn to_json(&self) -> Result<String, serde_json::Error>;
 
     // fn write_image(
     //     &self,
@@ -33,7 +36,7 @@ pub(crate) trait PlotHelper {
 // Implement the public trait `Plot` for any type that implements `PlotHelper`.
 impl<T> Plot for T
 where
-    T: PlotHelper,
+    T: PlotHelper + Serialize + Clone,
 {
     fn plot(&self) {
         let mut plot = Plotly::new();
@@ -51,6 +54,10 @@ where
         plot.set_layout(self.get_layout().to_owned());
         plot.add_traces(self.get_traces().to_owned());
         plot.write_html(path.into());
+    }
+
+    fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
     }
 
     // fn write_image(
