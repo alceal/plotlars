@@ -21,6 +21,7 @@ pub use crate::plots::barplot::BarPlot;
 pub use crate::plots::boxplot::BoxPlot;
 pub use crate::plots::heatmap::HeatMap;
 pub use crate::plots::histogram::Histogram;
+pub use crate::plots::image::Image;
 pub use crate::plots::lineplot::LinePlot;
 pub use crate::plots::scatter3dplot::Scatter3dPlot;
 pub use crate::plots::scatterplot::ScatterPlot;
