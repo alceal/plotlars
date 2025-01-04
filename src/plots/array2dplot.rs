@@ -11,13 +11,13 @@ use crate::{
 
 /// A structure representing a 2D array plot.
 ///
-/// The `Array2DPlot` struct allows for visualizing 2D arrays of RGB color values as images or heatmaps.
+/// The `Array2dPlot` struct allows for visualizing 2D arrays of RGB color values as images or heatmaps.
 /// Each element in the 2D array corresponds to a pixel, with its color defined by an `[u8; 3]` RGB triplet.
 /// This struct supports customizable titles, axis labels, and axis configurations for better presentation.
 ///
 /// # Arguments
 ///
-/// * `data` - A 2D vector of RGB triplets (`Vec<Vec<[u8; 3]>>`) representing pixel colors for the plot.
+/// * `data` - A 2D vector of RGB triplets (`&[Vec<[u8; 3]>]`) representing pixel colors for the plot.
 /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
 /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
 /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
@@ -29,7 +29,7 @@ use crate::{
 /// ## Basic 2D Array Plot
 ///
 /// ```rust
-/// use plotlars::{Array2DPlot, Plot, Text};
+/// use plotlars::{Array2dPlot, Plot, Text};
 ///
 /// let data = vec![
 ///     vec![[255, 0, 0], [0, 255, 0], [0, 0, 255]],
@@ -37,7 +37,7 @@ use crate::{
 ///     vec![[0, 255, 0], [0, 0, 255], [255, 0, 0]],
 /// ];
 ///
-/// Array2DPlot::builder()
+/// Array2dPlot::builder()
 ///     .data(&data)
 ///     .plot_title(
 ///         Text::from("Array2D Plot")
@@ -50,13 +50,13 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/LMrqAaT.png)
 #[derive(Clone, Serialize)]
-pub struct Array2DPlot {
+pub struct Array2dPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
 
 #[bon]
-impl Array2DPlot {
+impl Array2dPlot {
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &[Vec<[u8; 3]>],
@@ -97,7 +97,7 @@ impl Array2DPlot {
             .iter()
             .map(|row| {
                 row.iter()
-                    .map(|rgb| Rgb(rgb[0], rgb[1], rgb[2]).to_plotly())
+                    .map(|&rgb| Rgb(rgb[0], rgb[1], rgb[2]).to_plotly())
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>();
@@ -106,9 +106,9 @@ impl Array2DPlot {
     }
 }
 
-impl Layout for Array2DPlot {}
+impl Layout for Array2dPlot {}
 
-impl PlotHelper for Array2DPlot {
+impl PlotHelper for Array2dPlot {
     fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }
