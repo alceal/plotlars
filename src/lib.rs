@@ -17,6 +17,7 @@ pub use crate::components::palette::Palette;
 pub use crate::components::shape::Shape;
 pub use crate::components::text::Text;
 pub use crate::components::tick::TickDirection;
+pub use crate::plots::array2dplot::Array2DPlot;
 pub use crate::plots::barplot::BarPlot;
 pub use crate::plots::boxplot::BoxPlot;
 pub use crate::plots::heatmap::HeatMap;
