@@ -1,3 +1,4 @@
+pub(crate) mod array2dplot;
 pub(crate) mod barplot;
 pub(crate) mod boxplot;
 pub(crate) mod heatmap;
