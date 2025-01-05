@@ -26,5 +26,6 @@ pub use crate::plots::image::Image;
 pub use crate::plots::lineplot::LinePlot;
 pub use crate::plots::piechart::PieChart;
 pub use crate::plots::scatter3dplot::Scatter3dPlot;
+pub use crate::plots::scattermap::ScatterMap;
 pub use crate::plots::scatterplot::ScatterPlot;
 pub use crate::plots::timeseriesplot::TimeSeriesPlot;
