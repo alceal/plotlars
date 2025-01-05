@@ -7,5 +7,6 @@ pub(crate) mod image;
 pub(crate) mod lineplot;
 pub(crate) mod piechart;
 pub(crate) mod scatter3dplot;
+pub(crate) mod scattermap;
 pub(crate) mod scatterplot;
 pub(crate) mod timeseriesplot;
