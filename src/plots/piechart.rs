@@ -45,9 +45,9 @@ use crate::{
 /// PieChart::builder()
 ///     .data(&dataset)
 ///     .labels("species")
-///     .hole(0.4) // Creates a donut-style chart
-///     .pull(0.01) // Slightly separates each slice
-///     .rotation(20.0) // Rotates the chart by 20 degrees
+///     .hole(0.4)
+///     .pull(0.01)
+///     .rotation(20.0)
 ///     .plot_title(
 ///         Text::from("Pie Chart")
 ///             .font("Arial")
