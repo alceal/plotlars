@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2025-01-05
+
+### 🚀 Features
+
+- Convert plots into JSON with the `to_json`method
+- Add Image plot support for visualizing raster data
+- Add PieChart support for visualizing categorical data
+- Add Array2DPlot for visualizing 2D arrays of RGB color values
+- Add ScatterMap for visualizing geographical data points on an interactive map
+
+### 🐛 Bug Fixes
+
+- Rename Array2DPlot to Array2dPlot for consistency
+
+### ⚙️ Miscellaneous Tasks
+
+- Update dependencies to latest versions
+- Add image
+- Clean up comments in PieChart builder example for clarity
+
 ## [0.7.0] - 2024-11-06
 
 ### 🚀 Features
