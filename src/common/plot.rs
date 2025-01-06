@@ -11,6 +11,10 @@ pub trait Plot {
 
     fn to_json(&self) -> Result<String, serde_json::Error>;
 
+    fn to_html(&self) -> String;
+
+    fn to_inline_html(&self, plot_div_id: Option<&str>) -> String;
+
     // fn write_image(
     //     &self,
     //     path: impl Into<String>,
@@ -58,6 +62,20 @@ where
 
     fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string(self)
+    }
+
+    fn to_html(&self) -> String {
+        let mut plot = Plotly::new();
+        plot.set_layout(self.get_layout().to_owned());
+        plot.add_traces(self.get_traces().to_owned());
+        plot.to_html()
+    }
+
+    fn to_inline_html(&self, plot_div_id: Option<&str>) -> String {
+        let mut plot = Plotly::new();
+        plot.set_layout(self.get_layout().to_owned());
+        plot.add_traces(self.get_traces().to_owned());
+        plot.to_inline_html(plot_div_id)
     }
 
     // fn write_image(
