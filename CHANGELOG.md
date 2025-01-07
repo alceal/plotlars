@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2025-01-07
+
+### 📚 Documentation
+
+- Add implemented plots overview with examples to README
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump plotlars version to 0.8.1 in Cargo files
+
+### Feat
+
+- Additional trait methods to provide html string
+
 ## [0.8.0] - 2025-01-05
 
 ### 🚀 Features
@@ -21,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - Update dependencies to latest versions
 - Add image
 - Clean up comments in PieChart builder example for clarity
+- Bump plotlars version to 0.8.0 in Cargo files
 
 ## [0.7.0] - 2024-11-06
 
