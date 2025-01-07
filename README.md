@@ -17,6 +17,14 @@ Plotly. It simplifies the process of creating visualizations from data frames,
 allowing developers to focus on data insights rather than the intricacies of
 plot creation.
 
+## Implemented Plots Overview
+
+| Plot | Example | Plot | Example | Plot | Example | Plot | Example |
+|------|:---------:|------|:---------:|------|:---------:|------|:---------:|
+| [Array 2D](https://docs.rs/plotlars/latest/plotlars/struct.Array2dPlot.html) | <img src="https://imgur.com/LMrqAaT.png" width="100" height="100"> | [Heatmap](https://docs.rs/plotlars/latest/plotlars/struct.HeatMap.html) | <img src="https://imgur.com/5uFih4M.png" width="100" height="100"> | [Line Plot](https://docs.rs/plotlars/latest/plotlars/struct.LinePlot.html) | <img src="https://imgur.com/PaXG300.png" width="100" height="100"> | [Scatter Map](https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html) | <img src="https://imgur.com/8MCjVOd.png" width="100" height="100"> |
+| [Box Plot](https://docs.rs/plotlars/latest/plotlars/struct.BoxPlot.html) | <img src="https://imgur.com/uj1LY90.png" width="100" height="100"> | [Histogram](https://docs.rs/plotlars/latest/plotlars/struct.Histogram.html) | <img src="https://imgur.com/w2oiuIo.png" width="100" height="100"> | [Pie Chart](https://docs.rs/plotlars/latest/plotlars/struct.PieChart.html) | <img src="https://imgur.com/jE70hYS.png" width="100" height="100"> | [Scatter Plot](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html) | <img src="https://imgur.com/9jfO8RU.png" width="100" height="100"> |
+| [Grouped Bar Plot](https://docs.rs/plotlars/latest/plotlars/struct.BarPlot.html) | <img src="https://imgur.com/2alZlO5.png" width="100" height="100"> | [Image](https://docs.rs/plotlars/latest/plotlars/struct.Image.html) | <img src="https://imgur.com/PAtdaHj.png" width="100" height="100"> | [Scatter 3D](https://docs.rs/plotlars/latest/plotlars/struct.Scatter3dPlot.html) | <img src="https://imgur.com/BXlxKfg.png" width="100" height="100"> | [Time Series](https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html) | <img src="https://imgur.com/1GaGFbk.png" width="100" height="100"> |
+
 ## Motivation
 
 The creation of Plotlars was driven by the need to simplify the process of
