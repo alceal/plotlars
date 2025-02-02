@@ -17,6 +17,6 @@ categories = ["visualization"]
 bon = "3.3.2"
 image = "0.25.5"
 plotly = "0.12.1"
-polars = { version = "0.45.1", features = ["lazy", "strings"] }
+polars = { version = ">=0.45.1", features = ["lazy", "strings"] }
 serde = "1.0.217"
 serde_json = "1.0.134"
