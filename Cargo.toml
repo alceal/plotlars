@@ -2,8 +2,8 @@
 name = "plotlars"
 version = "0.8.1"
 authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
-edition = "2021"
-rust-version = "1.80.1"
+edition = "2024"
+rust-version = "1.86.0"
 description = "Plotlars is a Rust library designed to facilitate the integration between the Polars data analysis library and visualization libraries."
 documentation = "https://docs.rs/plotlars/latest/plotlars/"
 readme = "README.md"
@@ -14,9 +14,9 @@ keywords = ["chart", "plot", "plotly", "polars", "visualization"]
 categories = ["visualization"]
 
 [dependencies]
-bon = "3.3.2"
-image = "0.25.5"
+bon = "3.6.1"
+image = "0.25.6"
 plotly = "0.12.1"
 polars = { version = "0.46.0", features = ["lazy", "strings"] }
-serde = "1.0.217"
-serde_json = "1.0.134"
+serde = "1.0.219"
+serde_json = "1.0.140"
