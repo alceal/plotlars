@@ -1,6 +1,7 @@
 pub(crate) mod axis;
 pub(crate) mod color;
 pub(crate) mod colorbar;
+pub(crate) mod contours;
 pub(crate) mod exponent;
 pub(crate) mod legend;
 pub(crate) mod line;
@@ -12,10 +13,13 @@ pub(crate) mod tick;
 
 pub(crate) use axis::Axis;
 pub(crate) use color::Rgb;
+pub(crate) use colorbar::ColorBar;
+pub(crate) use contours::Contours;
 pub(crate) use exponent::ValueExponent;
 pub(crate) use legend::Legend;
 pub(crate) use line::Line;
 pub(crate) use orientation::Orientation;
+pub(crate) use palette::Palette;
 pub(crate) use shape::Shape;
 pub(crate) use text::Text;
 pub(crate) use tick::TickDirection;
