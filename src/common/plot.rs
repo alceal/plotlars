@@ -1,6 +1,11 @@
 use std::env;
 
-use plotly::{Layout, Plot as Plotly, Trace};
+use plotly::{
+    Layout,
+    Plot as Plotly,
+    Trace,
+};
+
 use serde::Serialize;
 
 /// A trait representing a generic plot that can be displayed or rendered.

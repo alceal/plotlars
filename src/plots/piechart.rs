@@ -1,6 +1,10 @@
 use bon::bon;
 
-use plotly::{Layout as LayoutPlotly, Pie, Trace};
+use plotly::{
+    Layout as LayoutPlotly,
+    Pie,
+    Trace,
+};
 
 use polars::frame::DataFrame;
 use serde::Serialize;

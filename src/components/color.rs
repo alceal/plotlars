@@ -1,4 +1,8 @@
-use plotly::color::{Color, Rgb as RgbPlotly};
+use plotly::color::{
+    Color,
+    Rgb as RgbPlotly,
+};
+
 use serde::Serialize;
 
 /// A structure representing an RGB color with red, green, and blue components.

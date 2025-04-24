@@ -1,9 +1,15 @@
 use bon::bon;
 
 use plotly::{
-    common::{ErrorData, ErrorType, Marker as MarkerPlotly},
+    Bar,
+    Layout as LayoutPlotly,
+    Trace,
+    common::{
+        ErrorData,
+        ErrorType,
+        Marker as MarkerPlotly,
+    },
     layout::BarMode,
-    Bar, Layout as LayoutPlotly, Trace,
 };
 
 use polars::frame::DataFrame;

@@ -1,6 +1,6 @@
 use polars::{
     frame::DataFrame,
-    prelude::{col, lit, DataType, IntoLazy},
+    prelude::{DataType, IntoLazy, col, lit},
 };
 
 pub(crate) trait Polar {

@@ -1,9 +1,19 @@
 use bon::bon;
 
 use plotly::{
-    common::{Marker as MarkerPlotly, Mode},
-    layout::{Center, Layout as LayoutPlotly, Mapbox, MapboxStyle, Margin},
-    ScatterMapbox, Trace,
+    ScatterMapbox,
+    Trace,
+    common::{
+        Marker as MarkerPlotly,
+        Mode,
+    },
+    layout::{
+        Center,
+        Layout as LayoutPlotly,
+        Mapbox,
+        MapboxStyle,
+        Margin,
+    },
 };
 
 use polars::frame::DataFrame;
@@ -11,8 +21,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Legend, Text},
-    Rgb, Shape,
+    components::{Legend, Rgb, Shape, Text},
 };
 
 /// A structure representing a scatter plot on a map.

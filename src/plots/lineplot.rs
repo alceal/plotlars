@@ -1,19 +1,32 @@
 use bon::bon;
 
 use plotly::{
-    common::{Line as LinePlotly, Marker as MarkerPlotly, Mode},
-    Layout as LayoutPlotly, Scatter, Trace,
+    Layout as LayoutPlotly,
+    Scatter,
+    Trace,
+    common::{
+        Line as LinePlotly,
+        Marker as MarkerPlotly,
+        Mode,
+    },
 };
 
 use polars::{
     frame::DataFrame,
-    prelude::{col, IntoLazy},
+    prelude::{IntoLazy, col},
 };
 use serde::Serialize;
 
 use crate::{
     common::{Layout, Line, Marker, PlotHelper, Polar},
-    components::{Axis, Legend, Line as LineStyle, Rgb, Shape, Text},
+    components::{
+        Axis,
+        Legend,
+        Line as LineStyle,
+        Rgb,
+        Shape,
+        Text,
+    },
 };
 
 /// A structure representing a line plot.

@@ -1,14 +1,17 @@
 use bon::bon;
 
-use plotly::{HeatMap as HeatMapPlotly, Layout as LayoutPlotly, Trace};
+use plotly::{
+    HeatMap as HeatMapPlotly,
+    Layout as LayoutPlotly,
+    Trace,
+};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, Text},
-    ColorBar, Palette,
+    components::{Axis, ColorBar, Palette, Text},
 };
 
 /// A structure representing a heat map.
@@ -151,6 +154,7 @@ impl HeatMap {
             reverse_scale,
             show_scale,
         );
+
         traces.push(trace);
         traces
     }
@@ -171,18 +175,18 @@ impl HeatMap {
         let y = Self::get_string_column(data, y);
         let z = Self::get_numeric_column(data, z);
 
-        let mut heat_map = HeatMapPlotly::default().x(x).y(y).z(z);
+        let mut trace = HeatMapPlotly::default().x(x).y(y).z(z);
 
-        heat_map = Self::set_auto_color_scale(heat_map, auto_color_scale);
-        heat_map = Self::set_color_bar(heat_map, color_bar);
-        heat_map = Self::set_color_scale(heat_map, color_scale);
-        heat_map = Self::set_reverse_scale(heat_map, reverse_scale);
-        heat_map = Self::set_show_scale(heat_map, show_scale);
-        heat_map
+        trace = Self::set_auto_color_scale(trace, auto_color_scale);
+        trace = Self::set_color_bar(trace, color_bar);
+        trace = Self::set_color_scale(trace, color_scale);
+        trace = Self::set_reverse_scale(trace, reverse_scale);
+        trace = Self::set_show_scale(trace, show_scale);
+        trace
     }
 
     fn set_auto_color_scale<X, Y, Z>(
-        mut heat_map: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
         auto_color_scale: Option<bool>,
     ) -> Box<HeatMapPlotly<X, Y, Z>>
     where
@@ -191,14 +195,14 @@ impl HeatMap {
         Z: Serialize + Clone,
     {
         if let Some(auto_color_scale) = auto_color_scale {
-            heat_map = heat_map.auto_color_scale(auto_color_scale);
+            trace = trace.auto_color_scale(auto_color_scale);
         }
 
-        heat_map
+        trace
     }
 
     fn set_color_bar<X, Y, Z>(
-        mut heat_map: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
         color_bar: Option<&ColorBar>,
     ) -> Box<HeatMapPlotly<X, Y, Z>>
     where
@@ -207,14 +211,14 @@ impl HeatMap {
         Z: Serialize + Clone,
     {
         if let Some(color_bar) = color_bar {
-            heat_map = heat_map.color_bar(color_bar.to_plotly())
+            trace = trace.color_bar(color_bar.to_plotly())
         }
 
-        heat_map
+        trace
     }
 
     fn set_color_scale<X, Y, Z>(
-        mut heat_map: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
         color_scale: Option<Palette>,
     ) -> Box<HeatMapPlotly<X, Y, Z>>
     where
@@ -223,14 +227,14 @@ impl HeatMap {
         Z: Serialize + Clone,
     {
         if let Some(color_scale) = color_scale {
-            heat_map = heat_map.color_scale(color_scale.to_plotly());
+            trace = trace.color_scale(color_scale.to_plotly());
         }
 
-        heat_map
+        trace
     }
 
     fn set_reverse_scale<X, Y, Z>(
-        mut heat_map: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
         reverse_scale: Option<bool>,
     ) -> Box<HeatMapPlotly<X, Y, Z>>
     where
@@ -239,13 +243,13 @@ impl HeatMap {
         Z: Serialize + Clone,
     {
         if let Some(reverse_scale) = reverse_scale {
-            heat_map = heat_map.reverse_scale(reverse_scale);
+            trace = trace.reverse_scale(reverse_scale);
         }
-        heat_map
+        trace
     }
 
     fn set_show_scale<X, Y, Z>(
-        mut heat_map: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
         show_scale: Option<bool>,
     ) -> Box<HeatMapPlotly<X, Y, Z>>
     where
@@ -254,9 +258,9 @@ impl HeatMap {
         Z: Serialize + Clone,
     {
         if let Some(show_scale) = show_scale {
-            heat_map = heat_map.show_scale(show_scale);
+            trace = trace.show_scale(show_scale);
         }
-        heat_map
+        trace
     }
 }
 
