@@ -1,6 +1,12 @@
 use plotly::{
-    common::{AxisSide as AxisSidePlotly, Font},
-    layout::{Axis as AxisPlotly, AxisType as AxisTypePlotly},
+    common::{
+        AxisSide as AxisSidePlotly,
+        Font,
+    },
+    layout::{
+        Axis as AxisPlotly,
+        AxisType as AxisTypePlotly,
+    },
 };
 
 use crate::components::{Rgb, Text, TickDirection, ValueExponent};

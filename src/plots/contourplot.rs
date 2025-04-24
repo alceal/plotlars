@@ -1,7 +1,7 @@
 use bon::bon;
 
 use plotly::{
-    HeatMap as HeatMapPlotly,
+    Contour,
     Layout as LayoutPlotly,
     Trace,
 };
@@ -10,88 +10,94 @@ use polars::frame::DataFrame;
 use serde::Serialize;
 
 use crate::{
-    common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, ColorBar, Palette, Text},
+    common::{Layout, PlotHelper, Polar},
+    components::{Axis, ColorBar, Contours, Palette, Text},
 };
 
-/// A structure representing a heat map.
 ///
-/// The `HeatMap` struct enables the creation of heat map visualizations with options for color scaling,
-/// axis customization, legend adjustments, and data value formatting. Users can customize the color
-/// scale, adjust the color bar, and set titles for the plot and axes, as well as format ticks and scales
-/// for improved data readability.
+/// A structure representing a contour plot.
+///
+/// The `ContourPlot` struct enables the creation of contour visualizations that display level
+/// curves of a three‑dimensional surface on a two‑dimensional plane. It offers extensive
+/// configuration options for contour styling, color scaling, axis appearance, legends, and
+/// annotations. Users can fine‑tune the contour interval, choose from predefined color palettes,
+/// reverse or hide the color scale, and set custom titles for both the plot and its axes in
+/// order to improve the readability of complex surfaces.
 ///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.
-/// * `x` - A string slice specifying the column name for x-axis values.
-/// * `y` - A string slice specifying the column name for y-axis values.
-/// * `z` - A string slice specifying the column name for z-axis values, which are represented by the color intensity.
-/// * `auto_color_scale` - An optional boolean for enabling automatic color scaling based on data.
-/// * `color_bar` - An optional reference to a `ColorBar` struct for customizing the color bar appearance.
-/// * `color_scale` - An optional `Palette` enum for specifying the color scale (e.g., Viridis).
+/// * `x` - A string slice specifying the column name for x‑axis values.
+/// * `y` - A string slice specifying the column name for y‑axis values.
+/// * `z` - A string slice specifying the column name for z‑axis values whose magnitude
+///   determines each contour line.
+/// * `color_bar` - An optional reference to a `ColorBar` struct for customizing the color bar
+///   appearance.
+/// * `color_scale` - An optional `Palette` enum for specifying the color palette (e.g.,
+///   `Palette::Viridis`).
 /// * `reverse_scale` - An optional boolean to reverse the color scale direction.
 /// * `show_scale` - An optional boolean to display the color scale on the plot.
+/// * `contours` - An optional reference to a `Contours` struct for configuring the contour
+///   interval, size, and coloring.
 /// * `plot_title` - An optional `Text` struct for setting the title of the plot.
-/// * `x_title` - An optional `Text` struct for labeling the x-axis.
-/// * `y_title` - An optional `Text` struct for labeling the y-axis.
-/// * `x_axis` - An optional reference to an `Axis` struct for customizing x-axis appearance.
-/// * `y_axis` - An optional reference to an `Axis` struct for customizing y-axis appearance.
+/// * `x_title` - An optional `Text` struct for labeling the x‑axis.
+/// * `y_title` - An optional `Text` struct for labeling the y‑axis.
+/// * `x_axis` - An optional reference to an `Axis` struct for customizing x‑axis appearance.
+/// * `y_axis` - An optional reference to an `Axis` struct for customizing y‑axis appearance.
 ///
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{ColorBar, HeatMap, Palette, Plot, Text, ValueExponent};
+/// use plotlars::{ Plot, Coloring, Contours, ContourPlot, Palette };
 ///
-/// let dataset = LazyCsvReader::new("data/heatmap.csv")
-///     .finish()
-///     .unwrap()
-///     .collect()
+/// let dataset = df!(
+///         "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],
+///         "y" => &[0.0, 7.5, 15.0, 0.0, 7.5, 15.0, 0.0, 7.5, 15.0],
+///         "z" => &[0.0, 5.0, 10.0, 5.0, 2.5, 5.0, 10.0, 0.0, 0.0],
+///     )
 ///     .unwrap();
 ///
-/// HeatMap::builder()
+/// ContourPlot::builder()
 ///     .data(&dataset)
 ///     .x("x")
 ///     .y("y")
 ///     .z("z")
-///     .color_bar(
-///         &ColorBar::new()
-///             .length(290)
-///             .value_exponent(ValueExponent::None)
-///             .separate_thousands(true)
-///             .tick_length(5)
-///             .tick_step(2500.0)
+///     .color_scale(Palette::Viridis)
+///     .reverse_scale(true)
+///     .contours(
+///         &Contours::new()
+///         .coloring(Coloring::Fill)
+///         .show_lines(false)
 ///     )
 ///     .plot_title(
-///         Text::from("Heat Map")
+///         Text::from("Contour Plot")
 ///             .font("Arial")
 ///             .size(18)
 ///     )
-///     .color_scale(Palette::Viridis)
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/5uFih4M.png)
+/// ![Example](https://imgur.com/VWgxHC8.png)
 #[derive(Clone, Serialize)]
-pub struct HeatMap {
-    pub traces: Vec<Box<dyn Trace + 'static>>,
-    pub layout: LayoutPlotly,
+pub struct ContourPlot {
+    traces: Vec<Box<dyn Trace + 'static>>,
+    layout: LayoutPlotly,
 }
 
 #[bon]
-impl HeatMap {
+impl ContourPlot {
     #[builder(on(String, into), on(Text, into))]
     pub fn new(
         data: &DataFrame,
         x: &str,
         y: &str,
         z: &str,
-        auto_color_scale: Option<bool>,
         color_bar: Option<&ColorBar>,
         color_scale: Option<Palette>,
         reverse_scale: Option<bool>,
         show_scale: Option<bool>,
+        contours: Option<&Contours>,
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
@@ -120,11 +126,11 @@ impl HeatMap {
             x,
             y,
             z,
-            auto_color_scale,
             color_bar,
             color_scale,
             reverse_scale,
             show_scale,
+            contours,
         );
 
         Self { traces, layout }
@@ -136,23 +142,24 @@ impl HeatMap {
         x: &str,
         y: &str,
         z: &str,
-        auto_color_scale: Option<bool>,
         color_bar: Option<&ColorBar>,
         color_scale: Option<Palette>,
         reverse_scale: Option<bool>,
         show_scale: Option<bool>,
+        contours: Option<&Contours>,
     ) -> Vec<Box<dyn Trace + 'static>> {
         let mut traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
+
         let trace = Self::create_trace(
             data,
             x,
             y,
             z,
-            auto_color_scale,
             color_bar,
             color_scale,
             reverse_scale,
             show_scale,
+            contours,
         );
 
         traces.push(trace);
@@ -165,46 +172,47 @@ impl HeatMap {
         x: &str,
         y: &str,
         z: &str,
-        auto_color_scale: Option<bool>,
         color_bar: Option<&ColorBar>,
         color_scale: Option<Palette>,
         reverse_scale: Option<bool>,
         show_scale: Option<bool>,
+        contours: Option<&Contours>,
     ) -> Box<dyn Trace + 'static> {
-        let x = Self::get_string_column(data, x);
-        let y = Self::get_string_column(data, y);
+        let x = Self::get_numeric_column(data, x);
+        let y = Self::get_numeric_column(data, y);
         let z = Self::get_numeric_column(data, z);
 
-        let mut trace = HeatMapPlotly::default().x(x).y(y).z(z);
+        let mut trace = Contour::new(x, y, z);
 
-        trace = Self::set_auto_color_scale(trace, auto_color_scale);
         trace = Self::set_color_bar(trace, color_bar);
         trace = Self::set_color_scale(trace, color_scale);
         trace = Self::set_reverse_scale(trace, reverse_scale);
         trace = Self::set_show_scale(trace, show_scale);
+        trace = Self::set_contours(trace, contours);
+
         trace
     }
 
-    fn set_auto_color_scale<X, Y, Z>(
-        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
-        auto_color_scale: Option<bool>,
-    ) -> Box<HeatMapPlotly<X, Y, Z>>
+    fn set_contours<X, Y, Z>(
+        mut trace: Box<Contour<X, Y, Z>>,
+        contours: Option<&Contours>,
+    ) -> Box<Contour<X, Y, Z>>
     where
         X: Serialize + Clone,
         Y: Serialize + Clone,
         Z: Serialize + Clone,
     {
-        if let Some(auto_color_scale) = auto_color_scale {
-            trace = trace.auto_color_scale(auto_color_scale);
+        if let Some(contours) = contours {
+            trace = trace.contours(contours.to_plotly())
         }
 
         trace
     }
 
     fn set_color_bar<X, Y, Z>(
-        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<Contour<X, Y, Z>>,
         color_bar: Option<&ColorBar>,
-    ) -> Box<HeatMapPlotly<X, Y, Z>>
+    ) -> Box<Contour<X, Y, Z>>
     where
         X: Serialize + Clone,
         Y: Serialize + Clone,
@@ -218,9 +226,9 @@ impl HeatMap {
     }
 
     fn set_color_scale<X, Y, Z>(
-        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<Contour<X, Y, Z>>,
         color_scale: Option<Palette>,
-    ) -> Box<HeatMapPlotly<X, Y, Z>>
+    ) -> Box<Contour<X, Y, Z>>
     where
         X: Serialize + Clone,
         Y: Serialize + Clone,
@@ -234,9 +242,9 @@ impl HeatMap {
     }
 
     fn set_reverse_scale<X, Y, Z>(
-        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<Contour<X, Y, Z>>,
         reverse_scale: Option<bool>,
-    ) -> Box<HeatMapPlotly<X, Y, Z>>
+    ) -> Box<Contour<X, Y, Z>>
     where
         X: Serialize + Clone,
         Y: Serialize + Clone,
@@ -249,9 +257,9 @@ impl HeatMap {
     }
 
     fn set_show_scale<X, Y, Z>(
-        mut trace: Box<HeatMapPlotly<X, Y, Z>>,
+        mut trace: Box<Contour<X, Y, Z>>,
         show_scale: Option<bool>,
-    ) -> Box<HeatMapPlotly<X, Y, Z>>
+    ) -> Box<Contour<X, Y, Z>>
     where
         X: Serialize + Clone,
         Y: Serialize + Clone,
@@ -264,11 +272,10 @@ impl HeatMap {
     }
 }
 
-impl Layout for HeatMap {}
-impl Marker for HeatMap {}
-impl Polar for HeatMap {}
+impl Layout for ContourPlot {}
+impl Polar for ContourPlot {}
 
-impl PlotHelper for HeatMap {
+impl PlotHelper for ContourPlot {
     fn get_layout(&self) -> &LayoutPlotly {
         &self.layout
     }

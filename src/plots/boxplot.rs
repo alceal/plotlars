@@ -1,8 +1,12 @@
 use bon::bon;
 
 use plotly::{
-    box_plot::BoxPoints, common::Marker as MarkerPlotly, layout::BoxMode, BoxPlot as BoxPlotly,
-    Layout as LayoutPlotly, Trace,
+    BoxPlot as BoxPlotly,
+    Layout as LayoutPlotly,
+    Trace,
+    box_plot::BoxPoints,
+    common::Marker as MarkerPlotly,
+    layout::BoxMode,
 };
 
 use polars::frame::DataFrame;

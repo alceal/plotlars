@@ -1,8 +1,13 @@
 use bon::bon;
 
 use plotly::{
-    common::{Marker as MarkerPlotly, Mode},
-    Layout as LayoutPlotly, Scatter3D, Trace,
+    Layout as LayoutPlotly,
+    Scatter3D,
+    Trace,
+    common::{
+        Marker as MarkerPlotly,
+        Mode,
+    },
 };
 
 use polars::frame::DataFrame;
@@ -10,8 +15,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, Legend, Text},
-    Rgb, Shape,
+    components::{Axis, Legend, Rgb, Shape, Text},
 };
 
 /// A structure representing a 3D scatter plot.

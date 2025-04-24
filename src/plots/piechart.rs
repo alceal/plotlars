@@ -1,6 +1,10 @@
 use bon::bon;
 
-use plotly::{Layout as LayoutPlotly, Pie, Trace};
+use plotly::{
+    Layout as LayoutPlotly,
+    Pie,
+    Trace,
+};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -21,7 +25,7 @@ use crate::{
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.
 /// * `labels` - A string slice specifying the column name to be used for slice labels.
 /// * `hole` - An optional `f64` value specifying the size of the hole in the center of the pie chart.
-///            A value of `0.0` creates a full pie chart, while a value closer to `1.0` creates a thinner ring.
+///   A value of `0.0` creates a full pie chart, while a value closer to `1.0` creates a thinner ring.
 /// * `pull` - An optional `f64` value specifying the fraction by which each slice should be pulled out from the center.
 /// * `rotation` - An optional `f64` value specifying the starting angle (in degrees) of the first slice.
 /// * `plot_title` - An optional `Text` struct specifying the title of the plot.

@@ -1,4 +1,7 @@
-use plotly::common::{ColorBar as ColorBarPlotly, Font};
+use plotly::common::{
+    ColorBar as ColorBarPlotly,
+    Font,
+};
 
 use crate::components::{Orientation, Rgb, Text, TickDirection, ValueExponent};
 
@@ -68,6 +71,108 @@ impl ColorBar {
     /// Creates a new `ColorBar` instance with default settings.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub(crate) fn to_plotly(&self) -> ColorBarPlotly {
+        let mut color_bar = ColorBarPlotly::new();
+
+        if let Some(color) = &self.background_color {
+            color_bar = color_bar.background_color(color.to_plotly());
+        }
+
+        if let Some(color) = &self.border_color {
+            color_bar = color_bar.border_color(color.to_plotly());
+        }
+
+        if let Some(width) = self.border_width {
+            color_bar = color_bar.border_width(width);
+        }
+
+        if let Some(step) = self.tick_step {
+            color_bar = color_bar.dtick(step);
+        }
+
+        if let Some(value_exponent) = &self.value_exponent {
+            color_bar = color_bar.exponent_format(value_exponent.to_plotly());
+        }
+
+        if let Some(length) = self.length {
+            color_bar = color_bar
+                .len_mode(plotly::common::ThicknessMode::Pixels)
+                .len(length);
+        }
+
+        if let Some(n_ticks) = self.n_ticks {
+            color_bar = color_bar.n_ticks(n_ticks);
+        }
+
+        if let Some(orientation) = &self.orientation {
+            color_bar = color_bar.orientation(orientation.to_plotly());
+        }
+
+        if let Some(color) = self.outline_color {
+            color_bar = color_bar.outline_color(color.to_plotly());
+        }
+
+        if let Some(width) = self.outline_width {
+            color_bar = color_bar.outline_width(width);
+        }
+
+        if let Some(separate_thousands) = self.separate_thousands {
+            color_bar = color_bar.separate_thousands(separate_thousands);
+        }
+
+        if let Some(width) = self.width {
+            color_bar = color_bar
+                .thickness_mode(plotly::common::ThicknessMode::Pixels)
+                .thickness(width);
+        }
+
+        if let Some(angle) = self.tick_angle {
+            color_bar = color_bar.tick_angle(angle);
+        }
+
+        if let Some(color) = self.tick_color {
+            color_bar = color_bar.tick_color(color.to_plotly());
+        }
+
+        if let Some(font) = &self.tick_font {
+            color_bar = color_bar.tick_font(Font::new().family(font.as_str()));
+        }
+
+        if let Some(length) = self.tick_length {
+            color_bar = color_bar.tick_len(length);
+        }
+
+        if let Some(labels) = &self.tick_labels {
+            color_bar = color_bar.tick_text(labels.to_owned())
+        }
+
+        if let Some(values) = &self.tick_values {
+            color_bar = color_bar.tick_vals(values.to_owned());
+        }
+
+        if let Some(width) = self.tick_width {
+            color_bar = color_bar.tick_width(width);
+        }
+
+        if let Some(tick_direction) = &self.tick_direction {
+            color_bar = color_bar.ticks(tick_direction.to_plotly_ticks());
+        }
+
+        if let Some(title) = &self.title {
+            color_bar = color_bar.title(title.to_plotly());
+        }
+
+        if let Some(x) = self.x {
+            color_bar = color_bar.x(x);
+        }
+
+        if let Some(y) = self.y {
+            color_bar = color_bar.y(y);
+        }
+
+        color_bar
     }
 
     /// Sets the background color of the color bar.
@@ -298,107 +403,5 @@ impl ColorBar {
     pub fn y(mut self, y: f64) -> Self {
         self.y = Some(y);
         self
-    }
-
-    pub(crate) fn to_plotly(&self) -> ColorBarPlotly {
-        let mut color_bar = ColorBarPlotly::new();
-
-        if let Some(color) = &self.background_color {
-            color_bar = color_bar.background_color(color.to_plotly());
-        }
-
-        if let Some(color) = &self.border_color {
-            color_bar = color_bar.border_color(color.to_plotly());
-        }
-
-        if let Some(width) = self.border_width {
-            color_bar = color_bar.border_width(width);
-        }
-
-        if let Some(step) = self.tick_step {
-            color_bar = color_bar.dtick(step);
-        }
-
-        if let Some(value_exponent) = &self.value_exponent {
-            color_bar = color_bar.exponent_format(value_exponent.to_plotly());
-        }
-
-        if let Some(length) = self.length {
-            color_bar = color_bar
-                .len_mode(plotly::common::ThicknessMode::Pixels)
-                .len(length);
-        }
-
-        if let Some(n_ticks) = self.n_ticks {
-            color_bar = color_bar.n_ticks(n_ticks);
-        }
-
-        if let Some(orientation) = &self.orientation {
-            color_bar = color_bar.orientation(orientation.to_plotly());
-        }
-
-        if let Some(color) = self.outline_color {
-            color_bar = color_bar.outline_color(color.to_plotly());
-        }
-
-        if let Some(width) = self.outline_width {
-            color_bar = color_bar.outline_width(width);
-        }
-
-        if let Some(separate_thousands) = self.separate_thousands {
-            color_bar = color_bar.separate_thousands(separate_thousands);
-        }
-
-        if let Some(width) = self.width {
-            color_bar = color_bar
-                .thickness_mode(plotly::common::ThicknessMode::Pixels)
-                .thickness(width);
-        }
-
-        if let Some(angle) = self.tick_angle {
-            color_bar = color_bar.tick_angle(angle);
-        }
-
-        if let Some(color) = self.tick_color {
-            color_bar = color_bar.tick_color(color.to_plotly());
-        }
-
-        if let Some(font) = &self.tick_font {
-            color_bar = color_bar.tick_font(Font::new().family(font.as_str()));
-        }
-
-        if let Some(length) = self.tick_length {
-            color_bar = color_bar.tick_len(length);
-        }
-
-        if let Some(labels) = &self.tick_labels {
-            color_bar = color_bar.tick_text(labels.to_owned())
-        }
-
-        if let Some(values) = &self.tick_values {
-            color_bar = color_bar.tick_vals(values.to_owned());
-        }
-
-        if let Some(width) = self.tick_width {
-            color_bar = color_bar.tick_width(width);
-        }
-
-        if let Some(tick_direction) = &self.tick_direction {
-            color_bar = color_bar.ticks(tick_direction.to_plotly_ticks());
-        }
-
-        if let Some(title) = &self.title {
-            color_bar = color_bar.title(title.to_plotly());
-        }
-
-        if let Some(x) = self.x {
-            color_bar = color_bar.x(x);
-        }
-
-        if let Some(y) = self.y {
-            color_bar = color_bar.y(y);
-        }
-
-        color_bar
     }
 }

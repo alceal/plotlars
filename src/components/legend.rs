@@ -1,4 +1,7 @@
-use plotly::{common::Font, layout::Legend as LegendPlotly};
+use plotly::{
+    common::Font,
+    layout::Legend as LegendPlotly,
+};
 
 use crate::{Orientation, Rgb, Text};
 

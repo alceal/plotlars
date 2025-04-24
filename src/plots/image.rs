@@ -1,7 +1,11 @@
 use bon::bon;
 
 use plotly::{
-    color::Rgb as RgbPlotly, image::ColorModel, Image as ImagePlotly, Layout as LayoutPlotly, Trace,
+    Image as ImagePlotly,
+    Layout as LayoutPlotly,
+    Trace,
+    color::Rgb as RgbPlotly,
+    image::ColorModel,
 };
 
 use serde::Serialize;
