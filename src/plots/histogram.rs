@@ -1,8 +1,12 @@
 use bon::bon;
 
 use plotly::{
-    common::Marker as MarkerPlotly, histogram::HistFunc, layout::BarMode,
-    Histogram as HistogramPlotly, Layout as LayoutPlotly, Trace,
+    Histogram as HistogramPlotly,
+    Layout as LayoutPlotly,
+    Trace,
+    common::Marker as MarkerPlotly,
+    histogram::HistFunc,
+    layout::BarMode,
 };
 
 use polars::frame::DataFrame;

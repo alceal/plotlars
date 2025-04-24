@@ -1,8 +1,13 @@
 use bon::bon;
 
 use plotly::{
-    common::{Marker as MarkerPlotly, Mode},
-    Layout as LayoutPlotly, Scatter, Trace,
+    Layout as LayoutPlotly,
+    Scatter,
+    Trace,
+    common::{
+        Marker as MarkerPlotly,
+        Mode,
+    },
 };
 
 use polars::frame::DataFrame;
