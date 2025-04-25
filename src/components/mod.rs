@@ -1,3 +1,4 @@
+pub(crate) mod arrangement;
 pub(crate) mod axis;
 pub(crate) mod color;
 pub(crate) mod colorbar;
@@ -11,6 +12,7 @@ pub(crate) mod shape;
 pub(crate) mod text;
 pub(crate) mod tick;
 
+pub(crate) use arrangement::Arrangement;
 pub(crate) use axis::Axis;
 pub(crate) use color::Rgb;
 pub(crate) use colorbar::ColorBar;
