@@ -4,6 +4,7 @@ use plotly::{
     Contour,
     Layout as LayoutPlotly,
     Trace,
+    contour::Contours,
 };
 
 use polars::frame::DataFrame;
@@ -11,7 +12,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, PlotHelper, Polar},
-    components::{Axis, ColorBar, Contours, Palette, Text},
+    components::{Axis, ColorBar, Coloring, Palette, Text},
 };
 
 /// A structure representing a contour plot.
@@ -47,7 +48,8 @@ use crate::{
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{ Plot, Coloring, Contours, ContourPlot, Palette };
+/// use polars::prelude::*;
+/// use plotlars::{Plot, Coloring, Contours, ContourPlot, Palette};
 ///
 /// let dataset = df!(
 ///         "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],
@@ -63,11 +65,8 @@ use crate::{
 ///     .z("z")
 ///     .color_scale(Palette::Viridis)
 ///     .reverse_scale(true)
-///     .contours(
-///         &Contours::new()
-///         .coloring(Coloring::Fill)
-///         .show_lines(false)
-///     )
+///     .coloring(Coloring::Fill)
+///     .show_lines(false)
 ///     .plot_title(
 ///         Text::from("Contour Plot")
 ///             .font("Arial")
@@ -96,7 +95,8 @@ impl ContourPlot {
         color_scale: Option<Palette>,
         reverse_scale: Option<bool>,
         show_scale: Option<bool>,
-        contours: Option<&Contours>,
+        show_lines: Option<bool>,
+        coloring: Option<Coloring>,
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
@@ -129,7 +129,8 @@ impl ContourPlot {
             color_scale,
             reverse_scale,
             show_scale,
-            contours,
+            show_lines,
+            coloring,
         );
 
         Self { traces, layout }
@@ -145,7 +146,8 @@ impl ContourPlot {
         color_scale: Option<Palette>,
         reverse_scale: Option<bool>,
         show_scale: Option<bool>,
-        contours: Option<&Contours>,
+        show_lines: Option<bool>,
+        coloring: Option<Coloring>,
     ) -> Vec<Box<dyn Trace + 'static>> {
         let mut traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
 
@@ -158,7 +160,8 @@ impl ContourPlot {
             color_scale,
             reverse_scale,
             show_scale,
-            contours,
+            show_lines,
+            coloring,
         );
 
         traces.push(trace);
@@ -175,7 +178,8 @@ impl ContourPlot {
         color_scale: Option<Palette>,
         reverse_scale: Option<bool>,
         show_scale: Option<bool>,
-        contours: Option<&Contours>,
+        show_lines: Option<bool>,
+        coloring: Option<Coloring>,
     ) -> Box<dyn Trace + 'static> {
         let x = Self::get_numeric_column(data, x);
         let y = Self::get_numeric_column(data, y);
@@ -187,25 +191,36 @@ impl ContourPlot {
         trace = Self::set_color_scale(trace, color_scale);
         trace = Self::set_reverse_scale(trace, reverse_scale);
         trace = Self::set_show_scale(trace, show_scale);
-        trace = Self::set_contours(trace, contours);
+
+        let mut contours = Contours::new();
+
+        contours = Self::set_coloring(contours, coloring);
+        contours = Self::set_show_lines(contours, show_lines);
 
         trace
+            .contours(contours)
     }
 
-    fn set_contours<X, Y, Z>(
-        mut trace: Box<Contour<X, Y, Z>>,
-        contours: Option<&Contours>,
-    ) -> Box<Contour<X, Y, Z>>
-    where
-        X: Serialize + Clone,
-        Y: Serialize + Clone,
-        Z: Serialize + Clone,
-    {
-        if let Some(contours) = contours {
-            trace = trace.contours(contours.to_plotly())
+    fn set_show_lines(
+        mut contours: Contours,
+        show_lines: Option<bool>,
+    ) -> Contours {
+        if let Some(show_lines) = show_lines {
+            contours = contours.show_lines(show_lines)
         }
 
-        trace
+        contours
+    }
+
+    fn set_coloring(
+        mut contours: Contours,
+        coloring: Option<Coloring>,
+    ) -> Contours {
+        if let Some(coloring) = coloring {
+            contours = contours.coloring(coloring.to_plotly())
+        }
+
+        contours
     }
 
     fn set_color_bar<X, Y, Z>(
