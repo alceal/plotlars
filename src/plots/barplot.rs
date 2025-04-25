@@ -49,26 +49,13 @@ use crate::{
 /// ```rust
 /// use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
 ///
-/// let animal = vec![
-///     "giraffe",
-///     "giraffe",
-///     "orangutan",
-///     "orangutan",
-///     "monkey",
-///     "monkey",
-/// ];
-///
-/// let gender = vec!["female", "male", "female", "male", "female", "male"];
-/// let value = vec![20.0f32, 25.0, 14.0, 18.0, 23.0, 31.0];
-/// let error = vec![1.0, 0.5, 1.5, 1.0, 0.5, 1.5];
-///
-/// let dataset = DataFrame::new(vec![
-///     Series::new("animal".into(), animal),
-///     Series::new("gender".into(), gender),
-///     Series::new("value".into(), value),
-///     Series::new("error".into(), error),
-/// ])
-/// .unwrap();
+/// let dataset = df![
+///         "animal" => &["giraffe", "giraffe", "orangutan", "orangutan", "monkey", "monkey"],
+///         "gender" => &vec!["female", "male", "female", "male", "female", "male"],
+///         "value" => &vec![20.0f32, 25.0, 14.0, 18.0, 23.0, 31.0],
+///         "error" => &vec![1.0, 0.5, 1.5, 1.0, 0.5, 1.5],
+///     ]
+///     .unwrap();
 ///
 /// BarPlot::builder()
 ///     .data(&dataset)

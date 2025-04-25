@@ -9,13 +9,11 @@ use crate::components::Rgb;
 /// ```rust
 /// use plotlars::{Axis, BarPlot, Plot, Text, Rgb};
 ///
-/// let label = vec![""];
-/// let value = vec![0];
-///
-/// let dataset = DataFrame::new(vec![
-///     Series::new("label".into(), label),
-///     Series::new("value".into(), value),
-/// ]).unwrap();
+/// let dataset = df![
+///         "label" => &[""],
+///         "value" => &[0],
+///     ]
+///     .unwrap();
 ///
 /// let axis = Axis::new()
 ///     .tick_values(vec![]);

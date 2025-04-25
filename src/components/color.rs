@@ -12,15 +12,12 @@ use serde::Serialize;
 /// ```rust
 /// use plotlars::{Axis, BarPlot, Legend, Orientation, Plot, Rgb};
 ///
-/// let label = vec!["", "", ""];
-/// let color = vec!["red", "green", "blue"];
-/// let value = vec![1, 1, 1];
-///
-/// let df = DataFrame::new(vec![
-///     Series::new("label".into(), label),
-///     Series::new("color".into(), color),
-///     Series::new("value".into(), value),
-/// ]).unwrap();
+/// let dataset = df![
+///         "label" => &["", "", ""],
+///         "color" => &["red", "green", "blue"],
+///         "value" => &[1, 1, 1],
+///     ]
+///     .unwrap();
 ///
 /// let axis = Axis::new()
 ///     .show_axis(false);
@@ -30,7 +27,7 @@ use serde::Serialize;
 ///     .x(0.3);
 ///
 /// BarPlot::builder()
-///     .data(&df)
+///     .data(&dataset)
 ///     .labels("label")
 ///     .values("value")
 ///     .group("color")
