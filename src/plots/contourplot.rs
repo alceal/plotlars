@@ -14,7 +14,6 @@ use crate::{
     components::{Axis, ColorBar, Contours, Palette, Text},
 };
 
-///
 /// A structure representing a contour plot.
 ///
 /// The `ContourPlot` struct enables the creation of contour visualizations that display level
