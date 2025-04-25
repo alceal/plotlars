@@ -9,7 +9,10 @@ use plotly::{
 use polars::frame::DataFrame;
 use serde::Serialize;
 
-use crate::common::{ Layout, PlotHelper, Polar };
+use crate::{
+    common::{Layout, PlotHelper, Polar},
+    components::{Axis, Text},
+};
 
 #[derive(Clone, Serialize)]
 pub struct TemplatePlot {
