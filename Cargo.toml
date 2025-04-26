@@ -14,8 +14,10 @@ keywords = ["chart", "plot", "plotly", "polars", "visualization"]
 categories = ["visualization"]
 
 [dependencies]
-bon = "3.6.1"
+bon = "3.6.3"
 image = "0.25.6"
+indexmap = "2.9.0"
+ordered-float = "5.0.0"
 plotly = "0.12.1"
 polars = { version = "0.46.0", features = ["lazy", "strings"] }
 serde = "1.0.219"
