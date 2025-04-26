@@ -349,7 +349,7 @@ impl Axis {
         self
     }
 
-    pub(crate) fn set_axis(title: Option<Text>, format: Option<&Axis>) -> AxisPlotly {
+    pub(crate) fn set_axis(title: Option<Text>, format: Option<&Self>) -> AxisPlotly {
         let mut axis = AxisPlotly::new();
 
         if let Some(title) = title {
@@ -363,7 +363,7 @@ impl Axis {
         axis
     }
 
-    fn set_format(mut axis: AxisPlotly, format: &Axis) -> AxisPlotly {
+    fn set_format(mut axis: AxisPlotly, format: &Self) -> AxisPlotly {
         if let Some(visible) = format.show_axis {
             axis = axis.visible(visible.to_owned());
         }
