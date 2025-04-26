@@ -9,7 +9,7 @@ pub use crate::common::plot::Plot;
 pub use crate::components::axis::{Axis, AxisSide, AxisType};
 pub use crate::components::color::Rgb;
 pub use crate::components::colorbar::ColorBar;
-pub use crate::components::contours::{Coloring, Contours};
+pub use crate::components::coloring::Coloring;
 pub use crate::components::exponent::ValueExponent;
 pub use crate::components::legend::Legend;
 pub use crate::components::line::Line;
