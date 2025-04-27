@@ -15,7 +15,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, Legend, Rgb, Shape, Text},
+    components::{Rgb, Shape, Text},
 };
 
 /// A structure representing a 3D scatter plot.
@@ -116,23 +116,26 @@ impl Scatter3dPlot {
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         plot_title: Option<Text>,
-        x_title: Option<Text>,
-        y_title: Option<Text>,
-        z_title: Option<Text>,
-        legend_title: Option<Text>,
-        x_axis: Option<&Axis>,
-        y_axis: Option<&Axis>,
-        z_axis: Option<&Axis>,
-        legend: Option<&Legend>,
     ) -> Self {
+        let legend_title = None;
+        let x_title = None;
+        let y_title = None;
+        let z_title = None;
+        let legend = None;
+        let x_axis = None;
+        let y_axis = None;
+        let z_axis = None;
+
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
+            None, // y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
+            None, // y2_axis,
             z_axis,
             legend,
         );

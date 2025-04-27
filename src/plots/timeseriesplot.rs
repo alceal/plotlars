@@ -51,12 +51,13 @@ use crate::{
 /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
 /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
 /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+/// * `y_axis2` - An optional reference to an `Axis` struct for customizing the y-axis2.
 /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
 ///
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
+/// use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
 /// let dataset = LazyCsvReader::new("data/revenue_and_cost.csv")
 ///     .finish()
@@ -76,8 +77,8 @@ use crate::{
 ///     .additional_series(vec!["Cost"])
 ///     .size(8)
 ///     .colors(vec![
+///         Rgb(0, 0, 255),
 ///         Rgb(255, 0, 0),
-///         Rgb(0, 255, 0),
 ///     ])
 ///     .lines(vec![Line::Dash, Line::Solid])
 ///     .with_shape(true)
@@ -92,11 +93,32 @@ use crate::{
 ///             .x(0.05)
 ///             .y(0.9)
 ///     )
+///     .x_title("x")
+///     .y_title(
+///         Text::from("y")
+///             .color(Rgb(0, 0, 255))
+///     )
+///     .y_title2(
+///         Text::from("y2")
+///             .color(Rgb(255, 0, 0))
+///     )
+///     .y_axis(
+///         &Axis::new()
+///             .value_color(Rgb(0, 0, 255))
+///             .show_grid(false)
+///             .zero_line_color(Rgb(0, 0, 0))
+///     )
+///     .y_axis2(
+///         &Axis::new()
+///             .axis_side(plotlars::AxisSide::Right)
+///             .value_color(Rgb(255, 0, 0))
+///             .show_grid(false)
+///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/1GaGFbk.png)
+/// ![Example](https://imgur.com/hL27Xcn.png)
 #[derive(Clone, Serialize)]
 pub struct TimeSeriesPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
@@ -123,9 +145,11 @@ impl TimeSeriesPlot {
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
+        y_title2: Option<Text>,
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
+        y_axis2: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> Self {
         let z_title = None;
@@ -135,10 +159,12 @@ impl TimeSeriesPlot {
             plot_title,
             x_title,
             y_title,
+            y_title2,
             z_title,
             legend_title,
             x_axis,
             y_axis,
+            y_axis2,
             z_axis,
             legend,
         );
@@ -196,7 +222,7 @@ impl TimeSeriesPlot {
 
         let name = Some(y_col);
 
-        let trace = Self::create_trace(data, x_col, y_col, name, with_shape, marker, line);
+        let trace = Self::create_trace(data, x_col, y_col, name, with_shape, marker, line, "");
 
         traces.push(trace);
 
@@ -225,8 +251,11 @@ impl TimeSeriesPlot {
 
                 let name = Some(series);
 
+                let index = format!("y{}", i + 2);
+                let index = index.as_str();
+
                 let trace =
-                    Self::create_trace(&subset, x_col, series, name, with_shape, marker, line);
+                    Self::create_trace(&subset, x_col, series, name, with_shape, marker, line, index);
 
                 traces.push(trace);
             }
@@ -235,6 +264,7 @@ impl TimeSeriesPlot {
         traces
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn create_trace(
         data: &DataFrame,
         x_col: &str,
@@ -243,6 +273,7 @@ impl TimeSeriesPlot {
         with_shape: Option<bool>,
         marker: MarkerPlotly,
         line: LinePlotly,
+        index: &str,
     ) -> Box<dyn Trace + 'static> {
         let x_data = Self::get_string_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
@@ -264,7 +295,7 @@ impl TimeSeriesPlot {
             trace = trace.name(name);
         }
 
-        trace
+        trace.y_axis(index)
     }
 }
 

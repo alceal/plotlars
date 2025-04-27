@@ -134,10 +134,12 @@ impl Histogram {
             plot_title,
             x_title,
             y_title,
+            None, // y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
+            None, // y2_axis,
             z_axis,
             legend,
         );
