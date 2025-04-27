@@ -57,25 +57,25 @@ pub enum Palette {
 impl Palette {
     #[allow(clippy::wrong_self_convention)]
     pub(crate) fn to_plotly(&self) -> ColorScale {
-        match self {
-            Palette::Greys => ColorScale::Palette(ColorScalePalette::Greys),
-            Palette::YlGnBu => ColorScale::Palette(ColorScalePalette::YlGnBu),
-            Palette::Greens => ColorScale::Palette(ColorScalePalette::Greens),
-            Palette::YlOrRd => ColorScale::Palette(ColorScalePalette::YlOrRd),
-            Palette::Bluered => ColorScale::Palette(ColorScalePalette::Bluered),
-            Palette::RdBu => ColorScale::Palette(ColorScalePalette::RdBu),
-            Palette::Reds => ColorScale::Palette(ColorScalePalette::Reds),
-            Palette::Blues => ColorScale::Palette(ColorScalePalette::Blues),
-            Palette::Picnic => ColorScale::Palette(ColorScalePalette::Picnic),
-            Palette::Rainbow => ColorScale::Palette(ColorScalePalette::Rainbow),
-            Palette::Portland => ColorScale::Palette(ColorScalePalette::Portland),
-            Palette::Jet => ColorScale::Palette(ColorScalePalette::Jet),
-            Palette::Hot => ColorScale::Palette(ColorScalePalette::Hot),
-            Palette::Blackbody => ColorScale::Palette(ColorScalePalette::Blackbody),
-            Palette::Earth => ColorScale::Palette(ColorScalePalette::Earth),
-            Palette::Electric => ColorScale::Palette(ColorScalePalette::Electric),
-            Palette::Viridis => ColorScale::Palette(ColorScalePalette::Viridis),
-            Palette::Cividis => ColorScale::Palette(ColorScalePalette::Cividis),
-        }
+        ColorScale::Palette(match self {
+            Palette::Greys => ColorScalePalette::Greys,
+            Palette::YlGnBu => ColorScalePalette::YlGnBu,
+            Palette::Greens => ColorScalePalette::Greens,
+            Palette::YlOrRd => ColorScalePalette::YlOrRd,
+            Palette::Bluered => ColorScalePalette::Bluered,
+            Palette::RdBu => ColorScalePalette::RdBu,
+            Palette::Reds => ColorScalePalette::Reds,
+            Palette::Blues => ColorScalePalette::Blues,
+            Palette::Picnic => ColorScalePalette::Picnic,
+            Palette::Rainbow => ColorScalePalette::Rainbow,
+            Palette::Portland => ColorScalePalette::Portland,
+            Palette::Jet => ColorScalePalette::Jet,
+            Palette::Hot => ColorScalePalette::Hot,
+            Palette::Blackbody => ColorScalePalette::Blackbody,
+            Palette::Earth => ColorScalePalette::Earth,
+            Palette::Electric => ColorScalePalette::Electric,
+            Palette::Viridis => ColorScalePalette::Viridis,
+            Palette::Cividis => ColorScalePalette::Cividis,
+        })
     }
 }
