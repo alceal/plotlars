@@ -8,10 +8,12 @@ pub(crate) trait Layout {
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
+        y2_title: Option<Text>,
         z_title: Option<Text>,
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
+        y2_axis: Option<&Axis>,
         z_axis: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> LayoutPlotly {
@@ -21,9 +23,10 @@ pub(crate) trait Layout {
             layout = layout.title(title.to_plotly());
         }
 
-        layout = layout.x_axis(Axis::set_axis(x_title, x_axis));
-        layout = layout.y_axis(Axis::set_axis(y_title, y_axis));
-        layout = layout.z_axis(Axis::set_axis(z_title, z_axis));
+        layout = layout.x_axis(Axis::set_axis(x_title, x_axis, None));
+        layout = layout.y_axis(Axis::set_axis(y_title, y_axis, None));
+        layout = layout.y_axis2(Axis::set_axis(y2_title, y2_axis, Some("y")));
+        layout = layout.z_axis(Axis::set_axis(z_title, z_axis, None));
         layout = layout.legend(Legend::set_legend(legend_title, legend));
         layout
     }

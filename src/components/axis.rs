@@ -349,7 +349,11 @@ impl Axis {
         self
     }
 
-    pub(crate) fn set_axis(title: Option<Text>, format: Option<&Self>) -> AxisPlotly {
+    pub(crate) fn set_axis(
+        title: Option<Text>,
+        format: Option<&Self>,
+        overlaying: Option<&str>,
+    ) -> AxisPlotly {
         let mut axis = AxisPlotly::new();
 
         if let Some(title) = title {
@@ -357,13 +361,21 @@ impl Axis {
         }
 
         if let Some(format) = format {
-            axis = Self::set_format(axis, format);
+            axis = Self::set_format(axis, format, overlaying);
         }
 
         axis
     }
 
-    fn set_format(mut axis: AxisPlotly, format: &Self) -> AxisPlotly {
+    fn set_format(
+        mut axis: AxisPlotly,
+        format: &Self,
+        overlaying: Option<&str>,
+    ) -> AxisPlotly {
+        if let Some(overlaying) = overlaying {
+            axis = axis.overlaying(overlaying);
+        }
+
         if let Some(visible) = format.show_axis {
             axis = axis.visible(visible.to_owned());
         }
