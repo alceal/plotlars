@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.8.1] - 2025-01-07
+## [0.9.0] - 2025-04-27
+
+### 🚀 Features
+
+- Add Contour plot
+- Add Sankey diagram
+- Add surface plot
+- Add the secundary y axis
+
+### 🚜 Refactor
+
+- Remove contours struct
 
 ### 📚 Documentation
 
@@ -11,6 +22,18 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Bump plotlars version to 0.8.1 in Cargo files
+- Update CHANGELOG for version 0.8.1 with new features and documentation
+- Update Rust version and edition and bon crate
+- Remove fmt hook
+- Add fmt
+- Format imports
+- Refactor dataframe from documentation
+- Format code
+- Remove empty line
+- Update with the new plots
+- Update bon
+- Update documentation
+- Update
 
 ### Feat
 
