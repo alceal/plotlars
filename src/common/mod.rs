@@ -4,8 +4,10 @@ pub(crate) mod mark;
 pub(crate) mod plot;
 pub(crate) mod polar;
 
-pub(crate) use layout::Layout;
-pub(crate) use line::Line;
-pub(crate) use mark::Marker;
-pub(crate) use plot::PlotHelper;
-pub(crate) use polar::Polar;
+pub(crate) use {
+    layout::Layout,
+    line::Line,
+    mark::Marker,
+    plot::PlotHelper,
+    polar::Polar,
+};

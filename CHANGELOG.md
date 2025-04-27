@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - Add Contour plot
 - Add Sankey diagram
 - Add surface plot
-- Add the secundary y axis
+- Add the secondary y axis
 
 ### 🚜 Refactor
 

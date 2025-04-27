@@ -13,17 +13,19 @@ pub(crate) mod shape;
 pub(crate) mod text;
 pub(crate) mod tick;
 
-pub(crate) use arrangement::Arrangement;
-pub(crate) use axis::Axis;
-pub(crate) use color::Rgb;
-pub(crate) use colorbar::ColorBar;
-pub(crate) use coloring::Coloring;
-pub(crate) use exponent::ValueExponent;
-pub(crate) use legend::Legend;
-pub(crate) use lighting::Lighting;
-pub(crate) use line::Line;
-pub(crate) use orientation::Orientation;
-pub(crate) use palette::Palette;
-pub(crate) use shape::Shape;
-pub(crate) use text::Text;
-pub(crate) use tick::TickDirection;
+pub(crate) use {
+    arrangement::Arrangement,
+    axis::Axis,
+    color::Rgb,
+    colorbar::ColorBar,
+    coloring::Coloring,
+    exponent::ValueExponent,
+    legend::Legend,
+    lighting::Lighting,
+    line::Line,
+    orientation::Orientation,
+    palette::Palette,
+    shape::Shape,
+    text::Text,
+    tick::TickDirection,
+};

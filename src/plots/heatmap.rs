@@ -247,6 +247,7 @@ impl HeatMap {
         if let Some(reverse_scale) = reverse_scale {
             trace = trace.reverse_scale(reverse_scale);
         }
+
         trace
     }
 
@@ -262,6 +263,7 @@ impl HeatMap {
         if let Some(show_scale) = show_scale {
             trace = trace.show_scale(show_scale);
         }
+
         trace
     }
 }
