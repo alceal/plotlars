@@ -57,7 +57,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
+/// use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
 /// let dataset = LazyCsvReader::new("data/revenue_and_cost.csv")
 ///     .finish()
@@ -118,7 +118,7 @@ use crate::{
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/1GaGFbk.png)
+/// ![Example](https://imgur.com/hL27Xcn.png)
 #[derive(Clone, Serialize)]
 pub struct TimeSeriesPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
