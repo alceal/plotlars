@@ -149,9 +149,11 @@ impl LinePlot {
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
+        y2_title: Option<Text>,
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
+        y2_axis: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> Self {
         let z_title = None;
@@ -161,10 +163,12 @@ impl LinePlot {
             plot_title,
             x_title,
             y_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
+            y2_axis,
             z_axis,
             legend,
         );
