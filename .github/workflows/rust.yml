@@ -24,8 +24,5 @@ jobs:
       run: cargo fmt
     - name: Clippy
       run: cargo clippy
-    - name: typos-action
-      uses: crate-ci/typos@v1.24.1
     - name: Machete
       uses: bnjbvr/cargo-machete@main
-            
