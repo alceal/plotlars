@@ -69,7 +69,7 @@ use crate::{
 ///
 /// let x = x_base
 ///     .iter()
-///     .flat_map(|&xi| iter::repeat(xi).take(n))
+///     .flat_map(|&xi| iter::repeat_n(xi, n))
 ///     .collect::<Vec<_>>();
 ///
 /// let y = y_base
@@ -81,13 +81,12 @@ use crate::{
 ///
 /// let z = x_base
 ///     .iter()
-///     .map(|i| {
+///     .flat_map(|i| {
 ///         y_base
 ///             .iter()
 ///             .map(|j| 1.0 / (j * j + 5.0) * j.sin() + 1.0 / (i * i + 5.0) * i.cos())
 ///             .collect::<Vec<_>>()
 ///     })
-///     .flatten()
 ///     .collect::<Vec<_>>();
 ///
 /// let dataset = df![
