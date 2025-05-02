@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.1] - 2025-05-02
+
+### 🐛 Bug Fixes
+
+- Several time series with only one y axis
+
+### 📚 Documentation
+
+- Add another example
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove string feature
+- Remove typo
+- Add examples folder
+- Update example image
+- Refactor
+- Bump patch
+
 ## [0.9.0] - 2025-04-27
 
 ### 🚀 Features
@@ -34,6 +53,8 @@ All notable changes to this project will be documented in this file.
 - Update bon
 - Update documentation
 - Update
+- Update CHANGELOG
+- Update version
 
 ### Feat
 
