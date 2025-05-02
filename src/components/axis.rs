@@ -351,7 +351,7 @@ impl Axis {
 
     pub(crate) fn set_axis(
         title: Option<Text>,
-        format: Option<&Self>,
+        format: &Self,
         overlaying: Option<&str>,
     ) -> AxisPlotly {
         let mut axis = AxisPlotly::new();
@@ -359,10 +359,7 @@ impl Axis {
         if let Some(title) = title {
             axis = axis.title(title.to_plotly());
         }
-
-        if let Some(format) = format {
-            axis = Self::set_format(axis, format, overlaying);
-        }
+        axis = Self::set_format(axis, format, overlaying);
 
         axis
     }

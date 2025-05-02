@@ -154,6 +154,11 @@ impl TimeSeriesPlot {
     ) -> Self {
         let z_title = None;
         let z_axis = None;
+        let mut has_y_axis2 = false;
+
+        if y_axis2.is_some() {
+            has_y_axis2 = true;
+        }
 
         let layout = Self::create_layout(
             plot_title,
@@ -174,6 +179,7 @@ impl TimeSeriesPlot {
             x,
             y,
             additional_series,
+            has_y_axis2,
             size,
             color,
             colors,
@@ -194,6 +200,7 @@ impl TimeSeriesPlot {
         x_col: &str,
         y_col: &str,
         additional_series: Option<Vec<&str>>,
+        has_y_axis2: bool,
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -218,11 +225,26 @@ impl TimeSeriesPlot {
             shapes.clone(),
         );
 
-        let line = Self::create_line(0, width, style, styles.clone());
+        let line = Self::create_line(
+            0,
+            width,
+            style,
+            styles.clone(),
+        );
 
         let name = Some(y_col);
+        let mut y_axis_index = "";
 
-        let trace = Self::create_trace(data, x_col, y_col, name, with_shape, marker, line, "");
+        let trace = Self::create_trace(
+            data,
+            x_col,
+            y_col,
+            name,
+            with_shape,
+            marker,
+            line,
+            y_axis_index,
+        );
 
         traces.push(trace);
 
@@ -240,7 +262,12 @@ impl TimeSeriesPlot {
                     shapes.clone(),
                 );
 
-                let line = Self::create_line(i + 1, width, style, styles.clone());
+                let line = Self::create_line(
+                    i + 1,
+                    width,
+                    style,
+                    styles.clone(),
+                );
 
                 let subset = data
                     .clone()
@@ -251,11 +278,22 @@ impl TimeSeriesPlot {
 
                 let name = Some(series);
 
-                let index = format!("y{}", i + 2);
-                let index = index.as_str();
+
+
+                if has_y_axis2 {
+                    y_axis_index = "y2";
+                }
 
                 let trace =
-                    Self::create_trace(&subset, x_col, series, name, with_shape, marker, line, index);
+                    Self::create_trace(
+                        &subset,
+                        x_col,
+                        series,
+                        name,
+                        with_shape, marker,
+                        line,
+                        y_axis_index,
+                    );
 
                 traces.push(trace);
             }
@@ -278,7 +316,9 @@ impl TimeSeriesPlot {
         let x_data = Self::get_string_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
 
-        let mut trace = Scatter::default().x(x_data).y(y_data);
+        let mut trace = Scatter::default()
+            .x(x_data)
+            .y(y_data);
 
         if let Some(with_shape) = with_shape {
             if with_shape {
