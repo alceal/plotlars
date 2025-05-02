@@ -182,6 +182,17 @@ errors and makes the code more readable and maintainable.
 cargo add plotlars
 ```
 
+## Running the examples
+
+Plotlars comes with several ready‑to‑use demo programs in the `examples/` directory.
+You can build and execute any of them with Cargo’s `--example` flag:
+
+```bash
+cargo run --example barplot
+```
+
+Replace `barplot` with the file name (without the `.rs` extension) of the example you want to run.
+
 ## Features
 
 - Seamless Integration with Polars: Leverage the power of Polars for efficient
