@@ -49,7 +49,7 @@ use plotly::sankey::Arrangement as ArrangementPlotly;
 ///     .plot();
 /// ```
 ///
-/// ![Example Sankey Diagram](https://imgur.com/oCvuAZB.png)
+/// ![Example](https://imgur.com/oCvuAZB.png)
 pub enum Arrangement {
     Snap,
     Perpendicular,
