@@ -54,7 +54,7 @@ use crate::{
 /// * `y_axis2` - An optional reference to an `Axis` struct for customizing the y-axis2.
 /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
@@ -118,7 +118,44 @@ use crate::{
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/hL27Xcn.png)
+/// ![Example1](https://imgur.com/hL27Xcn.png)
+///
+/// ```rust
+/// let dataset = LazyCsvReader::new("data/debilt_2023_temps.csv")
+///     .with_has_header(true)
+///     .with_try_parse_dates(true)
+///     .finish()
+///     .unwrap()
+///     .with_columns(vec![
+///         (col("tavg") / lit(10)).alias("tavg"),
+///         (col("tmin") / lit(10)).alias("tmin"),
+///         (col("tmax") / lit(10)).alias("tmax"),
+///     ])
+///     .collect()
+///     .unwrap();
+///
+///     TimeSeriesPlot::builder()
+///     .data(&dataset)
+///     .x("date")
+///     .y("tavg")
+///     .additional_series(vec!["tmin", "tmax"])
+///     .colors(vec![
+///         Rgb(128, 128, 128),
+///         Rgb(0, 122, 255),
+///         Rgb(255, 128, 0),
+///     ])
+///     .lines(vec![
+///         Line::Solid,
+///         Line::Dot,
+///         Line::Dot,
+///     ])
+///     .plot_title("Temperature at De Bilt (2023)")
+///     .legend_title("Legend")
+///     .build()
+///     .plot();
+/// ```
+///
+/// ![Example2](https://imgur.com/NBioox6.png)
 #[derive(Clone, Serialize)]
 pub struct TimeSeriesPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
