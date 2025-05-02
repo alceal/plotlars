@@ -1419,7 +1419,7 @@ dependencies = [
 
 [[package]]
 name = "plotlars"
-version = "0.9.1"
+version = "0.9.2"
 dependencies = [
  "bon",
  "image",
