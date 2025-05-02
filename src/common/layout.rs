@@ -23,10 +23,22 @@ pub(crate) trait Layout {
             layout = layout.title(title.to_plotly());
         }
 
-        layout = layout.x_axis(Axis::set_axis(x_title, x_axis, None));
-        layout = layout.y_axis(Axis::set_axis(y_title, y_axis, None));
-        layout = layout.y_axis2(Axis::set_axis(y2_title, y2_axis, Some("y")));
-        layout = layout.z_axis(Axis::set_axis(z_title, z_axis, None));
+        if let Some(x_axis) = x_axis {
+            layout = layout.x_axis(Axis::set_axis(x_title, x_axis, None));
+        }
+
+        if let Some(y_axis ) = y_axis {
+            layout = layout.y_axis(Axis::set_axis(y_title, y_axis, None));
+        }
+
+        if let Some(y2_axis) = y2_axis {
+            layout = layout.y_axis2(Axis::set_axis(y2_title, y2_axis, Some("y")));
+        }
+
+        if let Some(z_axis) = z_axis {
+            layout = layout.z_axis(Axis::set_axis(z_title, z_axis, None));
+        }
+
         layout = layout.legend(Legend::set_legend(legend_title, legend));
         layout
     }
