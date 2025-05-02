@@ -93,7 +93,7 @@ use crate::{
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/BXlxKfg.png)
+/// ![Example](https://imgur.com/WYTQxHA.png)
 #[derive(Clone, Serialize)]
 pub struct Scatter3dPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
