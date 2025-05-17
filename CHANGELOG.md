@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.3] - 2025-05-17
+
+### 🐛 Bug Fixes
+
+- A workaround fix for polars 0.47.1
+
 ## [0.9.1] - 2025-05-02
 
 ### 🐛 Bug Fixes
