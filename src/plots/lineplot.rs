@@ -73,9 +73,9 @@ use crate::{
 /// let x_values = x_values.to_vec();
 ///
 /// let dataset = DataFrame::new(vec![
-///     Series::new("x".into(), x_values),
-///     Series::new("sine".into(), sine_values),
-///     Series::new("cosine".into(), cosine_values),
+///     Column::new("x".into(), x_values),
+///     Column::new("sine".into(), sine_values),
+///     Column::new("cosine".into(), cosine_values),
 /// ])
 /// .unwrap();
 ///
