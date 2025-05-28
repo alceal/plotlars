@@ -64,6 +64,7 @@ use crate::{
 /// ```rust
 /// use ndarray::Array;
 ///
+/// use plotters::prelude::*;
 /// use plotlars::{Axis, Line, LinePlot, Plot, Rgb, Text, TickDirection};
 ///
 /// let x_values: Array<f64, _> = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 1000);
