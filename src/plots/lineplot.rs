@@ -64,6 +64,7 @@ use crate::{
 /// ```rust
 /// use ndarray::Array;
 ///
+/// use polars::prelude::*;
 /// use plotlars::{Axis, Line, LinePlot, Plot, Rgb, Text, TickDirection};
 ///
 /// let x_values: Array<f64, _> = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 1000);
@@ -72,9 +73,9 @@ use crate::{
 /// let x_values = x_values.to_vec();
 ///
 /// let dataset = DataFrame::new(vec![
-///     Series::new("x".into(), x_values),
-///     Series::new("sine".into(), sine_values),
-///     Series::new("cosine".into(), cosine_values),
+///     Column::new("x".into(), x_values),
+///     Column::new("sine".into(), sine_values),
+///     Column::new("cosine".into(), cosine_values),
 /// ])
 /// .unwrap();
 ///
