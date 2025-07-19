@@ -1,10 +1,13 @@
 use std::env;
 
-use plotly::{
-    Layout,
-    Plot as Plotly,
-    Trace,
-};
+use plotly::{Layout, Plot as Plotly, Trace};
+
+#[cfg(any(
+    feature = "static_export_chromedriver",
+    feature = "static_export_geckodriver",
+    feature = "static_export_default"
+))]
+use plotly_static::ImageFormat;
 
 use serde::Serialize;
 
@@ -20,13 +23,18 @@ pub trait Plot {
 
     fn to_inline_html(&self, plot_div_id: Option<&str>) -> String;
 
-    // fn write_image(
-    //     &self,
-    //     path: impl Into<String>,
-    //     width: usize,
-    //     height: usize,
-    //     scale: f64,
-    // );
+    #[cfg(any(
+        feature = "static_export_chromedriver",
+        feature = "static_export_geckodriver",
+        feature = "static_export_default"
+    ))]
+    fn write_image(
+        &self,
+        path: impl Into<String>,
+        width: usize,
+        height: usize,
+        scale: f64,
+    ) -> Result<(), std::boxed::Box<(dyn std::error::Error + 'static)>>;
 }
 
 // Private helper trait containing methods not exposed publicly.
@@ -34,12 +42,17 @@ pub(crate) trait PlotHelper {
     fn get_layout(&self) -> &Layout;
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>>;
 
-    // fn get_image_format(&self, extension: &str) -> ImageFormat {
-    //     match extension {
-    //         "png" => ImageFormat::PNG,
-    //         _ => panic!("no image extension provided")
-    //     }
-    // }
+    #[cfg(any(
+        feature = "static_export_chromedriver",
+        feature = "static_export_geckodriver",
+        feature = "static_export_default"
+    ))]
+    fn get_image_format(&self, extension: &str) -> ImageFormat {
+        match extension {
+            "png" => ImageFormat::PNG,
+            _ => panic!("no image extension provided"),
+        }
+    }
 }
 
 // Implement the public trait `Plot` for any type that implements `PlotHelper`.
@@ -83,20 +96,27 @@ where
         plot.to_inline_html(plot_div_id)
     }
 
-    // fn write_image(
-    //     &self,
-    //     path: impl Into<String>,
-    //     width: usize,
-    //     height: usize,
-    //     scale: f64,
-    // ) {
-    //     let mut plot = Plotly::new();
-    //     plot.set_layout(self.get_layout().to_owned());
-    //     plot.add_traces(self.get_traces().to_owned());
+    #[cfg(any(
+        feature = "static_export_chromedriver",
+        feature = "static_export_geckodriver",
+        feature = "static_export_default"
+    ))]
+    fn write_image(
+        &self,
+        path: impl Into<String>,
+        width: usize,
+        height: usize,
+        scale: f64,
+    ) -> Result<(), std::boxed::Box<(dyn std::error::Error + 'static)>> {
+        let mut plot = Plotly::new();
+        plot.set_layout(self.get_layout().to_owned());
+        plot.add_traces(self.get_traces().to_owned());
 
-    //     if let Some((filename, extension)) = path.into().rsplit_once('.') {
-    //         let format = self.get_image_format(extension);
-    //         plot.write_image(filename, format, width, height, scale);
-    //     }
-    // }
+        if let Some((filename, extension)) = path.into().rsplit_once('.') {
+            let format = self.get_image_format(extension);
+            plot.write_image(filename, format, width, height, scale)?;
+        }
+
+        Ok(())
+    }
 }
