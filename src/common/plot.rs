@@ -57,7 +57,7 @@ pub(crate) trait PlotHelper {
             "jpeg" => Ok(ImageFormat::JPEG),
             "webp" => Ok(ImageFormat::WEBP),
             "svg" => Ok(ImageFormat::SVG),
-            _ => Err(format!("Unsupported image format: {}", extension).into()),
+            _ => Err(format!("Unsupported image format: {extension}").into()),
         }
     }
 }
