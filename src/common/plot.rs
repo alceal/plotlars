@@ -50,6 +50,10 @@ pub(crate) trait PlotHelper {
     fn get_image_format(&self, extension: &str) -> ImageFormat {
         match extension {
             "png" => ImageFormat::PNG,
+            "jpg" => ImageFormat::JPEG,
+            "jpeg" => ImageFormat::JPEG,
+            "webp" => ImageFormat::WEBP,
+            "svg" => ImageFormat::SVG,
             _ => panic!("no image extension provided"),
         }
     }
