@@ -47,14 +47,17 @@ pub(crate) trait PlotHelper {
         feature = "static_export_geckodriver",
         feature = "static_export_default"
     ))]
-    fn get_image_format(&self, extension: &str) -> ImageFormat {
+    fn get_image_format(
+        &self,
+        extension: &str,
+    ) -> Result<ImageFormat, std::boxed::Box<(dyn std::error::Error + 'static)>> {
         match extension {
-            "png" => ImageFormat::PNG,
-            "jpg" => ImageFormat::JPEG,
-            "jpeg" => ImageFormat::JPEG,
-            "webp" => ImageFormat::WEBP,
-            "svg" => ImageFormat::SVG,
-            _ => panic!("no image extension provided"),
+            "png" => Ok(ImageFormat::PNG),
+            "jpg" => Ok(ImageFormat::JPEG),
+            "jpeg" => Ok(ImageFormat::JPEG),
+            "webp" => Ok(ImageFormat::WEBP),
+            "svg" => Ok(ImageFormat::SVG),
+            _ => Err(format!("Unsupported image format: {}", extension).into()),
         }
     }
 }
@@ -117,8 +120,10 @@ where
         plot.add_traces(self.get_traces().to_owned());
 
         if let Some((filename, extension)) = path.into().rsplit_once('.') {
-            let format = self.get_image_format(extension);
+            let format = self.get_image_format(extension)?;
             plot.write_image(filename, format, width, height, scale)?;
+        } else {
+            Err("No extension provided for image.")?;
         }
 
         Ok(())
