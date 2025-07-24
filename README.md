@@ -125,7 +125,7 @@ Now, compare that to the same plot created **using Plotlars**:
 use plotlars::{
     ScatterPlot,
     Plot,
-    Text,
+    Rgb,
 };
 
 use polars::prelude::*;
