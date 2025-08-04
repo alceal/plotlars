@@ -50,7 +50,7 @@ use crate::{
 /// ```rust
 /// use plotlars::{Axis, Legend, Plot, Rgb, ScatterPlot, Shape, Text, TickDirection};
 ///
-/// let dataset = LazyCsvReader::new("data/penguins.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([

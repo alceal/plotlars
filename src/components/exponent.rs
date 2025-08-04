@@ -7,7 +7,7 @@ use plotly::common::ExponentFormat;
 /// ```rust
 /// use plotlars::{Axis, Plot, TimeSeriesPlot, ValueExponent};
 ///
-/// let dataset = LazyCsvReader::new("data/revenue_and_cost.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([

@@ -12,7 +12,7 @@ use crate::{Orientation, Rgb, Text};
 /// ```rust
 /// use plotlars::{Histogram, Legend, Orientation, Plot, Rgb};
 ///
-/// let dataset = LazyCsvReader::new("data/penguins.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([

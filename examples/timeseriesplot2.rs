@@ -3,7 +3,7 @@ use polars::prelude::*;
 use plotlars::{Line, Plot, Rgb, TimeSeriesPlot};
 
 fn main() {
-    let dataset = LazyCsvReader::new("data/debilt_2023_temps.csv")
+    let dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
         .with_has_header(true)
         .with_try_parse_dates(true)
         .finish()

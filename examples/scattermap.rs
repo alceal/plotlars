@@ -3,7 +3,7 @@ use polars::prelude::*;
 use plotlars::{Plot, ScatterMap, Text};
 
 fn main() {
-    let dataset = LazyCsvReader::new("data/cities.csv")
+    let dataset = LazyCsvReader::new(PlPath::new("data/cities.csv"))
         .finish()
         .unwrap()
         .collect()

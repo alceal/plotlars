@@ -56,7 +56,7 @@ use crate::{
 /// ```rust
 /// use plotlars::{Plot, ScatterMap, Text};
 ///
-/// let dataset = LazyCsvReader::new("data/cities.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/cities.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

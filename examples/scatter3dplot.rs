@@ -3,7 +3,7 @@ use polars::prelude::*;
 use plotlars::{Plot, Rgb, Scatter3dPlot, Shape};
 
 fn main() {
-    let dataset = LazyCsvReader::new("data/penguins.csv")
+    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([

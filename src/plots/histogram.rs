@@ -44,7 +44,7 @@ use crate::{
 /// ```rust
 /// use plotlars::{Axis, Histogram, Legend, Plot, Rgb, Text, TickDirection};
 ///
-/// let dataset = LazyCsvReader::new("data/penguins.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([

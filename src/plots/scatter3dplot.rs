@@ -15,7 +15,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Rgb, Shape, Text},
+    components::{Legend, Rgb, Shape, Text},
 };
 
 /// A structure representing a 3D scatter plot.
@@ -53,7 +53,7 @@ use crate::{
 /// ```rust
 /// use plotlars::{Legend, Plot, Rgb, Scatter3dPlot, Shape};
 ///
-/// let dataset = LazyCsvReader::new("data/penguins.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([
@@ -116,12 +116,13 @@ impl Scatter3dPlot {
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         plot_title: Option<Text>,
+        legend: Option<&Legend>,
     ) -> Self {
         let legend_title = None;
         let x_title = None;
         let y_title = None;
         let z_title = None;
-        let legend = None;
+        // let legend = None;
         let x_axis = None;
         let y_axis = None;
         let z_axis = None;

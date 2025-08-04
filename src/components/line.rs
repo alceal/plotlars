@@ -7,7 +7,7 @@ use plotly::common::DashType;
 /// ```rust
 /// use plotlars::{Legend, Line, Plot, Rgb, TimeSeriesPlot};
 ///
-/// let dataset = LazyCsvReader::new("data/revenue_and_cost.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([

@@ -59,7 +59,7 @@ use crate::{
 /// ```rust
 /// use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
-/// let dataset = LazyCsvReader::new("data/revenue_and_cost.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([
@@ -121,7 +121,7 @@ use crate::{
 /// ![Example1](https://imgur.com/hL27Xcn.png)
 ///
 /// ```rust
-/// let dataset = LazyCsvReader::new("data/debilt_2023_temps.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
 ///     .with_has_header(true)
 ///     .with_try_parse_dates(true)
 ///     .finish()

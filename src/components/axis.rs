@@ -18,7 +18,7 @@ use crate::components::{Rgb, Text, TickDirection, ValueExponent};
 /// ```rust
 /// use plotlars::{Axis, Plot, Rgb, ScatterPlot, Text, TickDirection};
 ///
-/// let dataset = LazyCsvReader::new("data/penguins.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([
@@ -484,7 +484,7 @@ impl Axis {
 /// ```rust
 /// use plotlars::{Axis, AxisSide, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
-/// let dataset = LazyCsvReader::new("data/revenue_and_cost.csv")
+/// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([

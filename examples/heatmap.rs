@@ -3,7 +3,7 @@ use polars::prelude::*;
 use plotlars::{ColorBar, HeatMap, Palette, Plot, Text, ValueExponent};
 
 fn main() {
-    let dataset = LazyCsvReader::new("data/heatmap.csv")
+    let dataset = LazyCsvReader::new(PlPath::new("data/heatmap.csv"))
         .finish()
         .unwrap()
         .collect()
