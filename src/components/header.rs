@@ -1,7 +1,7 @@
 use plotly::common::Font;
 use plotly::traces::table::Header as HeaderPlotly;
 
-use crate::components::{Rgb, Text};
+use crate::components::Rgb;
 
 /// A structure representing header formatting for tables.
 ///
@@ -11,21 +11,39 @@ use crate::components::{Rgb, Text};
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{Header, Text, Rgb};
+/// use plotlars::{Table, Header, Plot, Text, Rgb};
+/// use polars::prelude::*;
+///
+/// let dataset = df![
+///     "name" => &["Alice", "Bob", "Charlie"],
+///     "age" => &[25, 30, 35],
+///     "city" => &["New York", "London", "Tokyo"]
+/// ]
+/// .unwrap();
 ///
 /// let header = Header::new()
 ///     .values(vec!["Full Name", "Years", "Location"])
 ///     .height(40.0)
 ///     .align("center")
-///     .font(Text::from("Header").size(14).font("Arial"))
+///     .font("Arial")
 ///     .fill(Rgb(200, 200, 200));
+///
+/// Table::builder()
+///     .data(&dataset)
+///     .columns(vec!["name", "age", "city"])
+///     .header(&header)
+///     .plot_title(Text::from("Employee Information"))
+///     .build()
+///     .plot();
 /// ```
+///
+/// ![Example](https://imgur.com/J2XhcUt.png)
 #[derive(Clone, Default)]
 pub struct Header {
     pub(crate) values: Option<Vec<String>>,
     pub(crate) height: Option<f64>,
     pub(crate) align: Option<String>,
-    pub(crate) font: Option<Text>,
+    pub(crate) font: Option<String>,
     pub(crate) fill: Option<Rgb>,
 }
 
@@ -65,13 +83,13 @@ impl Header {
         self
     }
 
-    /// Sets the font of the header text.
+    /// Sets the font family of the header text.
     ///
     /// # Argument
     ///
-    /// * `font` - A `Text` struct specifying the font properties.
-    pub fn font(mut self, font: Text) -> Self {
-        self.font = Some(font);
+    /// * `font` - A string slice specifying the font family name.
+    pub fn font(mut self, font: &str) -> Self {
+        self.font = Some(font.to_string());
         self
     }
 
@@ -100,12 +118,7 @@ impl Header {
         }
 
         if let Some(font) = &self.font {
-            header = header.font(
-                Font::new()
-                    .family(font.font.as_str())
-                    .size(font.size)
-                    .color(font.color.to_plotly()),
-            );
+            header = header.font(Font::new().family(font.as_str()));
         }
 
         if let Some(fill) = &self.fill {

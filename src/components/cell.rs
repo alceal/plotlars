@@ -1,30 +1,48 @@
 use plotly::common::Font;
 use plotly::traces::table::Cells as CellsPlotly;
 
-use crate::components::{Rgb, Text};
+use crate::components::Rgb;
 
 /// A structure representing cell formatting for tables.
 ///
 /// The `Cell` struct allows customization of table cells including height,
-/// alignment, font, and fill color with support for alternating row colors.
+/// alignment, font, and fill color.
 ///
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{Cell, Text, Rgb};
+/// use plotlars::{Table, Cell, Plot, Text, Rgb};
+/// use polars::prelude::*;
+///
+/// let dataset = df![
+///     "product" => &["Laptop", "Mouse", "Keyboard", "Monitor"],
+///     "price" => &[999.99, 29.99, 79.99, 299.99],
+///     "stock" => &[15, 250, 87, 42]
+/// ]
+/// .unwrap();
 ///
 /// let cell = Cell::new()
 ///     .height(30.0)
 ///     .align("left")
-///     .font(Text::from("Cell").size(12).font("Arial"))
-///     .fill(vec![Rgb(240, 240, 240), Rgb(255, 255, 255)]);
+///     .font("Arial")
+///     .fill(Rgb(240, 240, 240));
+///
+/// Table::builder()
+///     .data(&dataset)
+///     .columns(vec!["product", "price", "stock"])
+///     .cell(&cell)
+///     .plot_title(Text::from("Product Inventory"))
+///     .build()
+///     .plot();
 /// ```
+///
+/// ![Example](https://imgur.com/FYYcWRH.png)
 #[derive(Clone, Default)]
 pub struct Cell {
     pub(crate) height: Option<f64>,
     pub(crate) align: Option<String>,
-    pub(crate) font: Option<Text>,
-    pub(crate) fill: Option<Vec<Rgb>>,
+    pub(crate) font: Option<String>,
+    pub(crate) fill: Option<Rgb>,
 }
 
 impl Cell {
@@ -53,22 +71,22 @@ impl Cell {
         self
     }
 
-    /// Sets the font of the cell text.
+    /// Sets the font family of the cell text.
     ///
     /// # Argument
     ///
-    /// * `font` - A `Text` struct specifying the font properties.
-    pub fn font(mut self, font: Text) -> Self {
-        self.font = Some(font);
+    /// * `font` - A string slice specifying the font family name.
+    pub fn font(mut self, font: &str) -> Self {
+        self.font = Some(font.to_string());
         self
     }
 
-    /// Sets the fill colors of the cells.
+    /// Sets the fill color of the cells.
     ///
     /// # Argument
     ///
-    /// * `fill` - A vector of `Rgb` values for alternating row colors.
-    pub fn fill(mut self, fill: Vec<Rgb>) -> Self {
+    /// * `fill` - An `Rgb` value specifying the background color.
+    pub fn fill(mut self, fill: Rgb) -> Self {
         self.fill = Some(fill);
         self
     }
@@ -88,24 +106,11 @@ impl Cell {
         }
 
         if let Some(font) = &self.font {
-            cells = cells.font(
-                Font::new()
-                    .family(font.font.as_str())
-                    .size(font.size)
-                    .color(font.color.to_plotly()),
-            );
+            cells = cells.font(Font::new().family(font.as_str()));
         }
 
-        if let Some(fill_colors) = &self.fill {
-            if fill_colors.len() == 1 {
-                cells = cells
-                    .fill(plotly::traces::table::Fill::new().color(fill_colors[0].to_plotly()));
-            } else {
-                // For alternating row colors, we'll use the first color as the base
-                // The plotly API doesn't directly support alternating colors in the same way
-                cells = cells
-                    .fill(plotly::traces::table::Fill::new().color(fill_colors[0].to_plotly()));
-            }
+        if let Some(fill) = &self.fill {
+            cells = cells.fill(plotly::traces::table::Fill::new().color(fill.to_plotly()));
         }
 
         cells

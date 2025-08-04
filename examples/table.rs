@@ -19,14 +19,14 @@ fn main() {
             "Years of Service",
         ])
         .align("center")
-        .font(Text::from("Header").size(14).font("Arial Bold"))
+        .font("Arial Bold")
         .fill(Rgb(70, 130, 180));
 
     let cell = Cell::new()
         .align("center")
         .height(25.0)
-        .font(Text::from("Cell").size(12).font("Arial"))
-        .fill(vec![Rgb(240, 248, 255), Rgb(255, 255, 255)]);
+        .font("Arial")
+        .fill(Rgb(240, 248, 255));
 
     Table::builder()
         .data(&dataset)

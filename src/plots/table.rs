@@ -43,7 +43,7 @@ use crate::{
 ///     .values(vec!["Full Name", "Years", "Location"])
 ///     .height(40.0)
 ///     .align("center")
-///     .font(Text::from("Header").size(14).font("Arial"))
+///     .font("Arial")
 ///     .fill(Rgb(200, 200, 200));
 ///
 /// let cell = Cell::new()
@@ -64,6 +64,8 @@ use crate::{
 ///     .build()
 ///     .plot();
 /// ```
+///
+/// ![Example](https://imgur.com/50lrDKK.png)
 #[derive(Clone, Serialize)]
 pub struct Table {
     traces: Vec<Box<dyn Trace + 'static>>,
