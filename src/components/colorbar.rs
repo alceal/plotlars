@@ -1,7 +1,4 @@
-use plotly::common::{
-    ColorBar as ColorBarPlotly,
-    Font,
-};
+use plotly::common::{ColorBar as ColorBarPlotly, Font};
 
 use crate::components::{Orientation, Rgb, Text, TickDirection, ValueExponent};
 

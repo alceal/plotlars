@@ -24,16 +24,8 @@ fn main() {
         .group("species")
         .opacity(0.25)
         .size(8)
-        .colors(vec![
-            Rgb(178, 34, 34),
-            Rgb(65, 105, 225),
-            Rgb(255, 140, 0),
-        ])
-        .shapes(vec![
-            Shape::Circle,
-            Shape::Square,
-            Shape::Diamond,
-        ])
+        .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
+        .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
         .plot_title("Scatter 3D Plot")
         .build()
         .plot();

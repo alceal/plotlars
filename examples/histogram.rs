@@ -26,37 +26,14 @@ fn main() {
         .x("body_mass_g")
         .group("species")
         .opacity(0.5)
-        .colors(vec![
-            Rgb(255, 165, 0),
-            Rgb(147, 112, 219),
-            Rgb(46, 139, 87),
-        ])
-        .plot_title(
-            Text::from("Histogram")
-                .font("Arial")
-                .size(18)
-        )
-        .x_title(
-            Text::from("body mass (g)")
-                .font("Arial")
-                .size(15)
-        )
-        .y_title(
-            Text::from("count")
-                .font("Arial")
-                .size(15)
-        )
-        .legend_title(
-            Text::from("species")
-                .font("Arial")
-                .size(15)
-        )
+        .colors(vec![Rgb(255, 165, 0), Rgb(147, 112, 219), Rgb(46, 139, 87)])
+        .plot_title(Text::from("Histogram").font("Arial").size(18))
+        .x_title(Text::from("body mass (g)").font("Arial").size(15))
+        .y_title(Text::from("count").font("Arial").size(15))
+        .legend_title(Text::from("species").font("Arial").size(15))
         .x_axis(&axis)
         .y_axis(&axis)
-        .legend(
-            &Legend::new()
-                .x(0.9)
-        )
+        .legend(&Legend::new().x(0.9))
         .build()
         .plot();
 }

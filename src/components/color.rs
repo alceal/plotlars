@@ -1,7 +1,4 @@
-use plotly::color::{
-    Color,
-    Rgb as RgbPlotly,
-};
+use plotly::color::{Color, Rgb as RgbPlotly};
 
 use serde::Serialize;
 

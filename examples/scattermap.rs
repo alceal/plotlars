@@ -18,11 +18,7 @@ fn main() {
         .group("city")
         .opacity(0.5)
         .size(12)
-        .plot_title(
-            Text::from("Scatter Map")
-                .font("Arial")
-                .size(18)
-        )
+        .plot_title(Text::from("Scatter Map").font("Arial").size(18))
         .legend_title("cities")
         .build()
         .plot();

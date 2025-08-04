@@ -1,7 +1,4 @@
-use plotly::{
-    common::Ticks,
-    layout::TicksDirection,
-};
+use plotly::{common::Ticks, layout::TicksDirection};
 
 /// Enumeration representing the direction of axis ticks.
 ///

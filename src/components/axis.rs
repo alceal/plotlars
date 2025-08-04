@@ -1,12 +1,6 @@
 use plotly::{
-    common::{
-        AxisSide as AxisSidePlotly,
-        Font,
-    },
-    layout::{
-        Axis as AxisPlotly,
-        AxisType as AxisTypePlotly,
-    },
+    common::{AxisSide as AxisSidePlotly, Font},
+    layout::{Axis as AxisPlotly, AxisType as AxisTypePlotly},
 };
 
 use crate::components::{Rgb, Text, TickDirection, ValueExponent};
@@ -364,11 +358,7 @@ impl Axis {
         axis
     }
 
-    fn set_format(
-        mut axis: AxisPlotly,
-        format: &Self,
-        overlaying: Option<&str>,
-    ) -> AxisPlotly {
+    fn set_format(mut axis: AxisPlotly, format: &Self, overlaying: Option<&str>) -> AxisPlotly {
         if let Some(overlaying) = overlaying {
             axis = axis.overlaying(overlaying);
         }

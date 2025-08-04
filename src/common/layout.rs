@@ -27,7 +27,7 @@ pub(crate) trait Layout {
             layout = layout.x_axis(Axis::set_axis(x_title, x_axis, None));
         }
 
-        if let Some(y_axis ) = y_axis {
+        if let Some(y_axis) = y_axis {
             layout = layout.y_axis(Axis::set_axis(y_title, y_axis, None));
         }
 
