@@ -1,11 +1,9 @@
 use bon::bon;
-use std::collections::{
-    HashMap,
-    hash_map::Entry,
-};
+use std::collections::{HashMap, hash_map::Entry};
 
 use plotly::{
-    sankey::{Link, Node}, Layout as LayoutPlotly, Sankey, Trace
+    Layout as LayoutPlotly, Sankey, Trace,
+    sankey::{Link, Node},
 };
 
 use polars::frame::DataFrame;
@@ -123,17 +121,19 @@ impl SankeyDiagram {
         let x_axis = None;
         let y_axis = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );
@@ -216,8 +216,7 @@ impl SankeyDiagram {
         let sources_idx = Self::column_to_indices(&sources, &label_to_idx);
         let targets_idx = Self::column_to_indices(&targets, &label_to_idx);
 
-        let mut node = Node::new()
-            .label(labels_unique);
+        let mut node = Node::new().label(labels_unique);
 
         node = Self::set_pad(node, pad);
         node = Self::set_thickness(node, thickness);
@@ -232,19 +231,14 @@ impl SankeyDiagram {
         link = Self::set_link_color(link, link_color);
         link = Self::set_link_colors(link, link_colors);
 
-        let mut trace = Sankey::new()
-            .node(node)
-            .link(link);
+        let mut trace = Sankey::new().node(node).link(link);
 
         trace = Self::set_orientation(trace, orientation);
         trace = Self::set_arrangement(trace, arrangement);
         trace
     }
 
-    fn set_thickness(
-        mut node: Node,
-        thickness: Option<usize>,
-    ) -> Node     {
+    fn set_thickness(mut node: Node, thickness: Option<usize>) -> Node {
         if let Some(thickness) = thickness {
             node = node.thickness(thickness);
         }
@@ -252,10 +246,7 @@ impl SankeyDiagram {
         node
     }
 
-    fn set_pad(
-        mut node: Node,
-        pad: Option<usize>,
-    ) -> Node     {
+    fn set_pad(mut node: Node, pad: Option<usize>) -> Node {
         if let Some(pad) = pad {
             node = node.pad(pad);
         }
@@ -263,29 +254,18 @@ impl SankeyDiagram {
         node
     }
 
-    fn set_link_colors<V>(
-        mut link: Link<V>,
-        colors: Option<Vec<Rgb>>,
-    ) -> Link<V>
+    fn set_link_colors<V>(mut link: Link<V>, colors: Option<Vec<Rgb>>) -> Link<V>
     where
         V: Serialize + Clone,
     {
         if let Some(colors) = colors {
-            link = link.color_array(
-                colors
-                    .iter()
-                    .map(|color| color.to_plotly())
-                    .collect()
-            );
+            link = link.color_array(colors.iter().map(|color| color.to_plotly()).collect());
         }
 
         link
     }
 
-    fn set_link_color<V>(
-        mut link: Link<V>,
-        color: Option<Rgb>,
-    ) -> Link<V>
+    fn set_link_color<V>(mut link: Link<V>, color: Option<Rgb>) -> Link<V>
     where
         V: Serialize + Clone,
     {
@@ -296,26 +276,15 @@ impl SankeyDiagram {
         link
     }
 
-    fn set_node_colors(
-        mut node: Node,
-        colors: Option<Vec<Rgb>>,
-    ) -> Node {
+    fn set_node_colors(mut node: Node, colors: Option<Vec<Rgb>>) -> Node {
         if let Some(colors) = colors {
-            node = node.color_array(
-                colors
-                    .iter()
-                    .map(|color| color.to_plotly())
-                    .collect()
-            );
+            node = node.color_array(colors.iter().map(|color| color.to_plotly()).collect());
         }
 
         node
     }
 
-    fn set_node_color(
-        mut node: Node,
-        color: Option<Rgb>,
-    ) -> Node {
+    fn set_node_color(mut node: Node, color: Option<Rgb>) -> Node {
         if let Some(color) = color {
             node = node.color(color);
         }

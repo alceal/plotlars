@@ -1,9 +1,11 @@
 pub(crate) mod arrangement;
 pub(crate) mod axis;
+pub(crate) mod cell;
 pub(crate) mod color;
 pub(crate) mod colorbar;
 pub(crate) mod coloring;
 pub(crate) mod exponent;
+pub(crate) mod header;
 pub(crate) mod legend;
 pub(crate) mod lighting;
 pub(crate) mod line;
@@ -15,10 +17,12 @@ pub(crate) mod tick;
 
 pub(crate) use arrangement::Arrangement;
 pub(crate) use axis::Axis;
+pub(crate) use cell::Cell;
 pub(crate) use color::Rgb;
 pub(crate) use colorbar::ColorBar;
 pub(crate) use coloring::Coloring;
 pub(crate) use exponent::ValueExponent;
+pub(crate) use header::Header;
 pub(crate) use legend::Legend;
 pub(crate) use lighting::Lighting;
 pub(crate) use line::Line;

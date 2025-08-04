@@ -1,10 +1,6 @@
 use bon::bon;
 
-use plotly::{
-    Layout as LayoutPlotly,
-    Pie,
-    Trace,
-};
+use plotly::{Layout as LayoutPlotly, Pie, Trace};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -87,17 +83,19 @@ impl PieChart {
         let y_axis = None;
         let z_axis = None;
         let legend = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );

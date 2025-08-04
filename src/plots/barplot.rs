@@ -1,14 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Bar,
-    Layout as LayoutPlotly,
-    Trace,
-    common::{
-        ErrorData,
-        ErrorType,
-        Marker as MarkerPlotly,
-    },
+    Bar, Layout as LayoutPlotly, Trace,
+    common::{ErrorData, ErrorType, Marker as MarkerPlotly},
     layout::BarMode,
 };
 
@@ -125,19 +119,21 @@ impl BarPlot {
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> Self {
+        let y2_title = None;
         let z_title = None;
+        let y2_axis = None;
         let z_axis = None;
 
         let mut layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );
