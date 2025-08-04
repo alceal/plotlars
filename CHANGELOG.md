@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.7] - 2025-08-04
+
+### 🐛 Bug Fixes
+
+- Update dependencies and fix Polars 0.50.0 compatibility
+
+## [0.9.6] - 2025-08-04
+
+### 🚀 Features
+
+- Re-enable write_image with plotly 0.13 (incl features)
+
+### 🐛 Bug Fixes
+
+- Fix incorrect import in the README example (Text unused; Rgb missing)
+
+## [0.9.5] - 2025-07-05
+
+### 📚 Documentation
+
+- Update dependencies to latest versions
+
+## [0.9.4] - 2025-05-29
+
+### 🐛 Bug Fixes
+
+- Update lineplot.rs to use Column instead of Series
+- Update polars version
+
+### 📚 Documentation
+
+- Add dependency on plotters in LinePlot doc
+
 ## [0.9.3] - 2025-05-17
 
 ### 🐛 Bug Fixes
