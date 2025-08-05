@@ -11,6 +11,7 @@ pub(crate) mod sankeydiagram;
 pub(crate) mod scatter3dplot;
 pub(crate) mod scattermap;
 pub(crate) mod scatterplot;
+pub(crate) mod scatterpolar;
 pub(crate) mod surfaceplot;
 pub(crate) mod table;
 pub(crate) mod timeseriesplot;
