@@ -9,6 +9,7 @@ pub(crate) mod lineplot;
 pub(crate) mod piechart;
 pub(crate) mod sankeydiagram;
 pub(crate) mod scatter3dplot;
+pub(crate) mod scattergeo;
 pub(crate) mod scattermap;
 pub(crate) mod scatterplot;
 pub(crate) mod scatterpolar;
