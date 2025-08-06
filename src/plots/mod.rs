@@ -6,6 +6,7 @@ pub(crate) mod heatmap;
 pub(crate) mod histogram;
 pub(crate) mod image;
 pub(crate) mod lineplot;
+pub(crate) mod ohlc;
 pub(crate) mod piechart;
 pub(crate) mod sankeydiagram;
 pub(crate) mod scatter3dplot;
