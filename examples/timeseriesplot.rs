@@ -3,7 +3,8 @@ use polars::prelude::*;
 use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
+    // Example 1: Revenue and Cost with advanced styling
+    let revenue_dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
         .finish()
         .unwrap()
         .select([
@@ -15,7 +16,7 @@ fn main() {
         .unwrap();
 
     TimeSeriesPlot::builder()
-        .data(&dataset)
+        .data(&revenue_dataset)
         .x("Date")
         .y("Revenue")
         .additional_series(vec!["Cost"])
@@ -41,6 +42,32 @@ fn main() {
                 .value_color(Rgb(255, 0, 0))
                 .show_grid(false),
         )
+        .build()
+        .plot();
+
+    // Example 2: Temperature data with date parsing
+    let temperature_dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
+        .with_has_header(true)
+        .with_try_parse_dates(true)
+        .finish()
+        .unwrap()
+        .with_columns(vec![
+            (col("tavg") / lit(10)).alias("tavg"),
+            (col("tmin") / lit(10)).alias("tmin"),
+            (col("tmax") / lit(10)).alias("tmax"),
+        ])
+        .collect()
+        .unwrap();
+
+    TimeSeriesPlot::builder()
+        .data(&temperature_dataset)
+        .x("date")
+        .y("tavg")
+        .additional_series(vec!["tmin", "tmax"])
+        .colors(vec![Rgb(128, 128, 128), Rgb(0, 122, 255), Rgb(255, 128, 0)])
+        .lines(vec![Line::Solid, Line::Dot, Line::Dot])
+        .plot_title("Temperature at De Bilt (2023)")
+        .legend_title("Legend")
         .build()
         .plot();
 }
