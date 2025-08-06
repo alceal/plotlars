@@ -32,6 +32,7 @@ pub use crate::plots::heatmap::HeatMap;
 pub use crate::plots::histogram::Histogram;
 pub use crate::plots::image::Image;
 pub use crate::plots::lineplot::LinePlot;
+pub use crate::plots::ohlc::OhlcPlot;
 pub use crate::plots::piechart::PieChart;
 pub use crate::plots::sankeydiagram::SankeyDiagram;
 pub use crate::plots::scatter3dplot::Scatter3dPlot;
