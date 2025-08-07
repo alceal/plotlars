@@ -31,6 +31,7 @@ use crate::{
 /// ## Basic Pie Chart with Customization
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{PieChart, Plot, Text};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))

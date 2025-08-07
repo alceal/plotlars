@@ -2,6 +2,7 @@ pub(crate) mod array2dplot;
 pub(crate) mod barplot;
 pub(crate) mod boxplot;
 pub(crate) mod contourplot;
+pub(crate) mod density_mapbox;
 pub(crate) mod heatmap;
 pub(crate) mod histogram;
 pub(crate) mod image;

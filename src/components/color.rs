@@ -7,6 +7,7 @@ use serde::Serialize;
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, BarPlot, Legend, Orientation, Plot, Rgb};
 ///
 /// let dataset = df![

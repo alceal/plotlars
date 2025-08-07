@@ -37,6 +37,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{ColorBar, HeatMap, Palette, Plot, Text, ValueExponent};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/heatmap.csv"))

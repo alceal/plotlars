@@ -44,6 +44,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, BoxPlot, Legend, Orientation, Plot, Rgb, Text};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))

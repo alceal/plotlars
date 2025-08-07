@@ -5,14 +5,15 @@ use plotly::{common::Ticks, layout::TicksDirection};
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, Plot, ScatterPlot, TickDirection};
 ///
 /// let x = vec![1];
 /// let y  = vec![1];
 ///
 /// let dataset = DataFrame::new(vec![
-///     Series::new("x".into(), x),
-///     Series::new("y".into(), y),
+///     Column::new("x".into(), x),
+///     Column::new("y".into(), y),
 /// ]).unwrap();
 ///
 /// ScatterPlot::builder()

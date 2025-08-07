@@ -5,6 +5,7 @@ use plotly::common::Orientation as OrientationPlotly;
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb};
 ///
 /// let dataset = df![

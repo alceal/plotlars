@@ -29,6 +29,7 @@ pub use crate::plots::array2dplot::Array2dPlot;
 pub use crate::plots::barplot::BarPlot;
 pub use crate::plots::boxplot::BoxPlot;
 pub use crate::plots::contourplot::ContourPlot;
+pub use crate::plots::density_mapbox::DensityMapbox;
 pub use crate::plots::heatmap::HeatMap;
 pub use crate::plots::histogram::Histogram;
 pub use crate::plots::image::Image;

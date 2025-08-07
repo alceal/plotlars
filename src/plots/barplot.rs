@@ -41,6 +41,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
 ///
 /// let dataset = df![

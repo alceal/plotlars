@@ -107,8 +107,8 @@ fn example_with_intensity() {
         .show_scale(true)
         .color_bar(
             &ColorBar::new()
-                .x(0.85)  // Move color bar very close to the plot
-                .title("Intensity")
+                .x(0.85) // Move color bar very close to the plot
+                .title("Intensity"),
         )
         .opacity(0.95)
         .plot_title(

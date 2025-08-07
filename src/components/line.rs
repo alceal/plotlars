@@ -5,6 +5,7 @@ use plotly::common::DashType;
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Legend, Line, Plot, Rgb, TimeSeriesPlot};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))

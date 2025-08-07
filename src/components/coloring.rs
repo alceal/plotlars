@@ -6,7 +6,7 @@ use plotly::contour::Coloring as ColoringPlotly;
 ///
 /// ```rust
 /// use polars::prelude::*;
-/// use plotlars::{ Coloring, ContourPlot, Contours, Palette, Plot };
+/// use plotlars::{Coloring, ContourPlot, Palette, Plot};
 ///
 /// let dataset = df!(
 ///         "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],

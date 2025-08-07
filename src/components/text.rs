@@ -7,6 +7,7 @@ use crate::components::Rgb;
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, BarPlot, Plot, Text, Rgb};
 ///
 /// let dataset = df![

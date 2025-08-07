@@ -30,6 +30,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Table, Header, Cell, Plot, Text, Rgb};
 ///
 /// let dataset = df![
@@ -49,7 +50,7 @@ use crate::{
 /// let cell = Cell::new()
 ///     .height(30.0)
 ///     .align("left")
-///     .fill(vec![Rgb(240, 240, 240), Rgb(255, 255, 255)]);
+///     .fill(Rgb(240, 240, 240));
 ///
 /// Table::builder()
 ///     .data(&dataset)

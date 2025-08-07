@@ -44,7 +44,7 @@ use crate::{
 ///
 /// ```rust
 /// use polars::prelude::*;
-/// use plotlars::{Plot, Coloring, Contours, ContourPlot, Palette};
+/// use plotlars::{Plot, Coloring, ContourPlot, Palette, Text};
 ///
 /// let dataset = df!(
 ///         "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],

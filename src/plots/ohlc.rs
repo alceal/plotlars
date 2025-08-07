@@ -131,13 +131,7 @@ impl OhlcPlot {
         let mut traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
 
         let trace = Self::create_trace(
-            data,
-            dates_col,
-            open_col,
-            high_col,
-            low_col,
-            close_col,
-            tick_width,
+            data, dates_col, open_col, high_col, low_col, close_col, tick_width,
         );
 
         traces.push(trace);
