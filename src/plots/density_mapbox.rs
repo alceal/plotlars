@@ -61,7 +61,7 @@ use crate::{
 ///     .lat("city_lat")
 ///     .lon("city_lon")
 ///     .z("population_density")
-///     .center([39.8283, -98.5795])  // Center of USA
+///     .center([39.8283, -98.5795])
 ///     .zoom(3)
 ///     .plot_title(
 ///         Text::from("US City Population Density")

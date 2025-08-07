@@ -77,8 +77,8 @@ use crate::{
 ///     .group("product")
 ///     .mode(Mode::LinesMarkers)
 ///     .colors(vec![
-///         Rgb(255, 99, 71),  // Tomato red
-///         Rgb(60, 179, 113), // Medium sea green
+///         Rgb(255, 99, 71),
+///         Rgb(60, 179, 113),
 ///     ])
 ///     .shapes(vec![Shape::Circle, Shape::Square])
 ///     .lines(vec![Line::Solid, Line::Dash])

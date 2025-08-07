@@ -54,7 +54,6 @@ use crate::{
 /// use plotlars::{Lighting, Mesh3D, Plot, Rgb, Text};
 /// use polars::prelude::*;
 ///
-/// // Create a wavy surface mesh with custom lighting
 /// let mut x = Vec::new();
 /// let mut y = Vec::new();
 /// let mut z = Vec::new();
@@ -66,7 +65,6 @@ use crate::{
 ///         let yj = (j as f64 / (n - 1) as f64) * 2.0 - 1.0;
 ///         x.push(xi);
 ///         y.push(yj);
-///         // Create a wavy surface
 ///         z.push(0.3 * ((xi * 3.0).sin() + (yj * 3.0).cos()));
 ///     }
 /// }
