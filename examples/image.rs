@@ -1,8 +1,7 @@
 use plotlars::{Axis, Image, Plot};
 
 fn main() {
-    let axis = Axis::new()
-        .show_axis(false);
+    let axis = Axis::new().show_axis(false);
 
     Image::builder()
         .path("data/image.png")

@@ -1,7 +1,4 @@
-use plotly::color::{
-    Color,
-    Rgb as RgbPlotly,
-};
+use plotly::color::{Color, Rgb as RgbPlotly};
 
 use serde::Serialize;
 
@@ -10,6 +7,7 @@ use serde::Serialize;
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, BarPlot, Legend, Orientation, Plot, Rgb};
 ///
 /// let dataset = df![

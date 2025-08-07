@@ -1,7 +1,4 @@
-use plotly::{
-    common::Font,
-    layout::Legend as LegendPlotly,
-};
+use plotly::{common::Font, layout::Legend as LegendPlotly};
 
 use crate::{Orientation, Rgb, Text};
 
@@ -10,6 +7,7 @@ use crate::{Orientation, Rgb, Text};
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Histogram, Legend, Orientation, Plot, Rgb};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))

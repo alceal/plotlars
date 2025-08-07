@@ -1,12 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Histogram as HistogramPlotly,
-    Layout as LayoutPlotly,
-    Trace,
-    common::Marker as MarkerPlotly,
-    histogram::HistFunc,
-    layout::BarMode,
+    Histogram as HistogramPlotly, Layout as LayoutPlotly, Trace, common::Marker as MarkerPlotly,
+    histogram::HistFunc, layout::BarMode,
 };
 
 use polars::frame::DataFrame;
@@ -42,6 +38,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, Histogram, Legend, Plot, Rgb, Text, TickDirection};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
@@ -129,17 +126,19 @@ impl Histogram {
     ) -> Self {
         let z_title = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let mut layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );

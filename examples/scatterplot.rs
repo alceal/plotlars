@@ -27,38 +27,15 @@ fn main() {
         .group("species")
         .opacity(0.5)
         .size(12)
-        .colors(vec![
-            Rgb(178, 34, 34),
-            Rgb(65, 105, 225),
-            Rgb(255, 140, 0),
-        ])
-        .shapes(vec![
-            Shape::Circle,
-            Shape::Square,
-            Shape::Diamond,
-        ])
-        .plot_title(
-            Text::from("Scatter Plot")
-                .font("Arial")
-                .size(20)
-                .x(0.065)
-        )
+        .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
+        .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
+        .plot_title(Text::from("Scatter Plot").font("Arial").size(20).x(0.065))
         .x_title("body mass (g)")
         .y_title("flipper length (mm)")
         .legend_title("species")
-        .x_axis(
-            &axis.clone()
-                .value_range(vec![2500.0, 6500.0])
-        )
-        .y_axis(
-            &axis.clone()
-                .value_range(vec![170.0, 240.0])
-        )
-        .legend(
-            &Legend::new()
-                .x(0.85)
-                .y(0.15)
-        )
+        .x_axis(&axis.clone().value_range(vec![2500.0, 6500.0]))
+        .y_axis(&axis.clone().value_range(vec![170.0, 240.0]))
+        .legend(&Legend::new().x(0.85).y(0.15))
         .build()
         .plot();
 }

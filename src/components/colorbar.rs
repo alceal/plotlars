@@ -1,7 +1,4 @@
-use plotly::common::{
-    ColorBar as ColorBarPlotly,
-    Font,
-};
+use plotly::common::{ColorBar as ColorBarPlotly, Font};
 
 use crate::components::{Orientation, Rgb, Text, TickDirection, ValueExponent};
 
@@ -10,6 +7,7 @@ use crate::components::{Orientation, Rgb, Text, TickDirection, ValueExponent};
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{ColorBar, HeatMap, Orientation, Palette, Plot, Text, ValueExponent};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/heatmap.csv"))

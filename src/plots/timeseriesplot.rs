@@ -13,14 +13,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Line, Marker, PlotHelper, Polar},
-    components::{
-        Axis,
-        Legend,
-        Line as LineStyle,
-        Rgb,
-        Shape,
-        Text,
-    },
+    components::{Axis, Legend, Line as LineStyle, Rgb, Shape, Text},
 };
 
 /// A structure representing a time series plot.
@@ -57,6 +50,7 @@ use crate::{
 /// # Examples
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
@@ -121,6 +115,9 @@ use crate::{
 /// ![Example1](https://imgur.com/hL27Xcn.png)
 ///
 /// ```rust
+/// use polars::prelude::*;
+/// use plotlars::{Plot, TimeSeriesPlot, Rgb, Line};
+///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
 ///     .with_has_header(true)
 ///     .with_try_parse_dates(true)
@@ -262,12 +259,7 @@ impl TimeSeriesPlot {
             shapes.clone(),
         );
 
-        let line = Self::create_line(
-            0,
-            width,
-            style,
-            styles.clone(),
-        );
+        let line = Self::create_line(0, width, style, styles.clone());
 
         let name = Some(y_col);
         let mut y_axis_index = "";
@@ -299,12 +291,7 @@ impl TimeSeriesPlot {
                     shapes.clone(),
                 );
 
-                let line = Self::create_line(
-                    i + 1,
-                    width,
-                    style,
-                    styles.clone(),
-                );
+                let line = Self::create_line(i + 1, width, style, styles.clone());
 
                 let subset = data
                     .clone()
@@ -315,22 +302,20 @@ impl TimeSeriesPlot {
 
                 let name = Some(series);
 
-
-
                 if has_y_axis2 {
                     y_axis_index = "y2";
                 }
 
-                let trace =
-                    Self::create_trace(
-                        &subset,
-                        x_col,
-                        series,
-                        name,
-                        with_shape, marker,
-                        line,
-                        y_axis_index,
-                    );
+                let trace = Self::create_trace(
+                    &subset,
+                    x_col,
+                    series,
+                    name,
+                    with_shape,
+                    marker,
+                    line,
+                    y_axis_index,
+                );
 
                 traces.push(trace);
             }
@@ -353,9 +338,7 @@ impl TimeSeriesPlot {
         let x_data = Self::get_string_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
 
-        let mut trace = Scatter::default()
-            .x(x_data)
-            .y(y_data);
+        let mut trace = Scatter::default().x(x_data).y(y_data);
 
         if let Some(with_shape) = with_shape {
             if with_shape {

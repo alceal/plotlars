@@ -1,11 +1,6 @@
 use bon::bon;
 
-use plotly::{
-    Contour,
-    Layout as LayoutPlotly,
-    Trace,
-    contour::Contours,
-};
+use plotly::{Contour, Layout as LayoutPlotly, Trace, contour::Contours};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -49,7 +44,7 @@ use crate::{
 ///
 /// ```rust
 /// use polars::prelude::*;
-/// use plotlars::{Plot, Coloring, Contours, ContourPlot, Palette};
+/// use plotlars::{Plot, Coloring, ContourPlot, Palette, Text};
 ///
 /// let dataset = df!(
 ///         "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],
@@ -107,17 +102,19 @@ impl ContourPlot {
         let legend_title = None;
         let z_title = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );
@@ -199,14 +196,10 @@ impl ContourPlot {
         contours = Self::set_coloring(contours, coloring);
         contours = Self::set_show_lines(contours, show_lines);
 
-        trace
-            .contours(contours)
+        trace.contours(contours)
     }
 
-    fn set_show_lines(
-        mut contours: Contours,
-        show_lines: Option<bool>,
-    ) -> Contours {
+    fn set_show_lines(mut contours: Contours, show_lines: Option<bool>) -> Contours {
         if let Some(show_lines) = show_lines {
             contours = contours.show_lines(show_lines)
         }
@@ -214,10 +207,7 @@ impl ContourPlot {
         contours
     }
 
-    fn set_coloring(
-        mut contours: Contours,
-        coloring: Option<Coloring>,
-    ) -> Contours {
+    fn set_coloring(mut contours: Contours, coloring: Option<Coloring>) -> Contours {
         if let Some(coloring) = coloring {
             contours = contours.coloring(coloring.to_plotly())
         }

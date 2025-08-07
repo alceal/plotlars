@@ -2,12 +2,7 @@ use bon::bon;
 use indexmap::IndexSet;
 use ordered_float::OrderedFloat;
 
-use plotly::{
-    Layout as LayoutPlotly,
-    Surface,
-    Trace,
-    surface::Position,
-};
+use plotly::{Layout as LayoutPlotly, Surface, Trace, surface::Position};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -148,17 +143,19 @@ impl SurfacePlot {
         let x_axis = None;
         let y_axis = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );
@@ -309,10 +306,10 @@ impl SurfacePlot {
     {
         if let Some(light) = lighting {
             if let Some(position) = light.position {
-                    let position = Position::new(position[0], position[1], position[2]);
+                let position = Position::new(position[0], position[1], position[2]);
 
-                    trace = trace.light_position(position);
-                }
+                trace = trace.light_position(position);
+            }
         }
 
         trace
@@ -351,11 +348,7 @@ impl SurfacePlot {
     }
 
     fn unique_ordered(v: Vec<Option<f32>>) -> Vec<f32> {
-        IndexSet::<OrderedFloat<f32>>::from_iter(
-                v.into_iter()
-                    .flatten()
-                    .map(OrderedFloat)
-            )
+        IndexSet::<OrderedFloat<f32>>::from_iter(v.into_iter().flatten().map(OrderedFloat))
             .into_iter()
             .map(|of| of.into_inner())
             .collect()
@@ -363,7 +356,7 @@ impl SurfacePlot {
 }
 
 impl Layout for SurfacePlot {}
-impl Polar for  SurfacePlot {}
+impl Polar for SurfacePlot {}
 
 impl PlotHelper for SurfacePlot {
     fn get_layout(&self) -> &LayoutPlotly {

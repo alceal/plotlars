@@ -1,11 +1,6 @@
 use bon::bon;
 
-use plotly::{
-    Image as ImagePlotly,
-    Layout as LayoutPlotly,
-    Trace,
-    image::ColorModel,
-};
+use plotly::{Image as ImagePlotly, Layout as LayoutPlotly, Trace, image::ColorModel};
 
 use serde::Serialize;
 
@@ -75,17 +70,19 @@ impl Array2dPlot {
         let legend_title = None;
         let z_axis = None;
         let legend = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );

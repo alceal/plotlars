@@ -98,7 +98,7 @@ impl Lighting {
     /// * `x` – An `i32` value representing the *x*‑coordinate of the light.
     /// * `y` – An `i32` value representing the *y*‑coordinate of the light.
     /// * `z` – An `i32` value representing the *z*‑coordinate of the light (positive z points toward the viewer).
-    pub fn position(mut self, x: i32, y:i32, z: i32) -> Self {
+    pub fn position(mut self, x: i32, y: i32, z: i32) -> Self {
         self.position = Some([x, y, z]);
         self
     }
@@ -180,5 +180,4 @@ impl Lighting {
 
         lighting_plotly
     }
-
 }

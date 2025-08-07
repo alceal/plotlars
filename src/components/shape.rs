@@ -5,6 +5,7 @@ use plotly::common::MarkerSymbol;
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, Legend, Plot, Rgb, ScatterPlot, Shape, Text, TickDirection};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))

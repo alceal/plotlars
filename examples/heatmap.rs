@@ -20,7 +20,7 @@ fn main() {
                 .value_exponent(ValueExponent::None)
                 .separate_thousands(true)
                 .tick_length(5)
-                .tick_step(2500.0)
+                .tick_step(2500.0),
         )
         .plot_title(Text::from("Heat Map").font("Arial").size(18))
         .color_scale(Palette::Viridis)

@@ -1,19 +1,9 @@
 use bon::bon;
 
 use plotly::{
-    ScatterMapbox,
-    Trace,
-    common::{
-        Marker as MarkerPlotly,
-        Mode,
-    },
-    layout::{
-        Center,
-        Layout as LayoutPlotly,
-        Mapbox,
-        MapboxStyle,
-        Margin,
-    },
+    ScatterMapbox, Trace,
+    common::{Marker as MarkerPlotly, Mode},
+    layout::{Center, Layout as LayoutPlotly, Mapbox, MapboxStyle, Margin},
 };
 
 use polars::frame::DataFrame;
@@ -54,6 +44,7 @@ use crate::{
 /// ## Basic Scatter Map Plot
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Plot, ScatterMap, Text};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/cities.csv"))
@@ -114,17 +105,19 @@ impl ScatterMap {
         let x_axis = None;
         let y_axis = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let mut layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         )

@@ -1,12 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    BoxPlot as BoxPlotly,
-    Layout as LayoutPlotly,
-    Trace,
-    box_plot::BoxPoints,
-    common::Marker as MarkerPlotly,
-    layout::BoxMode,
+    BoxPlot as BoxPlotly, Layout as LayoutPlotly, Trace, box_plot::BoxPoints,
+    common::Marker as MarkerPlotly, layout::BoxMode,
 };
 
 use polars::frame::DataFrame;
@@ -48,6 +44,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, BoxPlot, Legend, Orientation, Plot, Rgb, Text};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
@@ -142,17 +139,19 @@ impl BoxPlot {
     ) -> Self {
         let z_title = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let mut layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );

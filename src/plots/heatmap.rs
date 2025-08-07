@@ -1,10 +1,6 @@
 use bon::bon;
 
-use plotly::{
-    HeatMap as HeatMapPlotly,
-    Layout as LayoutPlotly,
-    Trace,
-};
+use plotly::{HeatMap as HeatMapPlotly, Layout as LayoutPlotly, Trace};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -41,6 +37,7 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{ColorBar, HeatMap, Palette, Plot, Text, ValueExponent};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/heatmap.csv"))
@@ -102,17 +99,19 @@ impl HeatMap {
         let legend_title = None;
         let z_title = None;
         let z_axis = None;
+        let y2_title = None;
+        let y2_axis = None;
 
         let layout = Self::create_layout(
             plot_title,
             x_title,
             y_title,
-            None, // y2_title,
+            y2_title,
             z_title,
             legend_title,
             x_axis,
             y_axis,
-            None, // y2_axis,
+            y2_axis,
             z_axis,
             legend,
         );

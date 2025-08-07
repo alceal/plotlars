@@ -1,8 +1,8 @@
 [package]
 name = "plotlars"
-version = "0.9.7"
+version = "0.10.0"
 authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
-edition = "2024"
+edition = "2021"
 rust-version = "1.86.0"
 description = "Plotlars is a Rust library designed to facilitate the integration between the Polars data analysis library and visualization libraries."
 documentation = "https://docs.rs/plotlars/latest/plotlars/"

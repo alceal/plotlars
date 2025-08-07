@@ -1,12 +1,6 @@
 use plotly::{
-    common::{
-        AxisSide as AxisSidePlotly,
-        Font,
-    },
-    layout::{
-        Axis as AxisPlotly,
-        AxisType as AxisTypePlotly,
-    },
+    common::{AxisSide as AxisSidePlotly, Font},
+    layout::{Axis as AxisPlotly, AxisType as AxisTypePlotly},
 };
 
 use crate::components::{Rgb, Text, TickDirection, ValueExponent};
@@ -16,6 +10,7 @@ use crate::components::{Rgb, Text, TickDirection, ValueExponent};
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, Plot, Rgb, ScatterPlot, Text, TickDirection};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
@@ -364,11 +359,7 @@ impl Axis {
         axis
     }
 
-    fn set_format(
-        mut axis: AxisPlotly,
-        format: &Self,
-        overlaying: Option<&str>,
-    ) -> AxisPlotly {
+    fn set_format(mut axis: AxisPlotly, format: &Self, overlaying: Option<&str>) -> AxisPlotly {
         if let Some(overlaying) = overlaying {
             axis = axis.overlaying(overlaying);
         }
@@ -482,6 +473,7 @@ impl Axis {
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, AxisSide, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
@@ -548,6 +540,7 @@ impl AxisSide {
 /// # Example
 ///
 /// ```rust
+/// use polars::prelude::*;
 /// use plotlars::{Axis, AxisType, LinePlot, Plot};
 ///
 /// let linear_values = vec![
@@ -566,8 +559,8 @@ impl AxisSide {
 /// ];
 ///
 /// let dataset = DataFrame::new(vec![
-///     Series::new("linear_values".into(), linear_values),
-///     Series::new("logarithms".into(), logarithms),
+///     Column::new("linear_values".into(), linear_values),
+///     Column::new("logarithms".into(), logarithms),
 /// ]).unwrap();
 ///
 /// let axis = Axis::new()

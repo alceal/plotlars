@@ -13,12 +13,16 @@ pub(crate) trait Polar {
             .cast(&DataType::String)
             .unwrap();
 
-        unique_groups
+        let mut groups: Vec<String> = unique_groups
             .str()
             .unwrap()
             .iter()
             .map(|x| x.unwrap().to_string())
-            .collect::<Vec<String>>()
+            .collect();
+
+        // Sort the groups to ensure consistent ordering
+        groups.sort();
+        groups
     }
 
     fn filter_data_by_group(data: &DataFrame, group_col: &str, group_name: &str) -> DataFrame {

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2025-08-07
+
+### 🚀 Features
+
+- Add CandlestickPlot with Direction styling
+- Add DensityMapbox plot
+- Add Mesh3D plot implementation
+- Add OHLC plot for financial data visualization
+- Add ScatterGeo plot with geographic visualization support
+- Add ScatterPolar plot implementation
+- Add Table plot with Header and Cell components
+
 ## [0.9.7] - 2025-08-04
 
 ### 🐛 Bug Fixes
