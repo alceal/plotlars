@@ -81,8 +81,9 @@ fn main() {
     plot.set_layout(layout);
 
     let groups_str = groups.str().unwrap();
-    for i in 0..groups_str.len() {
-        let group = groups_str.get(i).unwrap();
+
+    for group in groups_str.into_iter() {
+        let group = group.unwrap();
 
         let data = dataset
             .clone()
