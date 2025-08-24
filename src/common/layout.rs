@@ -23,20 +23,43 @@ pub(crate) trait Layout {
             layout = layout.title(title.to_plotly());
         }
 
-        if let Some(x_axis) = x_axis {
-            layout = layout.x_axis(Axis::set_axis(x_title, x_axis, None));
+        match (x_axis, x_title) {
+            (Some(axis), title) => {
+                layout = layout.x_axis(Axis::set_axis(title, axis, None));
+            }
+            (None, Some(title)) => {
+                let default_axis = Axis::default();
+                layout = layout.x_axis(Axis::set_axis(Some(title), &default_axis, None));
+            }
+            _ => {}
         }
 
-        if let Some(y_axis) = y_axis {
-            layout = layout.y_axis(Axis::set_axis(y_title, y_axis, None));
+        match (y_axis, y_title) {
+            (Some(axis), title) => {
+                layout = layout.y_axis(Axis::set_axis(title, axis, None));
+            }
+            (None, Some(title)) => {
+                let default_axis = Axis::default();
+                layout = layout.y_axis(Axis::set_axis(Some(title), &default_axis, None));
+            }
+            _ => {}
         }
 
+        // Handle y2-axis
         if let Some(y2_axis) = y2_axis {
             layout = layout.y_axis2(Axis::set_axis(y2_title, y2_axis, Some("y")));
         }
 
-        if let Some(z_axis) = z_axis {
-            layout = layout.z_axis(Axis::set_axis(z_title, z_axis, None));
+        // Handle z-axis: use provided axis or create default with title if only title exists
+        match (z_axis, z_title) {
+            (Some(axis), title) => {
+                layout = layout.z_axis(Axis::set_axis(title, axis, None));
+            }
+            (None, Some(title)) => {
+                let default_axis = Axis::default();
+                layout = layout.z_axis(Axis::set_axis(Some(title), &default_axis, None));
+            }
+            _ => {}
         }
 
         layout = layout.legend(Legend::set_legend(legend_title, legend));
