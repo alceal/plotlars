@@ -6,7 +6,7 @@ use plotly::{
     layout::BarMode,
 };
 
-use polars::{frame::DataFrame, prelude::sort};
+use polars::frame::DataFrame;
 use serde::Serialize;
 
 use crate::{
