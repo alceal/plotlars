@@ -29,6 +29,7 @@ use crate::{
 /// * `center` - An optional array `[f64; 2]` specifying the initial center point of the map ([latitude, longitude]).
 /// * `zoom` - An optional `u8` specifying the initial zoom level of the map.
 /// * `group` - An optional string slice specifying the column name for grouping data points (e.g., by city or category).
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value between `0.0` and `1.0` specifying the opacity of the points.
 /// * `size` - An optional `usize` specifying the size of the scatter points.
 /// * `color` - An optional `Rgb` value specifying the color of the points (if no grouping is applied).

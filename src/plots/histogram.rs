@@ -24,6 +24,7 @@ use crate::{
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.
 /// * `x` - A string slice specifying the column name to be used for the x-axis (independent variable).
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot. This is used when `group` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot. This is used when `group` is specified to differentiate between groups.

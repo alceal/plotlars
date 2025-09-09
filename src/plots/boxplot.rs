@@ -27,6 +27,7 @@ use crate::{
 /// * `values` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `orientation` - An optional `Orientation` enum specifying whether the plot should be horizontal or vertical.
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `box_points` - An optional boolean indicating whether individual data points should be plotted along with the box plot.
 /// * `point_offset` - An optional `f64` value specifying the horizontal offset for individual data points when `box_points` is enabled.
 /// * `jitter` - An optional `f64` value indicating the amount of jitter (random noise) to apply to individual data points for visibility.

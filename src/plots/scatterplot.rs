@@ -26,6 +26,7 @@ use crate::{
 /// * `x` - A string slice specifying the column name to be used for the x-axis (independent variable).
 /// * `y` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `size` - An optional `usize` specifying the size of the markers.
 /// * `color` - An optional `Rgb` value specifying the color of the markers. This is used when `group` is not specified.

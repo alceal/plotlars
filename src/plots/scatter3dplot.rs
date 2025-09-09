@@ -27,6 +27,7 @@ use crate::{
 /// * `y` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `z` - A string slice specifying the column name to be used for the z-axis, adding a third dimension to the scatter plot.
 /// * `group` - An optional string slice specifying the column name used for grouping data points by category.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `size` - An optional `usize` specifying the size of the markers.
 /// * `color` - An optional `Rgb` value for marker color when `group` is not specified.

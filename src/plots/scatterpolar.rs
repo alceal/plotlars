@@ -26,6 +26,7 @@ use crate::{
 /// * `theta` - A string slice specifying the column name to be used for the angular coordinates (in degrees).
 /// * `r` - A string slice specifying the column name to be used for the radial coordinates.
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `mode` - An optional `Mode` specifying the drawing mode (lines, markers, or both). Defaults to markers.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot elements (range: 0.0 to 1.0).
 /// * `fill` - An optional `Fill` type specifying how to fill the area under the trace.
