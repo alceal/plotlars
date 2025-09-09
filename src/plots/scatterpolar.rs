@@ -106,6 +106,7 @@ impl ScatterPolar {
         theta: &str,
         r: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         mode: Option<Mode>,
         opacity: Option<f64>,
         fill: Option<Fill>,
@@ -145,7 +146,7 @@ impl ScatterPolar {
         );
 
         let traces = Self::create_traces(
-            data, theta, r, group, mode, opacity, fill, size, color, colors, shape, shapes, width,
+            data, theta, r, group, sort_groups_by, mode, opacity, fill, size, color, colors, shape, shapes, width,
             line, lines,
         );
 
@@ -158,6 +159,7 @@ impl ScatterPolar {
         theta: &str,
         r: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         mode: Option<Mode>,
         opacity: Option<f64>,
         fill: Option<Fill>,
@@ -177,7 +179,7 @@ impl ScatterPolar {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
                 let groups = groups.iter().map(|s| s.as_str());
 
                 for (i, group) in groups.enumerate() {

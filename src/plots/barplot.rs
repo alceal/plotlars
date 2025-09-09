@@ -6,7 +6,7 @@ use plotly::{
     layout::BarMode,
 };
 
-use polars::frame::DataFrame;
+use polars::{frame::DataFrame, prelude::sort};
 use serde::Serialize;
 
 use crate::{
@@ -109,6 +109,7 @@ impl BarPlot {
         values: &str,
         orientation: Option<Orientation>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         error: Option<&str>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -147,6 +148,7 @@ impl BarPlot {
             values,
             orientation,
             group,
+            sort_groups_by,
             error,
             color,
             colors,
@@ -162,6 +164,7 @@ impl BarPlot {
         values: &str,
         orientation: Option<Orientation>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         error: Option<&str>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -175,7 +178,7 @@ impl BarPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

@@ -96,6 +96,7 @@ impl ScatterGeo {
         mode: Option<Mode>,
         text: Option<&str>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -132,7 +133,7 @@ impl ScatterGeo {
         );
 
         let traces = Self::create_traces(
-            data, lat, lon, mode, text, group, opacity, size, color, colors, shape, shapes,
+            data, lat, lon, mode, text, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
             line_width, line_color,
         );
 
@@ -147,6 +148,7 @@ impl ScatterGeo {
         mode: Option<Mode>,
         text: Option<&str>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -160,7 +162,7 @@ impl ScatterGeo {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
                 let groups = groups.iter().map(|s| s.as_str());
 
                 for (i, group) in groups.enumerate() {

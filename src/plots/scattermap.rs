@@ -89,6 +89,7 @@ impl ScatterMap {
         center: Option<[f64; 2]>,
         zoom: Option<u8>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -136,7 +137,7 @@ impl ScatterMap {
         layout = layout.mapbox(map_box);
 
         let traces = Self::create_traces(
-            data, latitude, longitude, group, opacity, size, color, colors, shape, shapes,
+            data, latitude, longitude, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
         );
 
         Self { traces, layout }
@@ -148,6 +149,7 @@ impl ScatterMap {
         latitude: &str,
         longitude: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -159,7 +161,7 @@ impl ScatterMap {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

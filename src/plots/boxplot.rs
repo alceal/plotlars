@@ -123,6 +123,7 @@ impl BoxPlot {
         values: &str,
         orientation: Option<Orientation>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         box_points: Option<bool>,
         point_offset: Option<f64>,
         jitter: Option<f64>,
@@ -164,6 +165,7 @@ impl BoxPlot {
             values,
             orientation,
             group,
+            sort_groups_by,
             box_points,
             point_offset,
             jitter,
@@ -182,6 +184,7 @@ impl BoxPlot {
         values: &str,
         orientation: Option<Orientation>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         box_points: Option<bool>,
         point_offset: Option<f64>,
         jitter: Option<f64>,
@@ -197,7 +200,7 @@ impl BoxPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

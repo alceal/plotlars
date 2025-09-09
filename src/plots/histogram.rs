@@ -113,6 +113,7 @@ impl Histogram {
         data: &DataFrame,
         x: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -145,7 +146,7 @@ impl Histogram {
 
         layout = layout.bar_mode(BarMode::Overlay);
 
-        let traces = Self::create_traces(data, x, group, opacity, color, colors);
+        let traces = Self::create_traces(data, x, group,sort_groups_by, opacity, color, colors);
 
         Self { traces, layout }
     }
@@ -154,6 +155,7 @@ impl Histogram {
         data: &DataFrame,
         x: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -166,7 +168,7 @@ impl Histogram {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

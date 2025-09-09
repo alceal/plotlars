@@ -121,6 +121,7 @@ impl ScatterPlot {
         x: &str,
         y: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -155,7 +156,7 @@ impl ScatterPlot {
         );
 
         let traces = Self::create_traces(
-            data, x, y, group, opacity, size, color, colors, shape, shapes,
+            data, x, y, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
         );
 
         Self { traces, layout }
@@ -167,6 +168,7 @@ impl ScatterPlot {
         x: &str,
         y: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -178,7 +180,7 @@ impl ScatterPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

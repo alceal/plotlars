@@ -105,6 +105,7 @@ impl Scatter3dPlot {
         y: &str,
         z: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -140,7 +141,7 @@ impl Scatter3dPlot {
         );
 
         let traces = Self::create_traces(
-            data, x, y, z, group, opacity, size, color, colors, shape, shapes,
+            data, x, y, z, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
         );
 
         Self { traces, layout }
@@ -153,6 +154,7 @@ impl Scatter3dPlot {
         y: &str,
         z: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&String, &String) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -164,7 +166,7 @@ impl Scatter3dPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 
