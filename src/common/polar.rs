@@ -8,7 +8,7 @@ pub(crate) trait Polar {
         let unique_groups = data
             .column(group_col)
             .unwrap()
-            .unique_stable()
+            .unique()
             .unwrap()
             .cast(&DataType::String)
             .unwrap();
