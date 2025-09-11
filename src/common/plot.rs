@@ -38,7 +38,7 @@ pub trait Plot {
 }
 
 // Private helper trait containing methods not exposed publicly.
-pub(crate) trait PlotHelper {
+pub trait PlotHelper {
     fn get_layout(&self) -> &Layout;
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>>;
 
