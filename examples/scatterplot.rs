@@ -25,6 +25,7 @@ fn main() {
         .x("body_mass_g")
         .y("flipper_length_mm")
         .group("species")
+        .sort_groups_by(|a, b| if a.len() == b.len() { a.cmp(b) } else { a.len().cmp(&b.len()) }) //sort by length unless equal length then lexical
         .opacity(0.5)
         .size(12)
         .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
