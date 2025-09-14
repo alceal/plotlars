@@ -1,8 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    DensityMapbox as DensityMapboxPlotly, Trace,
     layout::{Center, Layout as LayoutPlotly, Mapbox, MapboxStyle, Margin},
+    DensityMapbox as DensityMapboxPlotly, Trace,
 };
 
 use polars::frame::DataFrame;

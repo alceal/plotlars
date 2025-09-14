@@ -1,8 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Layout as LayoutPlotly, ScatterGeo as ScatterGeoPlotly, Trace,
     common::{Line as LinePlotly, Marker as MarkerPlotly},
+    Layout as LayoutPlotly, ScatterGeo as ScatterGeoPlotly, Trace,
 };
 
 use polars::frame::DataFrame;
@@ -134,8 +134,21 @@ impl ScatterGeo {
         );
 
         let traces = Self::create_traces(
-            data, lat, lon, mode, text, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
-            line_width, line_color,
+            data,
+            lat,
+            lon,
+            mode,
+            text,
+            group,
+            sort_groups_by,
+            opacity,
+            size,
+            color,
+            colors,
+            shape,
+            shapes,
+            line_width,
+            line_color,
         );
 
         Self { traces, layout }

@@ -2,7 +2,7 @@ use bon::bon;
 use indexmap::IndexSet;
 use ordered_float::OrderedFloat;
 
-use plotly::{Layout as LayoutPlotly, Surface, Trace, surface::Position};
+use plotly::{surface::Position, Layout as LayoutPlotly, Surface, Trace};
 
 use polars::frame::DataFrame;
 use serde::Serialize;

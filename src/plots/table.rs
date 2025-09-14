@@ -1,8 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Layout as LayoutPlotly, Table as TablePlotly, Trace,
     traces::table::{Cells as CellsPlotly, Header as HeaderPlotly},
+    Layout as LayoutPlotly, Table as TablePlotly, Trace,
 };
 
 use polars::frame::DataFrame;

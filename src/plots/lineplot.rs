@@ -1,13 +1,13 @@
 use bon::bon;
 
 use plotly::{
-    Layout as LayoutPlotly, Scatter, Trace,
     common::{Line as LinePlotly, Marker as MarkerPlotly, Mode},
+    Layout as LayoutPlotly, Scatter, Trace,
 };
 
 use polars::{
     frame::DataFrame,
-    prelude::{IntoLazy, col},
+    prelude::{col, IntoLazy},
 };
 use serde::Serialize;
 
