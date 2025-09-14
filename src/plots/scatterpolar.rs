@@ -26,6 +26,7 @@ use crate::{
 /// * `theta` - A string slice specifying the column name to be used for the angular coordinates (in degrees).
 /// * `r` - A string slice specifying the column name to be used for the radial coordinates.
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `mode` - An optional `Mode` specifying the drawing mode (lines, markers, or both). Defaults to markers.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot elements (range: 0.0 to 1.0).
 /// * `fill` - An optional `Fill` type specifying how to fill the area under the trace.
@@ -106,6 +107,7 @@ impl ScatterPolar {
         theta: &str,
         r: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         mode: Option<Mode>,
         opacity: Option<f64>,
         fill: Option<Fill>,
@@ -145,7 +147,7 @@ impl ScatterPolar {
         );
 
         let traces = Self::create_traces(
-            data, theta, r, group, mode, opacity, fill, size, color, colors, shape, shapes, width,
+            data, theta, r, group, sort_groups_by, mode, opacity, fill, size, color, colors, shape, shapes, width,
             line, lines,
         );
 
@@ -158,6 +160,7 @@ impl ScatterPolar {
         theta: &str,
         r: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         mode: Option<Mode>,
         opacity: Option<f64>,
         fill: Option<Fill>,
@@ -177,7 +180,7 @@ impl ScatterPolar {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
                 let groups = groups.iter().map(|s| s.as_str());
 
                 for (i, group) in groups.enumerate() {

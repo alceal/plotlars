@@ -27,6 +27,8 @@ use crate::{
 /// * `values` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `orientation` - An optional `Orientation` enum specifying whether the plot should be horizontal or vertical.
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering.
+///   Groups are sorted lexically by default.
 /// * `error` - An optional string slice specifying the column name containing error values for the y-axis data.
 /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot. This is used when `group` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot. This is used when `group` is specified to differentiate between groups.
@@ -109,6 +111,7 @@ impl BarPlot {
         values: &str,
         orientation: Option<Orientation>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         error: Option<&str>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -147,6 +150,7 @@ impl BarPlot {
             values,
             orientation,
             group,
+            sort_groups_by,
             error,
             color,
             colors,
@@ -162,6 +166,7 @@ impl BarPlot {
         values: &str,
         orientation: Option<Orientation>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         error: Option<&str>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -175,7 +180,7 @@ impl BarPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

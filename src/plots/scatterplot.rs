@@ -26,6 +26,7 @@ use crate::{
 /// * `x` - A string slice specifying the column name to be used for the x-axis (independent variable).
 /// * `y` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `size` - An optional `usize` specifying the size of the markers.
 /// * `color` - An optional `Rgb` value specifying the color of the markers. This is used when `group` is not specified.
@@ -121,6 +122,7 @@ impl ScatterPlot {
         x: &str,
         y: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -155,7 +157,7 @@ impl ScatterPlot {
         );
 
         let traces = Self::create_traces(
-            data, x, y, group, opacity, size, color, colors, shape, shapes,
+            data, x, y, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
         );
 
         Self { traces, layout }
@@ -167,6 +169,7 @@ impl ScatterPlot {
         x: &str,
         y: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -178,7 +181,7 @@ impl ScatterPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

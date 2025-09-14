@@ -29,6 +29,7 @@ use crate::{
 /// * `center` - An optional array `[f64; 2]` specifying the initial center point of the map ([latitude, longitude]).
 /// * `zoom` - An optional `u8` specifying the initial zoom level of the map.
 /// * `group` - An optional string slice specifying the column name for grouping data points (e.g., by city or category).
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value between `0.0` and `1.0` specifying the opacity of the points.
 /// * `size` - An optional `usize` specifying the size of the scatter points.
 /// * `color` - An optional `Rgb` value specifying the color of the points (if no grouping is applied).
@@ -89,6 +90,7 @@ impl ScatterMap {
         center: Option<[f64; 2]>,
         zoom: Option<u8>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -136,7 +138,7 @@ impl ScatterMap {
         layout = layout.mapbox(map_box);
 
         let traces = Self::create_traces(
-            data, latitude, longitude, group, opacity, size, color, colors, shape, shapes,
+            data, latitude, longitude, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
         );
 
         Self { traces, layout }
@@ -148,6 +150,7 @@ impl ScatterMap {
         latitude: &str,
         longitude: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -159,7 +162,7 @@ impl ScatterMap {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

@@ -24,6 +24,7 @@ use crate::{
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.
 /// * `x` - A string slice specifying the column name to be used for the x-axis (independent variable).
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot. This is used when `group` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot. This is used when `group` is specified to differentiate between groups.
@@ -113,6 +114,7 @@ impl Histogram {
         data: &DataFrame,
         x: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -145,7 +147,7 @@ impl Histogram {
 
         layout = layout.bar_mode(BarMode::Overlay);
 
-        let traces = Self::create_traces(data, x, group, opacity, color, colors);
+        let traces = Self::create_traces(data, x, group,sort_groups_by, opacity, color, colors);
 
         Self { traces, layout }
     }
@@ -154,6 +156,7 @@ impl Histogram {
         data: &DataFrame,
         x: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -166,7 +169,7 @@ impl Histogram {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 

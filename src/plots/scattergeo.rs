@@ -28,6 +28,7 @@ use crate::{
 /// * `mode` - An optional `Mode` specifying the drawing mode (markers, lines, or both).
 /// * `text` - An optional string slice specifying the column name to be used for text labels.
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot elements (range: 0.0 to 1.0).
 /// * `size` - An optional `usize` specifying the size of the markers.
 /// * `color` - An optional `Rgb` value specifying the color of the markers. This is used when `group` is not specified.
@@ -96,6 +97,7 @@ impl ScatterGeo {
         mode: Option<Mode>,
         text: Option<&str>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -132,7 +134,7 @@ impl ScatterGeo {
         );
 
         let traces = Self::create_traces(
-            data, lat, lon, mode, text, group, opacity, size, color, colors, shape, shapes,
+            data, lat, lon, mode, text, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
             line_width, line_color,
         );
 
@@ -147,6 +149,7 @@ impl ScatterGeo {
         mode: Option<Mode>,
         text: Option<&str>,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -160,7 +163,7 @@ impl ScatterGeo {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
                 let groups = groups.iter().map(|s| s.as_str());
 
                 for (i, group) in groups.enumerate() {

@@ -27,6 +27,7 @@ use crate::{
 /// * `y` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `z` - A string slice specifying the column name to be used for the z-axis, adding a third dimension to the scatter plot.
 /// * `group` - An optional string slice specifying the column name used for grouping data points by category.
+/// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `size` - An optional `usize` specifying the size of the markers.
 /// * `color` - An optional `Rgb` value for marker color when `group` is not specified.
@@ -105,6 +106,7 @@ impl Scatter3dPlot {
         y: &str,
         z: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -140,7 +142,7 @@ impl Scatter3dPlot {
         );
 
         let traces = Self::create_traces(
-            data, x, y, z, group, opacity, size, color, colors, shape, shapes,
+            data, x, y, z, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
         );
 
         Self { traces, layout }
@@ -153,6 +155,7 @@ impl Scatter3dPlot {
         y: &str,
         z: &str,
         group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -164,7 +167,7 @@ impl Scatter3dPlot {
 
         match group {
             Some(group_col) => {
-                let groups = Self::get_unique_groups(data, group_col);
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
 
                 let groups = groups.iter().map(|s| s.as_str());
 
