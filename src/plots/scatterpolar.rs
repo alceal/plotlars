@@ -1,8 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Layout as LayoutPlotly, ScatterPolar as ScatterPolarPlotly, Trace,
     common::{Line as LinePlotly, Marker as MarkerPlotly},
+    Layout as LayoutPlotly, ScatterPolar as ScatterPolarPlotly, Trace,
 };
 
 use polars::frame::DataFrame;
@@ -147,8 +147,22 @@ impl ScatterPolar {
         );
 
         let traces = Self::create_traces(
-            data, theta, r, group, sort_groups_by, mode, opacity, fill, size, color, colors, shape, shapes, width,
-            line, lines,
+            data,
+            theta,
+            r,
+            group,
+            sort_groups_by,
+            mode,
+            opacity,
+            fill,
+            size,
+            color,
+            colors,
+            shape,
+            shapes,
+            width,
+            line,
+            lines,
         );
 
         Self { traces, layout }

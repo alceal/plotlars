@@ -1,9 +1,9 @@
 use bon::bon;
 
 use plotly::{
-    Bar, Layout as LayoutPlotly, Trace,
     common::{ErrorData, ErrorType, Marker as MarkerPlotly},
     layout::BarMode,
+    Bar, Layout as LayoutPlotly, Trace,
 };
 
 use polars::frame::DataFrame;
@@ -60,6 +60,7 @@ use crate::{
 ///     .values("value")
 ///     .orientation(Orientation::Vertical)
 ///     .group("gender")
+///     .sort_groups_by(|a, b| a.len().cmp(&b.len()))
 ///     .error("error")
 ///     .colors(vec![
 ///         Rgb(255, 127, 80),
@@ -95,7 +96,7 @@ use crate::{
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/2alZlO5.png)
+/// ![Example](https://imgur.com/xKHucCp.png)
 #[derive(Clone, Serialize)]
 pub struct BarPlot {
     traces: Vec<Box<dyn Trace + 'static>>,

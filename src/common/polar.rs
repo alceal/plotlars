@@ -1,10 +1,14 @@
 use polars::{
     frame::DataFrame,
-    prelude::{DataType, IntoLazy, col, lit},
+    prelude::{col, lit, DataType, IntoLazy},
 };
 
 pub(crate) trait Polar {
-    fn get_unique_groups(data: &DataFrame, group_col: &str, sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>) -> Vec<String> {
+    fn get_unique_groups(
+        data: &DataFrame,
+        group_col: &str,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+    ) -> Vec<String> {
         let unique_groups = data
             .column(group_col)
             .unwrap()
@@ -27,7 +31,7 @@ pub(crate) trait Polar {
             //default sort (lexical)
             groups.sort();
         }
-        
+
         groups
     }
 

@@ -1,9 +1,9 @@
 use bon::bon;
-use std::collections::{HashMap, hash_map::Entry};
+use std::collections::{hash_map::Entry, HashMap};
 
 use plotly::{
-    Layout as LayoutPlotly, Sankey, Trace,
     sankey::{Link, Node},
+    Layout as LayoutPlotly, Sankey, Trace,
 };
 
 use polars::frame::DataFrame;
