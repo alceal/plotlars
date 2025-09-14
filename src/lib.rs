@@ -6,6 +6,7 @@ mod components;
 mod plots;
 
 pub use crate::common::plot::Plot;
+pub use crate::common::plot::PlotHelper;
 pub use crate::components::arrangement::Arrangement;
 pub use crate::components::axis::{Axis, AxisSide, AxisType};
 pub use crate::components::cell::Cell;
