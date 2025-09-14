@@ -37,8 +37,9 @@ pub trait Plot {
     ) -> Result<(), std::boxed::Box<(dyn std::error::Error + 'static)>>;
 }
 
-// Private helper trait containing methods not exposed publicly.
-pub(crate) trait PlotHelper {
+/// Helper trait for internal use by the `Plot` trait implementation.
+/// Can be used to get the underlying layout and traces of a plot (for example, to create a subplot).
+pub trait PlotHelper {
     fn get_layout(&self) -> &Layout;
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>>;
 
