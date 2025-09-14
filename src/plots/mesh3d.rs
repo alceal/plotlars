@@ -1,8 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Layout as LayoutPlotly, Mesh3D as Mesh3DPlotly, Trace,
     mesh3d::{Contour, DelaunayAxis, LightPosition, Lighting as LightingMesh3D},
+    Layout as LayoutPlotly, Mesh3D as Mesh3DPlotly, Trace,
 };
 
 use polars::frame::DataFrame;

@@ -17,8 +17,7 @@ fn main() {
         .values("value")
         .orientation(Orientation::Vertical)
         .group("gender")
-        //sort by length of group name
-        .sort_groups_by(|a,b| a.len().cmp(&b.len())) 
+        .sort_groups_by(|a, b| a.len().cmp(&b.len()))
         .error("error")
         .colors(vec![Rgb(255, 127, 80), Rgb(64, 224, 208)])
         .plot_title(Text::from("Bar Plot").font("Arial").size(18))

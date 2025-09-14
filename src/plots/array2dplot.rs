@@ -1,6 +1,6 @@
 use bon::bon;
 
-use plotly::{Image as ImagePlotly, Layout as LayoutPlotly, Trace, image::ColorModel};
+use plotly::{image::ColorModel, Image as ImagePlotly, Layout as LayoutPlotly, Trace};
 
 use serde::Serialize;
 

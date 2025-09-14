@@ -1,8 +1,8 @@
 use bon::bon;
 
 use plotly::{
-    Histogram as HistogramPlotly, Layout as LayoutPlotly, Trace, common::Marker as MarkerPlotly,
-    histogram::HistFunc, layout::BarMode,
+    common::Marker as MarkerPlotly, histogram::HistFunc, layout::BarMode,
+    Histogram as HistogramPlotly, Layout as LayoutPlotly, Trace,
 };
 
 use polars::frame::DataFrame;
@@ -147,7 +147,7 @@ impl Histogram {
 
         layout = layout.bar_mode(BarMode::Overlay);
 
-        let traces = Self::create_traces(data, x, group,sort_groups_by, opacity, color, colors);
+        let traces = Self::create_traces(data, x, group, sort_groups_by, opacity, color, colors);
 
         Self { traces, layout }
     }

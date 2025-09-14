@@ -1,9 +1,9 @@
 use bon::bon;
 
 use plotly::{
-    ScatterMapbox, Trace,
     common::{Marker as MarkerPlotly, Mode},
     layout::{Center, Layout as LayoutPlotly, Mapbox, MapboxStyle, Margin},
+    ScatterMapbox, Trace,
 };
 
 use polars::frame::DataFrame;
@@ -138,7 +138,17 @@ impl ScatterMap {
         layout = layout.mapbox(map_box);
 
         let traces = Self::create_traces(
-            data, latitude, longitude, group, sort_groups_by, opacity, size, color, colors, shape, shapes,
+            data,
+            latitude,
+            longitude,
+            group,
+            sort_groups_by,
+            opacity,
+            size,
+            color,
+            colors,
+            shape,
+            shapes,
         );
 
         Self { traces, layout }

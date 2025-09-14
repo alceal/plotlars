@@ -1,6 +1,6 @@
 use bon::bon;
 
-use plotly::{Contour, Layout as LayoutPlotly, Trace, contour::Contours};
+use plotly::{contour::Contours, Contour, Layout as LayoutPlotly, Trace};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
