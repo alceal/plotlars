@@ -2,6 +2,7 @@ use bon::bon;
 
 use plotly::{
     common::{Marker as MarkerPlotly, Mode},
+    layout::{GridPattern, LayoutGrid},
     Layout as LayoutPlotly, Scatter, Trace,
 };
 
@@ -10,7 +11,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, Legend, Rgb, Shape, Text},
+    components::{Axis, FacetConfig, FacetScales, Legend, Rgb, Shape, Text},
 };
 
 /// A structure representing a scatter plot.
@@ -123,6 +124,8 @@ impl ScatterPlot {
         y: &str,
         group: Option<&str>,
         sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
         opacity: Option<f64>,
         size: Option<usize>,
         color: Option<Rgb>,
@@ -142,33 +145,73 @@ impl ScatterPlot {
         let y2_title = None;
         let y2_axis = None;
 
-        let layout = Self::create_layout(
-            plot_title,
-            x_title,
-            y_title,
-            y2_title,
-            z_title,
-            legend_title,
-            x_axis,
-            y_axis,
-            y2_axis,
-            z_axis,
-            legend,
-        );
+        let (layout, traces) = match facet {
+            Some(facet_column) => {
+                let config = facet_config.cloned().unwrap_or_default();
 
-        let traces = Self::create_traces(
-            data,
-            x,
-            y,
-            group,
-            sort_groups_by,
-            opacity,
-            size,
-            color,
-            colors,
-            shape,
-            shapes,
-        );
+                let layout = Self::create_faceted_layout(
+                    data,
+                    facet_column,
+                    &config,
+                    plot_title,
+                    x_title,
+                    y_title,
+                    legend_title,
+                    x_axis,
+                    y_axis,
+                    legend,
+                );
+
+                let traces = Self::create_faceted_traces(
+                    data,
+                    x,
+                    y,
+                    group,
+                    sort_groups_by,
+                    facet_column,
+                    &config,
+                    opacity,
+                    size,
+                    color,
+                    colors,
+                    shape,
+                    shapes,
+                );
+
+                (layout, traces)
+            }
+            None => {
+                let layout = Self::create_layout(
+                    plot_title,
+                    x_title,
+                    y_title,
+                    y2_title,
+                    z_title,
+                    legend_title,
+                    x_axis,
+                    y_axis,
+                    y2_axis,
+                    z_axis,
+                    legend,
+                );
+
+                let traces = Self::create_traces(
+                    data,
+                    x,
+                    y,
+                    group,
+                    sort_groups_by,
+                    opacity,
+                    size,
+                    color,
+                    colors,
+                    shape,
+                    shapes,
+                );
+
+                (layout, traces)
+            }
+        };
 
         Self { traces, layout }
     }
@@ -242,18 +285,268 @@ impl ScatterPlot {
         group_name: Option<&str>,
         marker: MarkerPlotly,
     ) -> Box<dyn Trace + 'static> {
-        let x = Self::get_numeric_column(data, x);
-        let y = Self::get_numeric_column(data, y);
+        Self::build_scatter_trace(data, x, y, group_name, marker)
+    }
 
-        let mut trace = Scatter::default().x(x).y(y).mode(Mode::Markers);
+    fn build_scatter_trace(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        group_name: Option<&str>,
+        marker: MarkerPlotly,
+    ) -> Box<dyn Trace + 'static> {
+        Self::build_scatter_trace_with_axes(data, x, y, group_name, marker, None, None, true)
+    }
 
-        trace = trace.marker(marker);
+    #[allow(clippy::too_many_arguments)]
+    fn build_scatter_trace_with_axes(
+        data: &DataFrame,
+        x_col: &str,
+        y_col: &str,
+        group_name: Option<&str>,
+        marker: MarkerPlotly,
+        x_axis: Option<&str>,
+        y_axis: Option<&str>,
+        show_legend: bool,
+    ) -> Box<dyn Trace + 'static> {
+        let x = Self::get_numeric_column(data, x_col);
+        let y = Self::get_numeric_column(data, y_col);
 
-        if let Some(name) = group_name {
-            trace = trace.name(name);
+        let trace = Scatter::default().x(x).y(y).mode(Mode::Markers);
+
+        let trace = trace.marker(marker);
+
+        let trace = if let Some(name) = group_name {
+            trace.name(name)
+        } else {
+            trace
+        };
+
+        let trace = if let Some(axis) = x_axis {
+            trace.x_axis(axis)
+        } else {
+            trace
+        };
+
+        let trace = if let Some(axis) = y_axis {
+            trace.y_axis(axis)
+        } else {
+            trace
+        };
+
+        if !show_legend {
+            trace.show_legend(false)
+        } else {
+            trace
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn create_faceted_traces(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet_column: &str,
+        config: &FacetConfig,
+        opacity: Option<f64>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+    ) -> Vec<Box<dyn Trace + 'static>> {
+        const MAX_FACETS: usize = 8;
+
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+
+        if facet_categories.len() > MAX_FACETS {
+            panic!(
+                "Facet column '{}' has {} unique values, but plotly.rs supports maximum {} subplots",
+                facet_column,
+                facet_categories.len(),
+                MAX_FACETS
+            );
         }
 
-        trace
+        let mut all_traces = Vec::new();
+
+        for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+            let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+
+            let x_axis = Self::get_axis_reference(facet_idx, "x");
+            let y_axis = Self::get_axis_reference(facet_idx, "y");
+
+            match group {
+                Some(group_col) => {
+                    let groups = Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
+
+                    for (group_idx, group_val) in groups.iter().enumerate() {
+                        let group_data =
+                            Self::filter_data_by_group(&facet_data, group_col, group_val);
+
+                        let marker = Self::create_marker(
+                            group_idx,
+                            opacity,
+                            size,
+                            color,
+                            colors.clone(),
+                            shape,
+                            shapes.clone(),
+                        );
+
+                        let show_legend = facet_idx == 0;
+
+                        let trace = Self::build_scatter_trace_with_axes(
+                            &group_data,
+                            x,
+                            y,
+                            Some(group_val),
+                            marker,
+                            Some(&x_axis),
+                            Some(&y_axis),
+                            show_legend,
+                        );
+
+                        all_traces.push(trace);
+                    }
+                }
+                None => {
+                    let marker = Self::create_marker(
+                        0,
+                        opacity,
+                        size,
+                        color,
+                        colors.clone(),
+                        shape,
+                        shapes.clone(),
+                    );
+
+                    let trace = Self::build_scatter_trace_with_axes(
+                        &facet_data,
+                        x,
+                        y,
+                        None,
+                        marker,
+                        Some(&x_axis),
+                        Some(&y_axis),
+                        false,
+                    );
+
+                    all_traces.push(trace);
+                }
+            }
+        }
+
+        all_traces
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn create_faceted_layout(
+        data: &DataFrame,
+        facet_column: &str,
+        config: &FacetConfig,
+        plot_title: Option<Text>,
+        _x_title: Option<Text>,
+        _y_title: Option<Text>,
+        legend_title: Option<Text>,
+        _x_axis: Option<&Axis>,
+        _y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
+    ) -> LayoutPlotly {
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+        let n_facets = facet_categories.len();
+
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+
+        let mut grid = LayoutGrid::new()
+            .rows(nrows)
+            .columns(ncols)
+            .pattern(GridPattern::Independent);
+
+        if let Some(x_gap) = config.x_gap {
+            grid = grid.x_gap(x_gap);
+        }
+        if let Some(y_gap) = config.y_gap {
+            grid = grid.y_gap(y_gap);
+        }
+
+        let mut layout = LayoutPlotly::new().grid(grid);
+
+        if let Some(title) = plot_title {
+            layout = layout.title(title.to_plotly());
+        }
+
+        layout = Self::apply_axis_matching(layout, n_facets, &config.scales);
+
+        let annotations =
+            Self::create_facet_annotations(&facet_categories, config.title_style.as_ref());
+        layout = layout.annotations(annotations);
+
+        layout = layout.legend(Legend::set_legend(legend_title, legend));
+
+        layout
+    }
+
+    fn apply_axis_matching(
+        mut layout: LayoutPlotly,
+        n_facets: usize,
+        scales: &FacetScales,
+    ) -> LayoutPlotly {
+        use plotly::layout::Axis as AxisPlotly;
+
+        match scales {
+            FacetScales::Fixed => {
+                for i in 1..n_facets {
+                    let x_axis = AxisPlotly::new().matches("x");
+                    let y_axis = AxisPlotly::new().matches("y");
+                    layout = match i {
+                        1 => layout.x_axis2(x_axis).y_axis2(y_axis),
+                        2 => layout.x_axis3(x_axis).y_axis3(y_axis),
+                        3 => layout.x_axis4(x_axis).y_axis4(y_axis),
+                        4 => layout.x_axis5(x_axis).y_axis5(y_axis),
+                        5 => layout.x_axis6(x_axis).y_axis6(y_axis),
+                        6 => layout.x_axis7(x_axis).y_axis7(y_axis),
+                        7 => layout.x_axis8(x_axis).y_axis8(y_axis),
+                        _ => layout,
+                    };
+                }
+            }
+            FacetScales::FreeX => {
+                for i in 1..n_facets {
+                    let axis = AxisPlotly::new().matches("y");
+                    layout = match i {
+                        1 => layout.y_axis2(axis),
+                        2 => layout.y_axis3(axis),
+                        3 => layout.y_axis4(axis),
+                        4 => layout.y_axis5(axis),
+                        5 => layout.y_axis6(axis),
+                        6 => layout.y_axis7(axis),
+                        7 => layout.y_axis8(axis),
+                        _ => layout,
+                    };
+                }
+            }
+            FacetScales::FreeY => {
+                for i in 1..n_facets {
+                    let axis = AxisPlotly::new().matches("x");
+                    layout = match i {
+                        1 => layout.x_axis2(axis),
+                        2 => layout.x_axis3(axis),
+                        3 => layout.x_axis4(axis),
+                        4 => layout.x_axis5(axis),
+                        5 => layout.x_axis6(axis),
+                        6 => layout.x_axis7(axis),
+                        7 => layout.x_axis8(axis),
+                        _ => layout,
+                    };
+                }
+            }
+            FacetScales::Free => {}
+        }
+
+        layout
     }
 }
 

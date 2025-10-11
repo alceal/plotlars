@@ -153,6 +153,13 @@ impl Text {
             .x(self.x)
             .y(self.y)
     }
+
+    pub(crate) fn to_font(&self) -> Font {
+        Font::new()
+            .family(self.font.as_str())
+            .size(self.size)
+            .color(self.color.to_plotly())
+    }
 }
 
 impl From<&str> for Text {

@@ -15,6 +15,7 @@ pub use crate::components::colorbar::ColorBar;
 pub use crate::components::coloring::Coloring;
 pub use crate::components::direction::Direction;
 pub use crate::components::exponent::ValueExponent;
+pub use crate::components::facet::{FacetConfig, FacetScales};
 pub use crate::components::fill::Fill;
 pub use crate::components::header::Header;
 pub use crate::components::intensity_mode::IntensityMode;
