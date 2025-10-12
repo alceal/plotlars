@@ -448,11 +448,11 @@ impl ScatterPlot {
         facet_column: &str,
         config: &FacetConfig,
         plot_title: Option<Text>,
-        _x_title: Option<Text>,
-        _y_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
         legend_title: Option<Text>,
-        _x_axis: Option<&Axis>,
-        _y_axis: Option<&Axis>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> LayoutPlotly {
         let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
@@ -479,6 +479,10 @@ impl ScatterPlot {
         }
 
         layout = Self::apply_axis_matching(layout, n_facets, &config.scales);
+
+        layout = Self::apply_facet_axis_titles(
+            layout, n_facets, ncols, nrows, x_title, y_title, x_axis, y_axis,
+        );
 
         let annotations =
             Self::create_facet_annotations(&facet_categories, config.title_style.as_ref());
@@ -544,6 +548,78 @@ impl ScatterPlot {
                 }
             }
             FacetScales::Free => {}
+        }
+
+        layout
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn apply_facet_axis_titles(
+        mut layout: LayoutPlotly,
+        n_facets: usize,
+        ncols: usize,
+        nrows: usize,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        x_axis_config: Option<&Axis>,
+        y_axis_config: Option<&Axis>,
+    ) -> LayoutPlotly {
+        for i in 0..n_facets {
+            let is_bottom = Self::is_bottom_row(i, ncols, nrows);
+            let is_left = Self::is_left_column(i, ncols);
+
+            let x_title_for_subplot = if is_bottom { x_title.clone() } else { None };
+            let y_title_for_subplot = if is_left { y_title.clone() } else { None };
+
+            if x_title_for_subplot.is_some() || x_axis_config.is_some() {
+                let axis = match x_axis_config {
+                    Some(config) => Axis::set_axis(x_title_for_subplot, config, None),
+                    None => {
+                        if let Some(title) = x_title_for_subplot {
+                            Axis::set_axis(Some(title), &Axis::default(), None)
+                        } else {
+                            continue;
+                        }
+                    }
+                };
+
+                layout = match i {
+                    0 => layout.x_axis(axis),
+                    1 => layout.x_axis2(axis),
+                    2 => layout.x_axis3(axis),
+                    3 => layout.x_axis4(axis),
+                    4 => layout.x_axis5(axis),
+                    5 => layout.x_axis6(axis),
+                    6 => layout.x_axis7(axis),
+                    7 => layout.x_axis8(axis),
+                    _ => layout,
+                };
+            }
+
+            if y_title_for_subplot.is_some() || y_axis_config.is_some() {
+                let axis = match y_axis_config {
+                    Some(config) => Axis::set_axis(y_title_for_subplot, config, None),
+                    None => {
+                        if let Some(title) = y_title_for_subplot {
+                            Axis::set_axis(Some(title), &Axis::default(), None)
+                        } else {
+                            continue;
+                        }
+                    }
+                };
+
+                layout = match i {
+                    0 => layout.y_axis(axis),
+                    1 => layout.y_axis2(axis),
+                    2 => layout.y_axis3(axis),
+                    3 => layout.y_axis4(axis),
+                    4 => layout.y_axis5(axis),
+                    5 => layout.y_axis6(axis),
+                    6 => layout.y_axis7(axis),
+                    7 => layout.y_axis8(axis),
+                    _ => layout,
+                };
+            }
         }
 
         layout
