@@ -21,6 +21,8 @@ fn main() {
     example_2_faceting_with_grouping(&dataset);
     example_3_faceting_with_custom_config(&dataset);
     example_4_faceting_free_scales(&dataset);
+    example_5_faceting_with_highlighting(&dataset);
+    example_6_faceting_with_highlighting_and_grouping(&dataset);
 }
 
 fn example_1_basic_faceting(dataset: &DataFrame) {
@@ -101,6 +103,53 @@ fn example_4_faceting_free_scales(dataset: &DataFrame) {
         .opacity(0.6)
         .size(8)
         .colors(vec![Rgb(255, 140, 0), Rgb(60, 179, 113)])
+        .legend_title("gender")
+        .build()
+        .plot();
+}
+
+fn example_5_faceting_with_highlighting(dataset: &DataFrame) {
+    let facet_config = FacetConfig::new().highlight_facet(true);
+
+    ScatterPlot::builder()
+        .data(dataset)
+        .x("bill_length_mm")
+        .y("bill_depth_mm")
+        .facet("species")
+        .facet_config(&facet_config)
+        .plot_title(Text::from(
+            "Example 5: Faceting with Highlighting (Default Grey)",
+        ))
+        .x_title("bill length (mm)")
+        .y_title("bill depth (mm)")
+        .opacity(0.6)
+        .size(8)
+        .color(Rgb(65, 105, 225))
+        .build()
+        .plot();
+}
+
+fn example_6_faceting_with_highlighting_and_grouping(dataset: &DataFrame) {
+    let facet_config = FacetConfig::new()
+        .highlight_facet(true)
+        .unhighlighted_color(Rgb(220, 220, 220));
+
+    ScatterPlot::builder()
+        .data(dataset)
+        .x("bill_length_mm")
+        .y("bill_depth_mm")
+        .group("gender")
+        .facet("species")
+        .facet_config(&facet_config)
+        .plot_title(Text::from(
+            "Example 6: Faceting with Highlighting and Grouping",
+        ))
+        .x_title("bill length (mm)")
+        .y_title("bill depth (mm)")
+        .opacity(0.6)
+        .size(8)
+        .colors(vec![Rgb(255, 105, 180), Rgb(30, 144, 255)])
+        .shapes(vec![Shape::Circle, Shape::Square])
         .legend_title("gender")
         .build()
         .plot();

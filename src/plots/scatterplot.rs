@@ -372,22 +372,82 @@ impl ScatterPlot {
 
         let mut all_traces = Vec::new();
 
-        for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
-            let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+        if config.highlight_facet {
+            for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+                let x_axis = Self::get_axis_reference(facet_idx, "x");
+                let y_axis = Self::get_axis_reference(facet_idx, "y");
 
-            let x_axis = Self::get_axis_reference(facet_idx, "x");
-            let y_axis = Self::get_axis_reference(facet_idx, "y");
+                for other_facet_value in facet_categories.iter() {
+                    if other_facet_value != facet_value {
+                        let other_data =
+                            Self::filter_data_by_group(data, facet_column, other_facet_value);
 
-            match group {
-                Some(group_col) => {
-                    let groups = Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
+                        let grey_color = config.unhighlighted_color.unwrap_or(Rgb(200, 200, 200));
+                        let grey_marker = Self::create_marker(
+                            0,
+                            opacity,
+                            size,
+                            Some(grey_color),
+                            None,
+                            shape,
+                            None,
+                        );
 
-                    for (group_idx, group_val) in groups.iter().enumerate() {
-                        let group_data =
-                            Self::filter_data_by_group(&facet_data, group_col, group_val);
+                        let trace = Self::build_scatter_trace_with_axes(
+                            &other_data,
+                            x,
+                            y,
+                            None,
+                            grey_marker,
+                            Some(&x_axis),
+                            Some(&y_axis),
+                            false,
+                        );
 
+                        all_traces.push(trace);
+                    }
+                }
+
+                let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+
+                match group {
+                    Some(group_col) => {
+                        let groups =
+                            Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
+
+                        for (group_idx, group_val) in groups.iter().enumerate() {
+                            let group_data =
+                                Self::filter_data_by_group(&facet_data, group_col, group_val);
+
+                            let marker = Self::create_marker(
+                                group_idx,
+                                opacity,
+                                size,
+                                color,
+                                colors.clone(),
+                                shape,
+                                shapes.clone(),
+                            );
+
+                            let show_legend = facet_idx == 0;
+
+                            let trace = Self::build_scatter_trace_with_axes(
+                                &group_data,
+                                x,
+                                y,
+                                Some(group_val),
+                                marker,
+                                Some(&x_axis),
+                                Some(&y_axis),
+                                show_legend,
+                            );
+
+                            all_traces.push(trace);
+                        }
+                    }
+                    None => {
                         let marker = Self::create_marker(
-                            group_idx,
+                            0,
                             opacity,
                             size,
                             color,
@@ -396,45 +456,87 @@ impl ScatterPlot {
                             shapes.clone(),
                         );
 
-                        let show_legend = facet_idx == 0;
-
                         let trace = Self::build_scatter_trace_with_axes(
-                            &group_data,
+                            &facet_data,
                             x,
                             y,
-                            Some(group_val),
+                            None,
                             marker,
                             Some(&x_axis),
                             Some(&y_axis),
-                            show_legend,
+                            false,
                         );
 
                         all_traces.push(trace);
                     }
                 }
-                None => {
-                    let marker = Self::create_marker(
-                        0,
-                        opacity,
-                        size,
-                        color,
-                        colors.clone(),
-                        shape,
-                        shapes.clone(),
-                    );
+            }
+        } else {
+            for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+                let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
 
-                    let trace = Self::build_scatter_trace_with_axes(
-                        &facet_data,
-                        x,
-                        y,
-                        None,
-                        marker,
-                        Some(&x_axis),
-                        Some(&y_axis),
-                        false,
-                    );
+                let x_axis = Self::get_axis_reference(facet_idx, "x");
+                let y_axis = Self::get_axis_reference(facet_idx, "y");
 
-                    all_traces.push(trace);
+                match group {
+                    Some(group_col) => {
+                        let groups =
+                            Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
+
+                        for (group_idx, group_val) in groups.iter().enumerate() {
+                            let group_data =
+                                Self::filter_data_by_group(&facet_data, group_col, group_val);
+
+                            let marker = Self::create_marker(
+                                group_idx,
+                                opacity,
+                                size,
+                                color,
+                                colors.clone(),
+                                shape,
+                                shapes.clone(),
+                            );
+
+                            let show_legend = facet_idx == 0;
+
+                            let trace = Self::build_scatter_trace_with_axes(
+                                &group_data,
+                                x,
+                                y,
+                                Some(group_val),
+                                marker,
+                                Some(&x_axis),
+                                Some(&y_axis),
+                                show_legend,
+                            );
+
+                            all_traces.push(trace);
+                        }
+                    }
+                    None => {
+                        let marker = Self::create_marker(
+                            0,
+                            opacity,
+                            size,
+                            color,
+                            colors.clone(),
+                            shape,
+                            shapes.clone(),
+                        );
+
+                        let trace = Self::build_scatter_trace_with_axes(
+                            &facet_data,
+                            x,
+                            y,
+                            None,
+                            marker,
+                            Some(&x_axis),
+                            Some(&y_axis),
+                            false,
+                        );
+
+                        all_traces.push(trace);
+                    }
                 }
             }
         }

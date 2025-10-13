@@ -1,4 +1,4 @@
-use crate::components::Text;
+use crate::components::{Rgb, Text};
 use std::cmp::Ordering;
 
 #[derive(Clone, Debug, Default)]
@@ -19,6 +19,8 @@ pub struct FacetConfig {
     pub(crate) y_gap: Option<f64>,
     pub(crate) title_style: Option<Text>,
     pub(crate) sorter: Option<fn(&str, &str) -> Ordering>,
+    pub(crate) highlight_facet: bool,
+    pub(crate) unhighlighted_color: Option<Rgb>,
 }
 
 impl FacetConfig {
@@ -58,6 +60,16 @@ impl FacetConfig {
 
     pub fn sorter(mut self, f: fn(&str, &str) -> Ordering) -> Self {
         self.sorter = Some(f);
+        self
+    }
+
+    pub fn highlight_facet(mut self, highlight: bool) -> Self {
+        self.highlight_facet = highlight;
+        self
+    }
+
+    pub fn unhighlighted_color(mut self, color: Rgb) -> Self {
+        self.unhighlighted_color = Some(color);
         self
     }
 }
