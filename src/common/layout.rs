@@ -142,9 +142,11 @@ pub(crate) trait Layout {
         }
     }
 
-    fn is_bottom_row(subplot_index: usize, ncols: usize, nrows: usize) -> bool {
+    fn is_bottom_row(subplot_index: usize, ncols: usize, nrows: usize, n_facets: usize) -> bool {
         let row = subplot_index / ncols;
-        row == nrows - 1
+        let index_below = subplot_index + ncols;
+
+        row == nrows - 1 || index_below >= n_facets
     }
 
     fn is_left_column(subplot_index: usize, ncols: usize) -> bool {

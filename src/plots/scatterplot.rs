@@ -565,7 +565,7 @@ impl ScatterPlot {
         y_axis_config: Option<&Axis>,
     ) -> LayoutPlotly {
         for i in 0..n_facets {
-            let is_bottom = Self::is_bottom_row(i, ncols, nrows);
+            let is_bottom = Self::is_bottom_row(i, ncols, nrows, n_facets);
             let is_left = Self::is_left_column(i, ncols);
 
             let x_title_for_subplot = if is_bottom { x_title.clone() } else { None };
