@@ -370,6 +370,34 @@ impl ScatterPlot {
             );
         }
 
+        if let Some(ref color_vec) = colors {
+            if group.is_none() {
+                let color_count = color_vec.len();
+                let facet_count = facet_categories.len();
+
+                if color_count != facet_count {
+                    panic!(
+                        "When using colors with facet (without group), colors.len() must equal number of facets. \
+                         Expected {} colors for {} facets, but got {} colors. \
+                         Each facet must be assigned exactly one color.",
+                        facet_count, facet_count, color_count
+                    );
+                }
+            } else if let Some(group_col) = group {
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
+                let color_count = color_vec.len();
+                let group_count = groups.len();
+
+                if color_count < group_count {
+                    panic!(
+                        "When using colors with group, colors.len() must be >= number of groups. \
+                         Need at least {} colors for {} groups, but got {} colors",
+                        group_count, group_count, color_count
+                    );
+                }
+            }
+        }
+
         let mut all_traces = Vec::new();
 
         if config.highlight_facet {
@@ -447,7 +475,7 @@ impl ScatterPlot {
                     }
                     None => {
                         let marker = Self::create_marker(
-                            0,
+                            facet_idx,
                             opacity,
                             size,
                             color,
@@ -515,7 +543,7 @@ impl ScatterPlot {
                     }
                     None => {
                         let marker = Self::create_marker(
-                            0,
+                            facet_idx,
                             opacity,
                             size,
                             color,

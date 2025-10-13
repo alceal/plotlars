@@ -23,6 +23,7 @@ fn main() {
     example_4_faceting_free_scales(&dataset);
     example_5_faceting_with_highlighting(&dataset);
     example_6_faceting_with_highlighting_and_grouping(&dataset);
+    example_7_faceting_with_colors(&dataset);
 }
 
 fn example_1_basic_faceting(dataset: &DataFrame) {
@@ -55,7 +56,11 @@ fn example_2_faceting_with_grouping(dataset: &DataFrame) {
         .y_title("flipper length (mm)")
         .opacity(0.6)
         .size(8)
-        .colors(vec![Rgb(255, 105, 180), Rgb(30, 144, 255)])
+        .colors(vec![
+            Rgb(255, 105, 180),
+            Rgb(30, 144, 255),
+            Rgb(128, 128, 128),
+        ])
         .shapes(vec![Shape::Circle, Shape::Square])
         .legend_title("gender")
         .build()
@@ -102,7 +107,11 @@ fn example_4_faceting_free_scales(dataset: &DataFrame) {
         .y_title("bill depth (mm)")
         .opacity(0.6)
         .size(8)
-        .colors(vec![Rgb(255, 140, 0), Rgb(60, 179, 113)])
+        .colors(vec![
+            Rgb(255, 140, 0),
+            Rgb(60, 179, 113),
+            Rgb(128, 128, 128),
+        ])
         .legend_title("gender")
         .build()
         .plot();
@@ -148,9 +157,31 @@ fn example_6_faceting_with_highlighting_and_grouping(dataset: &DataFrame) {
         .y_title("bill depth (mm)")
         .opacity(0.6)
         .size(8)
-        .colors(vec![Rgb(255, 105, 180), Rgb(30, 144, 255)])
+        .colors(vec![
+            Rgb(255, 105, 180),
+            Rgb(30, 144, 255),
+            Rgb(128, 128, 128),
+        ])
         .shapes(vec![Shape::Circle, Shape::Square])
         .legend_title("gender")
+        .build()
+        .plot();
+}
+
+fn example_7_faceting_with_colors(dataset: &DataFrame) {
+    ScatterPlot::builder()
+        .data(dataset)
+        .x("bill_length_mm")
+        .y("bill_depth_mm")
+        .facet("species")
+        .plot_title(Text::from(
+            "Example 7: Faceting with Colors (Scenario 2: colors + facet)",
+        ))
+        .x_title("bill length (mm)")
+        .y_title("bill depth (mm)")
+        .opacity(0.7)
+        .size(10)
+        .colors(vec![Rgb(255, 99, 71), Rgb(50, 205, 50), Rgb(30, 144, 255)])
         .build()
         .plot();
 }
