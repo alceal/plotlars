@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2025-10-19
+
+### 🚀 Features
+
+- Add faceting support to BarPlot
+- Add faceting support to BoxPlot
+- Add faceting support to ContourPlot
+- Add faceting support to HeatMap
+- Add faceting support to Histogram
+- Add faceting support to LinePlot
+- Add faceting support to PieChart
+- Add faceting support to SankeyDiagram
+- Add faceting support to ScatterPlot
+- Add faceting support to TimeSeriesPlot
+
 ## [0.10.0] - 2025-08-07
 
 ### 🚀 Features

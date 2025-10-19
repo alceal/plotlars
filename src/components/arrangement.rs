@@ -50,6 +50,7 @@ use plotly::sankey::Arrangement as ArrangementPlotly;
 /// ```
 ///
 /// ![Example](https://imgur.com/oCvuAZB.png)
+#[derive(Clone)]
 pub enum Arrangement {
     Snap,
     Perpendicular,

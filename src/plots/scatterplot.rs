@@ -11,7 +11,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, FacetConfig, FacetScales, Legend, Rgb, Shape, Text},
+    components::{Axis, FacetConfig, FacetScales, Legend, Rgb, Shape, Text, DEFAULT_PLOTLY_COLORS},
 };
 
 /// A structure representing a scatter plot.
@@ -398,6 +398,23 @@ impl ScatterPlot {
             }
         }
 
+        let global_group_indices: std::collections::HashMap<String, usize> = if let Some(group_col) = group {
+            let global_groups = Self::get_unique_groups(data, group_col, sort_groups_by);
+            global_groups
+                .into_iter()
+                .enumerate()
+                .map(|(idx, group_name)| (group_name, idx))
+                .collect()
+        } else {
+            std::collections::HashMap::new()
+        };
+
+        let colors = if group.is_some() && colors.is_none() {
+            Some(DEFAULT_PLOTLY_COLORS.to_vec())
+        } else {
+            colors
+        };
+
         let mut all_traces = Vec::new();
 
         if config.highlight_facet {
@@ -443,12 +460,17 @@ impl ScatterPlot {
                         let groups =
                             Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
 
-                        for (group_idx, group_val) in groups.iter().enumerate() {
+                        for group_val in groups.iter() {
                             let group_data =
                                 Self::filter_data_by_group(&facet_data, group_col, group_val);
 
+                            let global_idx = global_group_indices
+                                .get(group_val)
+                                .copied()
+                                .unwrap_or(0);
+
                             let marker = Self::create_marker(
-                                group_idx,
+                                global_idx,
                                 opacity,
                                 size,
                                 color,
@@ -511,12 +533,17 @@ impl ScatterPlot {
                         let groups =
                             Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
 
-                        for (group_idx, group_val) in groups.iter().enumerate() {
+                        for group_val in groups.iter() {
                             let group_data =
                                 Self::filter_data_by_group(&facet_data, group_col, group_val);
 
+                            let global_idx = global_group_indices
+                                .get(group_val)
+                                .copied()
+                                .unwrap_or(0);
+
                             let marker = Self::create_marker(
-                                group_idx,
+                                global_idx,
                                 opacity,
                                 size,
                                 color,

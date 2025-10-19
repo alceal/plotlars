@@ -23,7 +23,7 @@ pub(crate) mod tick;
 pub(crate) use arrangement::Arrangement;
 pub(crate) use axis::Axis;
 pub(crate) use cell::Cell;
-pub(crate) use color::Rgb;
+pub(crate) use color::{Rgb, DEFAULT_PLOTLY_COLORS};
 pub(crate) use colorbar::ColorBar;
 pub(crate) use coloring::Coloring;
 pub(crate) use direction::Direction;

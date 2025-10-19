@@ -1,0 +1,1201 @@
+city,season,temperature
+New York,Winter,-1
+New York,Winter,0
+New York,Winter,2
+New York,Winter,1
+New York,Winter,-2
+New York,Winter,3
+New York,Winter,0
+New York,Winter,4
+New York,Winter,-1
+New York,Winter,2
+New York,Winter,5
+New York,Winter,1
+New York,Winter,-3
+New York,Winter,3
+New York,Winter,0
+New York,Winter,2
+New York,Winter,4
+New York,Winter,1
+New York,Winter,-1
+New York,Winter,3
+New York,Winter,2
+New York,Winter,0
+New York,Winter,5
+New York,Winter,-2
+New York,Winter,1
+New York,Winter,4
+New York,Winter,-1
+New York,Winter,3
+New York,Winter,1
+New York,Winter,2
+New York,Winter,0
+New York,Winter,4
+New York,Winter,-2
+New York,Winter,3
+New York,Winter,1
+New York,Winter,5
+New York,Winter,2
+New York,Winter,-1
+New York,Winter,0
+New York,Winter,3
+New York,Winter,4
+New York,Winter,1
+New York,Winter,2
+New York,Winter,-1
+New York,Winter,5
+New York,Winter,0
+New York,Winter,3
+New York,Winter,2
+New York,Winter,4
+New York,Winter,1
+New York,Spring,12
+New York,Spring,14
+New York,Spring,16
+New York,Spring,15
+New York,Spring,11
+New York,Spring,17
+New York,Spring,13
+New York,Spring,18
+New York,Spring,14
+New York,Spring,12
+New York,Spring,19
+New York,Spring,15
+New York,Spring,10
+New York,Spring,16
+New York,Spring,13
+New York,Spring,15
+New York,Spring,20
+New York,Spring,14
+New York,Spring,11
+New York,Spring,17
+New York,Spring,12
+New York,Spring,16
+New York,Spring,18
+New York,Spring,13
+New York,Spring,15
+New York,Spring,19
+New York,Spring,11
+New York,Spring,14
+New York,Spring,16
+New York,Spring,12
+New York,Spring,17
+New York,Spring,15
+New York,Spring,13
+New York,Spring,18
+New York,Spring,10
+New York,Spring,16
+New York,Spring,14
+New York,Spring,20
+New York,Spring,15
+New York,Spring,12
+New York,Spring,17
+New York,Spring,13
+New York,Spring,16
+New York,Spring,11
+New York,Spring,19
+New York,Spring,14
+New York,Spring,15
+New York,Spring,18
+New York,Spring,12
+New York,Spring,16
+New York,Summer,26
+New York,Summer,28
+New York,Summer,30
+New York,Summer,29
+New York,Summer,25
+New York,Summer,31
+New York,Summer,27
+New York,Summer,32
+New York,Summer,28
+New York,Summer,26
+New York,Summer,30
+New York,Summer,27
+New York,Summer,24
+New York,Summer,29
+New York,Summer,26
+New York,Summer,28
+New York,Summer,31
+New York,Summer,27
+New York,Summer,25
+New York,Summer,30
+New York,Summer,28
+New York,Summer,26
+New York,Summer,32
+New York,Summer,24
+New York,Summer,27
+New York,Summer,29
+New York,Summer,31
+New York,Summer,26
+New York,Summer,28
+New York,Summer,30
+New York,Summer,25
+New York,Summer,27
+New York,Summer,32
+New York,Summer,28
+New York,Summer,26
+New York,Summer,29
+New York,Summer,31
+New York,Summer,24
+New York,Summer,30
+New York,Summer,27
+New York,Summer,28
+New York,Summer,26
+New York,Summer,32
+New York,Summer,25
+New York,Summer,29
+New York,Summer,30
+New York,Summer,27
+New York,Summer,31
+New York,Summer,26
+New York,Summer,28
+New York,Fall,14
+New York,Fall,16
+New York,Fall,18
+New York,Fall,17
+New York,Fall,13
+New York,Fall,19
+New York,Fall,15
+New York,Fall,20
+New York,Fall,16
+New York,Fall,14
+New York,Fall,21
+New York,Fall,17
+New York,Fall,12
+New York,Fall,18
+New York,Fall,15
+New York,Fall,17
+New York,Fall,22
+New York,Fall,16
+New York,Fall,13
+New York,Fall,19
+New York,Fall,14
+New York,Fall,18
+New York,Fall,20
+New York,Fall,15
+New York,Fall,17
+New York,Fall,21
+New York,Fall,13
+New York,Fall,16
+New York,Fall,18
+New York,Fall,14
+New York,Fall,19
+New York,Fall,17
+New York,Fall,15
+New York,Fall,20
+New York,Fall,12
+New York,Fall,18
+New York,Fall,16
+New York,Fall,22
+New York,Fall,17
+New York,Fall,14
+New York,Fall,19
+New York,Fall,15
+New York,Fall,18
+New York,Fall,13
+New York,Fall,21
+New York,Fall,16
+New York,Fall,17
+New York,Fall,20
+New York,Fall,14
+New York,Fall,18
+Los Angeles,Winter,13
+Los Angeles,Winter,15
+Los Angeles,Winter,17
+Los Angeles,Winter,16
+Los Angeles,Winter,12
+Los Angeles,Winter,18
+Los Angeles,Winter,14
+Los Angeles,Winter,16
+Los Angeles,Winter,15
+Los Angeles,Winter,13
+Los Angeles,Winter,17
+Los Angeles,Winter,14
+Los Angeles,Winter,11
+Los Angeles,Winter,16
+Los Angeles,Winter,13
+Los Angeles,Winter,15
+Los Angeles,Winter,18
+Los Angeles,Winter,14
+Los Angeles,Winter,12
+Los Angeles,Winter,17
+Los Angeles,Winter,13
+Los Angeles,Winter,16
+Los Angeles,Winter,15
+Los Angeles,Winter,14
+Los Angeles,Winter,16
+Los Angeles,Winter,12
+Los Angeles,Winter,15
+Los Angeles,Winter,17
+Los Angeles,Winter,13
+Los Angeles,Winter,18
+Los Angeles,Winter,14
+Los Angeles,Winter,16
+Los Angeles,Winter,15
+Los Angeles,Winter,13
+Los Angeles,Winter,17
+Los Angeles,Winter,11
+Los Angeles,Winter,16
+Los Angeles,Winter,14
+Los Angeles,Winter,18
+Los Angeles,Winter,15
+Los Angeles,Winter,13
+Los Angeles,Winter,17
+Los Angeles,Winter,12
+Los Angeles,Winter,16
+Los Angeles,Winter,14
+Los Angeles,Winter,15
+Los Angeles,Winter,18
+Los Angeles,Winter,13
+Los Angeles,Winter,16
+Los Angeles,Winter,14
+Los Angeles,Spring,20
+Los Angeles,Spring,22
+Los Angeles,Spring,24
+Los Angeles,Spring,23
+Los Angeles,Spring,19
+Los Angeles,Spring,25
+Los Angeles,Spring,21
+Los Angeles,Spring,23
+Los Angeles,Spring,22
+Los Angeles,Spring,20
+Los Angeles,Spring,24
+Los Angeles,Spring,21
+Los Angeles,Spring,18
+Los Angeles,Spring,23
+Los Angeles,Spring,20
+Los Angeles,Spring,22
+Los Angeles,Spring,25
+Los Angeles,Spring,21
+Los Angeles,Spring,19
+Los Angeles,Spring,24
+Los Angeles,Spring,20
+Los Angeles,Spring,23
+Los Angeles,Spring,22
+Los Angeles,Spring,21
+Los Angeles,Spring,23
+Los Angeles,Spring,19
+Los Angeles,Spring,22
+Los Angeles,Spring,24
+Los Angeles,Spring,20
+Los Angeles,Spring,25
+Los Angeles,Spring,21
+Los Angeles,Spring,23
+Los Angeles,Spring,22
+Los Angeles,Spring,20
+Los Angeles,Spring,24
+Los Angeles,Spring,18
+Los Angeles,Spring,23
+Los Angeles,Spring,21
+Los Angeles,Spring,25
+Los Angeles,Spring,22
+Los Angeles,Spring,20
+Los Angeles,Spring,24
+Los Angeles,Spring,19
+Los Angeles,Spring,23
+Los Angeles,Spring,21
+Los Angeles,Spring,22
+Los Angeles,Spring,25
+Los Angeles,Spring,20
+Los Angeles,Spring,23
+Los Angeles,Spring,21
+Los Angeles,Summer,29
+Los Angeles,Summer,31
+Los Angeles,Summer,33
+Los Angeles,Summer,32
+Los Angeles,Summer,28
+Los Angeles,Summer,34
+Los Angeles,Summer,30
+Los Angeles,Summer,35
+Los Angeles,Summer,31
+Los Angeles,Summer,29
+Los Angeles,Summer,33
+Los Angeles,Summer,30
+Los Angeles,Summer,27
+Los Angeles,Summer,32
+Los Angeles,Summer,29
+Los Angeles,Summer,31
+Los Angeles,Summer,34
+Los Angeles,Summer,30
+Los Angeles,Summer,28
+Los Angeles,Summer,33
+Los Angeles,Summer,31
+Los Angeles,Summer,29
+Los Angeles,Summer,35
+Los Angeles,Summer,27
+Los Angeles,Summer,30
+Los Angeles,Summer,32
+Los Angeles,Summer,34
+Los Angeles,Summer,29
+Los Angeles,Summer,31
+Los Angeles,Summer,33
+Los Angeles,Summer,28
+Los Angeles,Summer,30
+Los Angeles,Summer,35
+Los Angeles,Summer,31
+Los Angeles,Summer,29
+Los Angeles,Summer,32
+Los Angeles,Summer,34
+Los Angeles,Summer,27
+Los Angeles,Summer,33
+Los Angeles,Summer,30
+Los Angeles,Summer,31
+Los Angeles,Summer,29
+Los Angeles,Summer,35
+Los Angeles,Summer,28
+Los Angeles,Summer,32
+Los Angeles,Summer,33
+Los Angeles,Summer,30
+Los Angeles,Summer,34
+Los Angeles,Summer,29
+Los Angeles,Summer,31
+Los Angeles,Fall,22
+Los Angeles,Fall,24
+Los Angeles,Fall,26
+Los Angeles,Fall,25
+Los Angeles,Fall,21
+Los Angeles,Fall,27
+Los Angeles,Fall,23
+Los Angeles,Fall,28
+Los Angeles,Fall,24
+Los Angeles,Fall,22
+Los Angeles,Fall,26
+Los Angeles,Fall,23
+Los Angeles,Fall,20
+Los Angeles,Fall,25
+Los Angeles,Fall,22
+Los Angeles,Fall,24
+Los Angeles,Fall,27
+Los Angeles,Fall,23
+Los Angeles,Fall,21
+Los Angeles,Fall,26
+Los Angeles,Fall,22
+Los Angeles,Fall,25
+Los Angeles,Fall,24
+Los Angeles,Fall,23
+Los Angeles,Fall,25
+Los Angeles,Fall,21
+Los Angeles,Fall,24
+Los Angeles,Fall,26
+Los Angeles,Fall,22
+Los Angeles,Fall,28
+Los Angeles,Fall,23
+Los Angeles,Fall,25
+Los Angeles,Fall,24
+Los Angeles,Fall,22
+Los Angeles,Fall,26
+Los Angeles,Fall,20
+Los Angeles,Fall,25
+Los Angeles,Fall,23
+Los Angeles,Fall,27
+Los Angeles,Fall,24
+Los Angeles,Fall,22
+Los Angeles,Fall,26
+Los Angeles,Fall,21
+Los Angeles,Fall,25
+Los Angeles,Fall,23
+Los Angeles,Fall,24
+Los Angeles,Fall,28
+Los Angeles,Fall,22
+Los Angeles,Fall,25
+Los Angeles,Fall,23
+Chicago,Winter,-8
+Chicago,Winter,-6
+Chicago,Winter,-4
+Chicago,Winter,-5
+Chicago,Winter,-9
+Chicago,Winter,-3
+Chicago,Winter,-7
+Chicago,Winter,-2
+Chicago,Winter,-6
+Chicago,Winter,-8
+Chicago,Winter,-4
+Chicago,Winter,-7
+Chicago,Winter,-10
+Chicago,Winter,-5
+Chicago,Winter,-8
+Chicago,Winter,-6
+Chicago,Winter,-3
+Chicago,Winter,-7
+Chicago,Winter,-9
+Chicago,Winter,-5
+Chicago,Winter,-6
+Chicago,Winter,-8
+Chicago,Winter,-2
+Chicago,Winter,-10
+Chicago,Winter,-7
+Chicago,Winter,-4
+Chicago,Winter,-9
+Chicago,Winter,-5
+Chicago,Winter,-6
+Chicago,Winter,-8
+Chicago,Winter,-3
+Chicago,Winter,-7
+Chicago,Winter,-10
+Chicago,Winter,-6
+Chicago,Winter,-4
+Chicago,Winter,-5
+Chicago,Winter,-8
+Chicago,Winter,-2
+Chicago,Winter,-9
+Chicago,Winter,-7
+Chicago,Winter,-5
+Chicago,Winter,-6
+Chicago,Winter,-4
+Chicago,Winter,-10
+Chicago,Winter,-8
+Chicago,Winter,-3
+Chicago,Winter,-7
+Chicago,Winter,-5
+Chicago,Winter,-6
+Chicago,Winter,-9
+Chicago,Spring,7
+Chicago,Spring,9
+Chicago,Spring,11
+Chicago,Spring,10
+Chicago,Spring,6
+Chicago,Spring,12
+Chicago,Spring,8
+Chicago,Spring,13
+Chicago,Spring,9
+Chicago,Spring,7
+Chicago,Spring,14
+Chicago,Spring,10
+Chicago,Spring,5
+Chicago,Spring,11
+Chicago,Spring,8
+Chicago,Spring,10
+Chicago,Spring,15
+Chicago,Spring,9
+Chicago,Spring,6
+Chicago,Spring,12
+Chicago,Spring,7
+Chicago,Spring,11
+Chicago,Spring,13
+Chicago,Spring,8
+Chicago,Spring,10
+Chicago,Spring,14
+Chicago,Spring,6
+Chicago,Spring,9
+Chicago,Spring,11
+Chicago,Spring,7
+Chicago,Spring,12
+Chicago,Spring,10
+Chicago,Spring,8
+Chicago,Spring,13
+Chicago,Spring,5
+Chicago,Spring,11
+Chicago,Spring,9
+Chicago,Spring,15
+Chicago,Spring,10
+Chicago,Spring,7
+Chicago,Spring,12
+Chicago,Spring,8
+Chicago,Spring,11
+Chicago,Spring,6
+Chicago,Spring,14
+Chicago,Spring,9
+Chicago,Spring,10
+Chicago,Spring,13
+Chicago,Spring,7
+Chicago,Spring,11
+Chicago,Summer,22
+Chicago,Summer,24
+Chicago,Summer,26
+Chicago,Summer,25
+Chicago,Summer,21
+Chicago,Summer,27
+Chicago,Summer,23
+Chicago,Summer,28
+Chicago,Summer,24
+Chicago,Summer,22
+Chicago,Summer,29
+Chicago,Summer,25
+Chicago,Summer,20
+Chicago,Summer,26
+Chicago,Summer,23
+Chicago,Summer,25
+Chicago,Summer,30
+Chicago,Summer,24
+Chicago,Summer,21
+Chicago,Summer,27
+Chicago,Summer,22
+Chicago,Summer,26
+Chicago,Summer,28
+Chicago,Summer,23
+Chicago,Summer,25
+Chicago,Summer,29
+Chicago,Summer,21
+Chicago,Summer,24
+Chicago,Summer,26
+Chicago,Summer,22
+Chicago,Summer,27
+Chicago,Summer,25
+Chicago,Summer,23
+Chicago,Summer,28
+Chicago,Summer,20
+Chicago,Summer,26
+Chicago,Summer,24
+Chicago,Summer,30
+Chicago,Summer,25
+Chicago,Summer,22
+Chicago,Summer,27
+Chicago,Summer,23
+Chicago,Summer,26
+Chicago,Summer,21
+Chicago,Summer,29
+Chicago,Summer,24
+Chicago,Summer,25
+Chicago,Summer,28
+Chicago,Summer,22
+Chicago,Summer,26
+Chicago,Fall,10
+Chicago,Fall,12
+Chicago,Fall,14
+Chicago,Fall,13
+Chicago,Fall,9
+Chicago,Fall,15
+Chicago,Fall,11
+Chicago,Fall,16
+Chicago,Fall,12
+Chicago,Fall,10
+Chicago,Fall,17
+Chicago,Fall,13
+Chicago,Fall,8
+Chicago,Fall,14
+Chicago,Fall,11
+Chicago,Fall,13
+Chicago,Fall,18
+Chicago,Fall,12
+Chicago,Fall,9
+Chicago,Fall,15
+Chicago,Fall,10
+Chicago,Fall,14
+Chicago,Fall,16
+Chicago,Fall,11
+Chicago,Fall,13
+Chicago,Fall,17
+Chicago,Fall,9
+Chicago,Fall,12
+Chicago,Fall,14
+Chicago,Fall,10
+Chicago,Fall,15
+Chicago,Fall,13
+Chicago,Fall,11
+Chicago,Fall,16
+Chicago,Fall,8
+Chicago,Fall,14
+Chicago,Fall,12
+Chicago,Fall,18
+Chicago,Fall,13
+Chicago,Fall,10
+Chicago,Fall,15
+Chicago,Fall,11
+Chicago,Fall,14
+Chicago,Fall,9
+Chicago,Fall,17
+Chicago,Fall,12
+Chicago,Fall,13
+Chicago,Fall,16
+Chicago,Fall,10
+Chicago,Fall,14
+Houston,Winter,16
+Houston,Winter,18
+Houston,Winter,20
+Houston,Winter,19
+Houston,Winter,15
+Houston,Winter,21
+Houston,Winter,17
+Houston,Winter,22
+Houston,Winter,18
+Houston,Winter,16
+Houston,Winter,20
+Houston,Winter,17
+Houston,Winter,14
+Houston,Winter,19
+Houston,Winter,16
+Houston,Winter,18
+Houston,Winter,21
+Houston,Winter,17
+Houston,Winter,15
+Houston,Winter,20
+Houston,Winter,16
+Houston,Winter,19
+Houston,Winter,18
+Houston,Winter,17
+Houston,Winter,19
+Houston,Winter,15
+Houston,Winter,18
+Houston,Winter,20
+Houston,Winter,16
+Houston,Winter,22
+Houston,Winter,17
+Houston,Winter,19
+Houston,Winter,18
+Houston,Winter,16
+Houston,Winter,20
+Houston,Winter,14
+Houston,Winter,19
+Houston,Winter,17
+Houston,Winter,21
+Houston,Winter,18
+Houston,Winter,16
+Houston,Winter,20
+Houston,Winter,15
+Houston,Winter,19
+Houston,Winter,17
+Houston,Winter,18
+Houston,Winter,22
+Houston,Winter,16
+Houston,Winter,19
+Houston,Winter,17
+Houston,Spring,26
+Houston,Spring,28
+Houston,Spring,30
+Houston,Spring,29
+Houston,Spring,25
+Houston,Spring,31
+Houston,Spring,27
+Houston,Spring,32
+Houston,Spring,28
+Houston,Spring,26
+Houston,Spring,33
+Houston,Spring,29
+Houston,Spring,24
+Houston,Spring,30
+Houston,Spring,27
+Houston,Spring,29
+Houston,Spring,34
+Houston,Spring,28
+Houston,Spring,25
+Houston,Spring,31
+Houston,Spring,26
+Houston,Spring,30
+Houston,Spring,32
+Houston,Spring,27
+Houston,Spring,29
+Houston,Spring,33
+Houston,Spring,25
+Houston,Spring,28
+Houston,Spring,30
+Houston,Spring,26
+Houston,Spring,31
+Houston,Spring,29
+Houston,Spring,27
+Houston,Spring,32
+Houston,Spring,24
+Houston,Spring,30
+Houston,Spring,28
+Houston,Spring,34
+Houston,Spring,29
+Houston,Spring,26
+Houston,Spring,31
+Houston,Spring,27
+Houston,Spring,30
+Houston,Spring,25
+Houston,Spring,33
+Houston,Spring,28
+Houston,Spring,29
+Houston,Spring,32
+Houston,Spring,26
+Houston,Spring,30
+Houston,Summer,36
+Houston,Summer,38
+Houston,Summer,40
+Houston,Summer,39
+Houston,Summer,35
+Houston,Summer,41
+Houston,Summer,37
+Houston,Summer,39
+Houston,Summer,38
+Houston,Summer,36
+Houston,Summer,40
+Houston,Summer,37
+Houston,Summer,34
+Houston,Summer,39
+Houston,Summer,36
+Houston,Summer,38
+Houston,Summer,41
+Houston,Summer,37
+Houston,Summer,35
+Houston,Summer,40
+Houston,Summer,38
+Houston,Summer,36
+Houston,Summer,39
+Houston,Summer,34
+Houston,Summer,37
+Houston,Summer,40
+Houston,Summer,41
+Houston,Summer,36
+Houston,Summer,38
+Houston,Summer,39
+Houston,Summer,35
+Houston,Summer,37
+Houston,Summer,41
+Houston,Summer,38
+Houston,Summer,36
+Houston,Summer,40
+Houston,Summer,39
+Houston,Summer,34
+Houston,Summer,38
+Houston,Summer,37
+Houston,Summer,36
+Houston,Summer,41
+Houston,Summer,35
+Houston,Summer,39
+Houston,Summer,40
+Houston,Summer,37
+Houston,Summer,38
+Houston,Summer,36
+Houston,Summer,39
+Houston,Summer,35
+Houston,Fall,28
+Houston,Fall,30
+Houston,Fall,32
+Houston,Fall,31
+Houston,Fall,27
+Houston,Fall,33
+Houston,Fall,29
+Houston,Fall,32
+Houston,Fall,30
+Houston,Fall,28
+Houston,Fall,31
+Houston,Fall,29
+Houston,Fall,26
+Houston,Fall,31
+Houston,Fall,28
+Houston,Fall,30
+Houston,Fall,32
+Houston,Fall,29
+Houston,Fall,27
+Houston,Fall,31
+Houston,Fall,28
+Houston,Fall,30
+Houston,Fall,31
+Houston,Fall,29
+Houston,Fall,30
+Houston,Fall,27
+Houston,Fall,29
+Houston,Fall,32
+Houston,Fall,28
+Houston,Fall,33
+Houston,Fall,30
+Houston,Fall,31
+Houston,Fall,29
+Houston,Fall,28
+Houston,Fall,32
+Houston,Fall,26
+Houston,Fall,31
+Houston,Fall,29
+Houston,Fall,33
+Houston,Fall,30
+Houston,Fall,28
+Houston,Fall,32
+Houston,Fall,27
+Houston,Fall,31
+Houston,Fall,29
+Houston,Fall,30
+Houston,Fall,33
+Houston,Fall,28
+Houston,Fall,31
+Houston,Fall,29
+Phoenix,Winter,20
+Phoenix,Winter,22
+Phoenix,Winter,24
+Phoenix,Winter,23
+Phoenix,Winter,19
+Phoenix,Winter,25
+Phoenix,Winter,21
+Phoenix,Winter,23
+Phoenix,Winter,22
+Phoenix,Winter,20
+Phoenix,Winter,24
+Phoenix,Winter,21
+Phoenix,Winter,18
+Phoenix,Winter,23
+Phoenix,Winter,20
+Phoenix,Winter,22
+Phoenix,Winter,25
+Phoenix,Winter,21
+Phoenix,Winter,19
+Phoenix,Winter,24
+Phoenix,Winter,20
+Phoenix,Winter,23
+Phoenix,Winter,22
+Phoenix,Winter,21
+Phoenix,Winter,23
+Phoenix,Winter,19
+Phoenix,Winter,22
+Phoenix,Winter,24
+Phoenix,Winter,20
+Phoenix,Winter,25
+Phoenix,Winter,21
+Phoenix,Winter,23
+Phoenix,Winter,22
+Phoenix,Winter,20
+Phoenix,Winter,24
+Phoenix,Winter,18
+Phoenix,Winter,23
+Phoenix,Winter,21
+Phoenix,Winter,25
+Phoenix,Winter,22
+Phoenix,Winter,20
+Phoenix,Winter,24
+Phoenix,Winter,19
+Phoenix,Winter,23
+Phoenix,Winter,21
+Phoenix,Winter,22
+Phoenix,Winter,25
+Phoenix,Winter,20
+Phoenix,Winter,23
+Phoenix,Winter,21
+Phoenix,Spring,30
+Phoenix,Spring,32
+Phoenix,Spring,34
+Phoenix,Spring,33
+Phoenix,Spring,29
+Phoenix,Spring,35
+Phoenix,Spring,31
+Phoenix,Spring,33
+Phoenix,Spring,32
+Phoenix,Spring,30
+Phoenix,Spring,34
+Phoenix,Spring,31
+Phoenix,Spring,28
+Phoenix,Spring,33
+Phoenix,Spring,30
+Phoenix,Spring,32
+Phoenix,Spring,35
+Phoenix,Spring,31
+Phoenix,Spring,29
+Phoenix,Spring,34
+Phoenix,Spring,30
+Phoenix,Spring,33
+Phoenix,Spring,32
+Phoenix,Spring,31
+Phoenix,Spring,33
+Phoenix,Spring,29
+Phoenix,Spring,32
+Phoenix,Spring,34
+Phoenix,Spring,30
+Phoenix,Spring,35
+Phoenix,Spring,31
+Phoenix,Spring,33
+Phoenix,Spring,32
+Phoenix,Spring,30
+Phoenix,Spring,34
+Phoenix,Spring,28
+Phoenix,Spring,33
+Phoenix,Spring,31
+Phoenix,Spring,35
+Phoenix,Spring,32
+Phoenix,Spring,30
+Phoenix,Spring,34
+Phoenix,Spring,29
+Phoenix,Spring,33
+Phoenix,Spring,31
+Phoenix,Spring,32
+Phoenix,Spring,35
+Phoenix,Spring,30
+Phoenix,Spring,33
+Phoenix,Spring,31
+Phoenix,Summer,40
+Phoenix,Summer,42
+Phoenix,Summer,44
+Phoenix,Summer,43
+Phoenix,Summer,39
+Phoenix,Summer,45
+Phoenix,Summer,41
+Phoenix,Summer,43
+Phoenix,Summer,42
+Phoenix,Summer,40
+Phoenix,Summer,44
+Phoenix,Summer,41
+Phoenix,Summer,38
+Phoenix,Summer,43
+Phoenix,Summer,40
+Phoenix,Summer,42
+Phoenix,Summer,45
+Phoenix,Summer,41
+Phoenix,Summer,39
+Phoenix,Summer,44
+Phoenix,Summer,42
+Phoenix,Summer,40
+Phoenix,Summer,43
+Phoenix,Summer,38
+Phoenix,Summer,41
+Phoenix,Summer,44
+Phoenix,Summer,45
+Phoenix,Summer,40
+Phoenix,Summer,42
+Phoenix,Summer,43
+Phoenix,Summer,39
+Phoenix,Summer,41
+Phoenix,Summer,45
+Phoenix,Summer,42
+Phoenix,Summer,40
+Phoenix,Summer,44
+Phoenix,Summer,43
+Phoenix,Summer,38
+Phoenix,Summer,42
+Phoenix,Summer,41
+Phoenix,Summer,40
+Phoenix,Summer,45
+Phoenix,Summer,39
+Phoenix,Summer,43
+Phoenix,Summer,44
+Phoenix,Summer,41
+Phoenix,Summer,42
+Phoenix,Summer,40
+Phoenix,Summer,43
+Phoenix,Summer,39
+Phoenix,Fall,32
+Phoenix,Fall,34
+Phoenix,Fall,36
+Phoenix,Fall,35
+Phoenix,Fall,31
+Phoenix,Fall,37
+Phoenix,Fall,33
+Phoenix,Fall,35
+Phoenix,Fall,34
+Phoenix,Fall,32
+Phoenix,Fall,36
+Phoenix,Fall,33
+Phoenix,Fall,30
+Phoenix,Fall,35
+Phoenix,Fall,32
+Phoenix,Fall,34
+Phoenix,Fall,37
+Phoenix,Fall,33
+Phoenix,Fall,31
+Phoenix,Fall,36
+Phoenix,Fall,32
+Phoenix,Fall,35
+Phoenix,Fall,34
+Phoenix,Fall,33
+Phoenix,Fall,35
+Phoenix,Fall,31
+Phoenix,Fall,34
+Phoenix,Fall,36
+Phoenix,Fall,32
+Phoenix,Fall,37
+Phoenix,Fall,33
+Phoenix,Fall,35
+Phoenix,Fall,34
+Phoenix,Fall,32
+Phoenix,Fall,36
+Phoenix,Fall,30
+Phoenix,Fall,35
+Phoenix,Fall,33
+Phoenix,Fall,37
+Phoenix,Fall,34
+Phoenix,Fall,32
+Phoenix,Fall,36
+Phoenix,Fall,31
+Phoenix,Fall,35
+Phoenix,Fall,33
+Phoenix,Fall,34
+Phoenix,Fall,37
+Phoenix,Fall,32
+Phoenix,Fall,35
+Phoenix,Fall,33
+Miami,Winter,19
+Miami,Winter,21
+Miami,Winter,23
+Miami,Winter,22
+Miami,Winter,18
+Miami,Winter,24
+Miami,Winter,20
+Miami,Winter,25
+Miami,Winter,21
+Miami,Winter,19
+Miami,Winter,23
+Miami,Winter,20
+Miami,Winter,17
+Miami,Winter,22
+Miami,Winter,19
+Miami,Winter,21
+Miami,Winter,24
+Miami,Winter,20
+Miami,Winter,18
+Miami,Winter,23
+Miami,Winter,19
+Miami,Winter,22
+Miami,Winter,21
+Miami,Winter,20
+Miami,Winter,22
+Miami,Winter,18
+Miami,Winter,21
+Miami,Winter,23
+Miami,Winter,19
+Miami,Winter,25
+Miami,Winter,20
+Miami,Winter,22
+Miami,Winter,21
+Miami,Winter,19
+Miami,Winter,23
+Miami,Winter,17
+Miami,Winter,22
+Miami,Winter,20
+Miami,Winter,24
+Miami,Winter,21
+Miami,Winter,19
+Miami,Winter,23
+Miami,Winter,18
+Miami,Winter,22
+Miami,Winter,20
+Miami,Winter,21
+Miami,Winter,25
+Miami,Winter,19
+Miami,Winter,22
+Miami,Winter,20
+Miami,Spring,25
+Miami,Spring,27
+Miami,Spring,29
+Miami,Spring,28
+Miami,Spring,24
+Miami,Spring,30
+Miami,Spring,26
+Miami,Spring,28
+Miami,Spring,27
+Miami,Spring,25
+Miami,Spring,29
+Miami,Spring,26
+Miami,Spring,23
+Miami,Spring,28
+Miami,Spring,25
+Miami,Spring,27
+Miami,Spring,30
+Miami,Spring,26
+Miami,Spring,24
+Miami,Spring,29
+Miami,Spring,25
+Miami,Spring,28
+Miami,Spring,27
+Miami,Spring,26
+Miami,Spring,28
+Miami,Spring,24
+Miami,Spring,27
+Miami,Spring,29
+Miami,Spring,25
+Miami,Spring,30
+Miami,Spring,26
+Miami,Spring,28
+Miami,Spring,27
+Miami,Spring,25
+Miami,Spring,29
+Miami,Spring,23
+Miami,Spring,28
+Miami,Spring,26
+Miami,Spring,30
+Miami,Spring,27
+Miami,Spring,25
+Miami,Spring,29
+Miami,Spring,24
+Miami,Spring,28
+Miami,Spring,26
+Miami,Spring,27
+Miami,Spring,30
+Miami,Spring,25
+Miami,Spring,28
+Miami,Spring,26
+Miami,Summer,31
+Miami,Summer,33
+Miami,Summer,35
+Miami,Summer,34
+Miami,Summer,30
+Miami,Summer,36
+Miami,Summer,32
+Miami,Summer,34
+Miami,Summer,33
+Miami,Summer,31
+Miami,Summer,35
+Miami,Summer,32
+Miami,Summer,29
+Miami,Summer,34
+Miami,Summer,31
+Miami,Summer,33
+Miami,Summer,36
+Miami,Summer,32
+Miami,Summer,30
+Miami,Summer,35
+Miami,Summer,33
+Miami,Summer,31
+Miami,Summer,34
+Miami,Summer,29
+Miami,Summer,32
+Miami,Summer,35
+Miami,Summer,36
+Miami,Summer,31
+Miami,Summer,33
+Miami,Summer,34
+Miami,Summer,30
+Miami,Summer,32
+Miami,Summer,36
+Miami,Summer,33
+Miami,Summer,31
+Miami,Summer,35
+Miami,Summer,34
+Miami,Summer,29
+Miami,Summer,33
+Miami,Summer,32
+Miami,Summer,31
+Miami,Summer,36
+Miami,Summer,30
+Miami,Summer,34
+Miami,Summer,35
+Miami,Summer,32
+Miami,Summer,33
+Miami,Summer,31
+Miami,Summer,34
+Miami,Summer,30
+Miami,Fall,26
+Miami,Fall,28
+Miami,Fall,30
+Miami,Fall,29
+Miami,Fall,25
+Miami,Fall,31
+Miami,Fall,27
+Miami,Fall,29
+Miami,Fall,28
+Miami,Fall,26
+Miami,Fall,30
+Miami,Fall,27
+Miami,Fall,24
+Miami,Fall,29
+Miami,Fall,26
+Miami,Fall,28
+Miami,Fall,31
+Miami,Fall,27
+Miami,Fall,25
+Miami,Fall,30
+Miami,Fall,26
+Miami,Fall,29
+Miami,Fall,28
+Miami,Fall,27
+Miami,Fall,29
+Miami,Fall,25
+Miami,Fall,28
+Miami,Fall,30
+Miami,Fall,26
+Miami,Fall,31
+Miami,Fall,27
+Miami,Fall,29
+Miami,Fall,28
+Miami,Fall,26
+Miami,Fall,30
+Miami,Fall,24
+Miami,Fall,29
+Miami,Fall,27
+Miami,Fall,31
+Miami,Fall,28
+Miami,Fall,26
+Miami,Fall,30
+Miami,Fall,25
+Miami,Fall,29
+Miami,Fall,27
+Miami,Fall,28
+Miami,Fall,31
+Miami,Fall,26
+Miami,Fall,29
+Miami,Fall,27

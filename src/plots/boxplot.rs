@@ -1,7 +1,9 @@
 use bon::bon;
 
 use plotly::{
-    box_plot::BoxPoints, common::Marker as MarkerPlotly, layout::{BoxMode, GridPattern, LayoutGrid},
+    box_plot::BoxPoints,
+    common::Marker as MarkerPlotly,
+    layout::{BoxMode, GridPattern, LayoutGrid},
     BoxPlot as BoxPlotly, Layout as LayoutPlotly, Trace,
 };
 
@@ -10,7 +12,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Axis, FacetConfig, FacetScales, Legend, Orientation, Rgb, Text},
+    components::{Axis, FacetConfig, FacetScales, Legend, Orientation, Rgb, Text, DEFAULT_PLOTLY_COLORS},
 };
 
 /// A structure representing a box plot.
@@ -156,6 +158,7 @@ impl BoxPlot {
                     data,
                     facet_column,
                     &config,
+                    group,
                     plot_title,
                     x_title,
                     y_title,
@@ -199,7 +202,9 @@ impl BoxPlot {
                     legend,
                 );
 
-                layout = layout.box_mode(BoxMode::Group);
+                if group.is_some() {
+                    layout = layout.box_mode(BoxMode::Group);
+                }
 
                 let traces = Self::create_traces(
                     data,
@@ -276,6 +281,7 @@ impl BoxPlot {
                         None,
                         None,
                         true,
+                        None,
                     );
 
                     traces.push(trace);
@@ -307,6 +313,7 @@ impl BoxPlot {
                     None,
                     None,
                     true,
+                    None,
                 );
 
                 traces.push(trace);
@@ -330,6 +337,7 @@ impl BoxPlot {
         x_axis: Option<&str>,
         y_axis: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let category_data = Self::get_string_column(data, labels);
         let value_data = Self::get_numeric_column(data, values);
@@ -362,7 +370,11 @@ impl BoxPlot {
                 trace = trace.marker(marker);
 
                 if let Some(name) = group_name {
-                    trace = trace.name(name);
+                    trace = trace.name(name).offset_group(name);
+                }
+
+                if let Some(group) = legend_group {
+                    trace = trace.legend_group(group);
                 }
 
                 if let Some(axis) = x_axis {
@@ -404,7 +416,11 @@ impl BoxPlot {
                 trace = trace.marker(marker);
 
                 if let Some(name) = group_name {
-                    trace = trace.name(name);
+                    trace = trace.name(name).offset_group(name);
+                }
+
+                if let Some(group) = legend_group {
+                    trace = trace.legend_group(group);
                 }
 
                 if let Some(axis) = x_axis {
@@ -483,6 +499,23 @@ impl BoxPlot {
             }
         }
 
+        let global_group_indices: std::collections::HashMap<String, usize> = if let Some(group_col) = group {
+            let global_groups = Self::get_unique_groups(data, group_col, sort_groups_by);
+            global_groups
+                .into_iter()
+                .enumerate()
+                .map(|(idx, group_name)| (group_name, idx))
+                .collect()
+        } else {
+            std::collections::HashMap::new()
+        };
+
+        let colors = if group.is_some() && colors.is_none() {
+            Some(DEFAULT_PLOTLY_COLORS.to_vec())
+        } else {
+            colors
+        };
+
         let mut all_traces = Vec::new();
         let size = None;
         let shape = None;
@@ -500,11 +533,17 @@ impl BoxPlot {
                 Some(group_col) => {
                     let groups = Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
 
-                    for (group_idx, group_val) in groups.iter().enumerate() {
-                        let group_data = Self::filter_data_by_group(&facet_data, group_col, group_val);
+                    for group_val in groups.iter() {
+                        let group_data =
+                            Self::filter_data_by_group(&facet_data, group_col, group_val);
+
+                        let global_idx = global_group_indices
+                            .get(group_val)
+                            .copied()
+                            .unwrap_or(0);
 
                         let marker = Self::create_marker(
-                            group_idx,
+                            global_idx,
                             opacity,
                             size,
                             color,
@@ -529,6 +568,7 @@ impl BoxPlot {
                             Some(&x_axis),
                             Some(&y_axis),
                             show_legend,
+                            Some(group_val),
                         );
 
                         all_traces.push(trace);
@@ -559,7 +599,8 @@ impl BoxPlot {
                         marker,
                         Some(&x_axis),
                         Some(&y_axis),
-                        false, // No legend for facets without groups
+                        false,
+                        None,
                     );
 
                     all_traces.push(trace);
@@ -575,6 +616,7 @@ impl BoxPlot {
         data: &DataFrame,
         facet_column: &str,
         config: &FacetConfig,
+        group: Option<&str>,
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
@@ -600,7 +642,12 @@ impl BoxPlot {
             grid = grid.y_gap(y_gap);
         }
 
-        let mut layout = LayoutPlotly::new().grid(grid).box_mode(BoxMode::Group);
+        let mut layout = LayoutPlotly::new().grid(grid);
+
+        // Add boxmode configuration if group is present
+        if group.is_some() {
+            layout = layout.box_mode(BoxMode::Group).box_gap(0.2);
+        }
 
         if let Some(title) = plot_title {
             layout = layout.title(title.to_plotly());

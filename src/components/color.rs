@@ -59,3 +59,16 @@ impl Rgb {
 }
 
 impl Color for Rgb {}
+
+pub(crate) const DEFAULT_PLOTLY_COLORS: [Rgb; 10] = [
+    Rgb(99, 110, 250),
+    Rgb(239, 85, 59),
+    Rgb(0, 204, 150),
+    Rgb(171, 99, 250),
+    Rgb(255, 161, 90),
+    Rgb(25, 211, 243),
+    Rgb(255, 102, 146),
+    Rgb(182, 232, 128),
+    Rgb(255, 151, 255),
+    Rgb(254, 203, 82),
+];

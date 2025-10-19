@@ -14,7 +14,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Line, Marker, PlotHelper, Polar},
-    components::{Axis, FacetConfig, FacetScales, Legend, Line as LineStyle, Rgb, Shape, Text},
+    components::{Axis, FacetConfig, FacetScales, Legend, Line as LineStyle, Rgb, Shape, Text, DEFAULT_PLOTLY_COLORS},
 };
 
 /// A structure representing a line plot.
@@ -344,6 +344,7 @@ impl LinePlot {
         x_axis: Option<&str>,
         y_axis: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let x_data = Self::get_numeric_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
@@ -373,6 +374,10 @@ impl LinePlot {
 
         if let Some(axis) = y_axis {
             trace = trace.y_axis(axis);
+        }
+
+        if let Some(group) = legend_group {
+            trace = trace.legend_group(group);
         }
 
         if !show_legend {
@@ -448,6 +453,12 @@ impl LinePlot {
             }
         }
 
+        let colors = if additional_lines.is_some() && colors.is_none() {
+            Some(DEFAULT_PLOTLY_COLORS.to_vec())
+        } else {
+            colors
+        };
+
         let mut all_traces = Vec::new();
         let opacity = None;
 
@@ -488,6 +499,7 @@ impl LinePlot {
                                 Some(&x_axis),
                                 Some(&y_axis),
                                 false,
+                                Some(y_col),
                             );
 
                             all_traces.push(trace);
@@ -530,6 +542,7 @@ impl LinePlot {
                         Some(&x_axis),
                         Some(&y_axis),
                         show_legend,
+                        Some(y_col),
                     );
 
                     all_traces.push(trace);
@@ -575,6 +588,7 @@ impl LinePlot {
                         Some(&x_axis),
                         Some(&y_axis),
                         show_legend,
+                        Some(y_col),
                     );
 
                     all_traces.push(trace);

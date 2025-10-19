@@ -27,6 +27,7 @@ use plotly::contour::Coloring as ColoringPlotly;
 /// ```
 ///
 /// ![Example](https://imgur.com/hFD2A82.png)
+#[derive(Copy, Clone)]
 pub enum Coloring {
     Fill,
     HeatMap,
@@ -35,7 +36,7 @@ pub enum Coloring {
 }
 
 impl Coloring {
-    pub(crate) fn to_plotly(&self) -> ColoringPlotly {
+    pub(crate) fn to_plotly(self) -> ColoringPlotly {
         match self {
             Coloring::Fill => ColoringPlotly::Fill,
             Coloring::HeatMap => ColoringPlotly::HeatMap,
