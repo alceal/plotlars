@@ -14,7 +14,10 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Line, Marker, PlotHelper, Polar},
-    components::{Axis, FacetConfig, FacetScales, Legend, Line as LineStyle, Rgb, Shape, Text, DEFAULT_PLOTLY_COLORS},
+    components::{
+        Axis, FacetConfig, FacetScales, Legend, Line as LineStyle, Rgb, Shape, Text,
+        DEFAULT_PLOTLY_COLORS,
+    },
 };
 
 /// A structure representing a line plot.

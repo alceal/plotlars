@@ -2,6 +2,7 @@ use bon::bon;
 
 use plotly::{
     common::{Line as LinePlotly, Marker as MarkerPlotly},
+    layout::Margin,
     Layout as LayoutPlotly, ScatterPolar as ScatterPolarPlotly, Trace,
 };
 
@@ -10,7 +11,9 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
-    components::{Fill, Legend, Line as LineStyle, Mode, Rgb, Shape, Text},
+    components::{
+        FacetConfig, Fill, Legend, Line as LineStyle, Mode, Rgb, Shape, Text, DEFAULT_PLOTLY_COLORS,
+    },
 };
 
 /// A structure representing a scatter polar plot.
@@ -93,11 +96,41 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/fJiNlqn.png)
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct ScatterPolar {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
+    layout_json: Option<serde_json::Value>,
 }
+
+impl Serialize for ScatterPolar {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("ScatterPolar", 2)?;
+        state.serialize_field("traces", &self.traces)?;
+        // Use modified layout JSON if available, otherwise serialize the layout
+        if let Some(ref layout_json) = self.layout_json {
+            state.serialize_field("layout", layout_json)?;
+        } else {
+            state.serialize_field("layout", &self.layout)?;
+        }
+        state.end()
+    }
+}
+
+#[derive(Clone)]
+struct FacetGrid {
+    ncols: usize,
+    nrows: usize,
+    x_gap: f64,
+    y_gap: f64,
+}
+
+const POLAR_FACET_TITLE_HEIGHT_RATIO: f64 = 0.12;
+const POLAR_FACET_TOP_INSET_RATIO: f64 = 0.10;
 
 #[bon]
 impl ScatterPolar {
@@ -108,6 +141,8 @@ impl ScatterPolar {
         r: &str,
         group: Option<&str>,
         sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
         mode: Option<Mode>,
         opacity: Option<f64>,
         fill: Option<Fill>,
@@ -132,40 +167,95 @@ impl ScatterPolar {
         let y2_axis = None;
         let z_axis = None;
 
-        let layout = Self::create_layout(
-            plot_title,
-            x_title,
-            y_title,
-            y2_title,
-            z_title,
-            legend_title,
-            x_axis,
-            y_axis,
-            y2_axis,
-            z_axis,
-            legend,
-        );
+        let (layout, traces, layout_json) = match facet {
+            Some(facet_column) => {
+                let config = facet_config.cloned().unwrap_or_default();
 
-        let traces = Self::create_traces(
-            data,
-            theta,
-            r,
-            group,
-            sort_groups_by,
-            mode,
-            opacity,
-            fill,
-            size,
-            color,
-            colors,
-            shape,
-            shapes,
-            width,
-            line,
-            lines,
-        );
+                let (layout, grid) = Self::create_faceted_layout(
+                    data,
+                    facet_column,
+                    &config,
+                    plot_title,
+                    legend_title,
+                    legend,
+                );
 
-        Self { traces, layout }
+                let traces = Self::create_faceted_traces(
+                    data,
+                    theta,
+                    r,
+                    group,
+                    sort_groups_by,
+                    facet_column,
+                    &config,
+                    mode,
+                    opacity,
+                    fill,
+                    size,
+                    color,
+                    colors,
+                    shape,
+                    shapes,
+                    width,
+                    line,
+                    lines,
+                );
+
+                // Inject polar subplot domains into layout JSON
+                let mut layout_json = serde_json::to_value(&layout).unwrap();
+                Self::inject_polar_domains_static(
+                    &mut layout_json,
+                    grid.ncols,
+                    grid.nrows,
+                    grid.x_gap,
+                    grid.y_gap,
+                );
+
+                (layout, traces, Some(layout_json))
+            }
+            None => {
+                let layout = Self::create_layout(
+                    plot_title,
+                    x_title,
+                    y_title,
+                    y2_title,
+                    z_title,
+                    legend_title,
+                    x_axis,
+                    y_axis,
+                    y2_axis,
+                    z_axis,
+                    legend,
+                );
+
+                let traces = Self::create_traces(
+                    data,
+                    theta,
+                    r,
+                    group,
+                    sort_groups_by,
+                    mode,
+                    opacity,
+                    fill,
+                    size,
+                    color,
+                    colors,
+                    shape,
+                    shapes,
+                    width,
+                    line,
+                    lines,
+                );
+
+                (layout, traces, None)
+            }
+        };
+
+        Self {
+            traces,
+            layout,
+            layout_json,
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -333,6 +423,557 @@ impl ScatterPolar {
 
         line
     }
+
+    fn get_polar_subplot_reference(index: usize) -> String {
+        match index {
+            0 => "polar".to_string(),
+            1 => "polar2".to_string(),
+            2 => "polar3".to_string(),
+            3 => "polar4".to_string(),
+            4 => "polar5".to_string(),
+            5 => "polar6".to_string(),
+            6 => "polar7".to_string(),
+            7 => "polar8".to_string(),
+            _ => "polar".to_string(),
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn build_scatter_polar_trace_with_subplot(
+        data: &DataFrame,
+        theta: &str,
+        r: &str,
+        group_name: Option<&str>,
+        mode: plotly::common::Mode,
+        marker: MarkerPlotly,
+        line: LinePlotly,
+        fill: Option<Fill>,
+        subplot: Option<&str>,
+        show_legend: bool,
+    ) -> Box<dyn Trace + 'static> {
+        let theta_values = Self::get_numeric_column(data, theta);
+        let r_values = Self::get_numeric_column(data, r);
+
+        let mut trace = ScatterPolarPlotly::default()
+            .theta(theta_values)
+            .r(r_values)
+            .mode(mode);
+
+        trace = trace.marker(marker);
+        trace = trace.line(line);
+
+        if let Some(fill_type) = fill {
+            trace = trace.fill(fill_type.to_plotly());
+        }
+
+        if let Some(name) = group_name {
+            trace = trace.name(name);
+        }
+
+        if let Some(subplot_ref) = subplot {
+            trace = trace.subplot(subplot_ref);
+        }
+
+        if !show_legend {
+            trace.show_legend(false)
+        } else {
+            trace
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn create_faceted_traces(
+        data: &DataFrame,
+        theta: &str,
+        r: &str,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet_column: &str,
+        config: &FacetConfig,
+        mode: Option<Mode>,
+        opacity: Option<f64>,
+        fill: Option<Fill>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        width: Option<f64>,
+        line: Option<LineStyle>,
+        lines: Option<Vec<LineStyle>>,
+    ) -> Vec<Box<dyn Trace + 'static>> {
+        const MAX_FACETS: usize = 8;
+
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+
+        if facet_categories.len() > MAX_FACETS {
+            panic!(
+                "Facet column '{}' has {} unique values, but plotly.rs supports maximum {} polar subplots",
+                facet_column,
+                facet_categories.len(),
+                MAX_FACETS
+            );
+        }
+
+        if let Some(ref color_vec) = colors {
+            if group.is_none() {
+                let color_count = color_vec.len();
+                let facet_count = facet_categories.len();
+
+                if color_count != facet_count {
+                    panic!(
+                        "When using colors with facet (without group), colors.len() must equal number of facets. \
+                         Expected {} colors for {} facets, but got {} colors. \
+                         Each facet must be assigned exactly one color.",
+                        facet_count, facet_count, color_count
+                    );
+                }
+            } else if let Some(group_col) = group {
+                let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
+                let color_count = color_vec.len();
+                let group_count = groups.len();
+
+                if color_count < group_count {
+                    panic!(
+                        "When using colors with group, colors.len() must be >= number of groups. \
+                         Need at least {} colors for {} groups, but got {} colors",
+                        group_count, group_count, color_count
+                    );
+                }
+            }
+        }
+
+        let global_group_indices: std::collections::HashMap<String, usize> =
+            if let Some(group_col) = group {
+                let global_groups = Self::get_unique_groups(data, group_col, sort_groups_by);
+                global_groups
+                    .into_iter()
+                    .enumerate()
+                    .map(|(idx, group_name)| (group_name, idx))
+                    .collect()
+            } else {
+                std::collections::HashMap::new()
+            };
+
+        let colors = if group.is_some() && colors.is_none() {
+            Some(DEFAULT_PLOTLY_COLORS.to_vec())
+        } else {
+            colors
+        };
+
+        let mode = mode
+            .map(|m| m.to_plotly())
+            .unwrap_or(plotly::common::Mode::Markers);
+
+        let mut all_traces = Vec::new();
+
+        if config.highlight_facet {
+            for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+                let subplot = Self::get_polar_subplot_reference(facet_idx);
+
+                for other_facet_value in facet_categories.iter() {
+                    if other_facet_value != facet_value {
+                        let other_data =
+                            Self::filter_data_by_group(data, facet_column, other_facet_value);
+
+                        let grey_color = config.unhighlighted_color.unwrap_or(Rgb(200, 200, 200));
+                        let grey_marker = Self::create_marker(
+                            0,
+                            opacity,
+                            size,
+                            Some(grey_color),
+                            None,
+                            shape,
+                            None,
+                        );
+
+                        let grey_line = Self::create_line_with_color(
+                            0,
+                            width,
+                            Some(grey_color),
+                            None,
+                            line,
+                            None,
+                        );
+
+                        let trace = Self::build_scatter_polar_trace_with_subplot(
+                            &other_data,
+                            theta,
+                            r,
+                            None,
+                            mode.clone(),
+                            grey_marker,
+                            grey_line,
+                            fill,
+                            Some(&subplot),
+                            false,
+                        );
+
+                        all_traces.push(trace);
+                    }
+                }
+
+                let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+
+                match group {
+                    Some(group_col) => {
+                        let groups =
+                            Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
+
+                        for group_val in groups.iter() {
+                            let group_data =
+                                Self::filter_data_by_group(&facet_data, group_col, group_val);
+
+                            let global_idx =
+                                global_group_indices.get(group_val).copied().unwrap_or(0);
+
+                            let marker = Self::create_marker(
+                                global_idx,
+                                opacity,
+                                size,
+                                color,
+                                colors.clone(),
+                                shape,
+                                shapes.clone(),
+                            );
+
+                            let line_style = Self::create_line_with_color(
+                                global_idx,
+                                width,
+                                color,
+                                colors.clone(),
+                                line,
+                                lines.clone(),
+                            );
+
+                            let show_legend = facet_idx == 0;
+
+                            let trace = Self::build_scatter_polar_trace_with_subplot(
+                                &group_data,
+                                theta,
+                                r,
+                                Some(group_val),
+                                mode.clone(),
+                                marker,
+                                line_style,
+                                fill,
+                                Some(&subplot),
+                                show_legend,
+                            );
+
+                            all_traces.push(trace);
+                        }
+                    }
+                    None => {
+                        let marker = Self::create_marker(
+                            facet_idx,
+                            opacity,
+                            size,
+                            color,
+                            colors.clone(),
+                            shape,
+                            shapes.clone(),
+                        );
+
+                        let line_style = Self::create_line_with_color(
+                            facet_idx,
+                            width,
+                            color,
+                            colors.clone(),
+                            line,
+                            lines.clone(),
+                        );
+
+                        let trace = Self::build_scatter_polar_trace_with_subplot(
+                            &facet_data,
+                            theta,
+                            r,
+                            None,
+                            mode.clone(),
+                            marker,
+                            line_style,
+                            fill,
+                            Some(&subplot),
+                            false,
+                        );
+
+                        all_traces.push(trace);
+                    }
+                }
+            }
+        } else {
+            for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+                let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+
+                let subplot = Self::get_polar_subplot_reference(facet_idx);
+
+                match group {
+                    Some(group_col) => {
+                        let groups =
+                            Self::get_unique_groups(&facet_data, group_col, sort_groups_by);
+
+                        for group_val in groups.iter() {
+                            let group_data =
+                                Self::filter_data_by_group(&facet_data, group_col, group_val);
+
+                            let global_idx =
+                                global_group_indices.get(group_val).copied().unwrap_or(0);
+
+                            let marker = Self::create_marker(
+                                global_idx,
+                                opacity,
+                                size,
+                                color,
+                                colors.clone(),
+                                shape,
+                                shapes.clone(),
+                            );
+
+                            let line_style = Self::create_line_with_color(
+                                global_idx,
+                                width,
+                                color,
+                                colors.clone(),
+                                line,
+                                lines.clone(),
+                            );
+
+                            let show_legend = facet_idx == 0;
+
+                            let trace = Self::build_scatter_polar_trace_with_subplot(
+                                &group_data,
+                                theta,
+                                r,
+                                Some(group_val),
+                                mode.clone(),
+                                marker,
+                                line_style,
+                                fill,
+                                Some(&subplot),
+                                show_legend,
+                            );
+
+                            all_traces.push(trace);
+                        }
+                    }
+                    None => {
+                        let marker = Self::create_marker(
+                            facet_idx,
+                            opacity,
+                            size,
+                            color,
+                            colors.clone(),
+                            shape,
+                            shapes.clone(),
+                        );
+
+                        let line_style = Self::create_line_with_color(
+                            facet_idx,
+                            width,
+                            color,
+                            colors.clone(),
+                            line,
+                            lines.clone(),
+                        );
+
+                        let trace = Self::build_scatter_polar_trace_with_subplot(
+                            &facet_data,
+                            theta,
+                            r,
+                            None,
+                            mode.clone(),
+                            marker,
+                            line_style,
+                            fill,
+                            Some(&subplot),
+                            false,
+                        );
+
+                        all_traces.push(trace);
+                    }
+                }
+            }
+        }
+
+        all_traces
+    }
+
+    fn create_faceted_layout(
+        data: &DataFrame,
+        facet_column: &str,
+        config: &FacetConfig,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> (LayoutPlotly, FacetGrid) {
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+        let n_facets = facet_categories.len();
+
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+
+        // Store grid dimensions for polar domain injection later
+        let x_gap = config.x_gap.unwrap_or(0.08);
+        let y_gap = config.y_gap.unwrap_or(0.12);
+
+        let grid = FacetGrid {
+            ncols,
+            nrows,
+            x_gap,
+            y_gap,
+        };
+
+        // Note: We'll inject polar subplot domain configurations manually via Plot trait
+        // since plotly.rs doesn't support LayoutPolar
+        let mut layout = LayoutPlotly::new();
+
+        if let Some(title) = plot_title {
+            layout = layout.title(title.to_plotly());
+        }
+
+        let annotations = Self::create_facet_annotations_polar(
+            &facet_categories,
+            ncols,
+            nrows,
+            config.title_style.as_ref(),
+            config.x_gap,
+            config.y_gap,
+        );
+        layout = layout.annotations(annotations);
+
+        layout = layout.legend(Legend::set_legend(legend_title, legend));
+
+        // Add margins to provide adequate space for polar subplots
+        // Top margin accounts for plot title and facet labels
+        // Side margins prevent clipping of circular polar plots
+        layout = layout.margin(Margin::new().top(140).bottom(80).left(80).right(80));
+
+        (layout, grid)
+    }
+
+    /// Calculates the geometry for a polar facet cell, including subplot domain bounds and title baseline.
+    ///
+    /// Returning both the domain and annotation placement keeps titles aligned with their subplot
+    /// while guaranteeing consistent padding above the polar chart.
+    fn calculate_polar_facet_cell(
+        subplot_index: usize,
+        ncols: usize,
+        nrows: usize,
+        x_gap: Option<f64>,
+        y_gap: Option<f64>,
+    ) -> PolarFacetCell {
+        let row = subplot_index / ncols;
+        let col = subplot_index % ncols;
+
+        let x_gap_val = x_gap.unwrap_or(0.08);
+        let y_gap_val = y_gap.unwrap_or(0.12);
+
+        let cell_width = (1.0 - x_gap_val * (ncols - 1) as f64) / ncols as f64;
+        let cell_height = (1.0 - y_gap_val * (nrows - 1) as f64) / nrows as f64;
+
+        // Reserve space for facet title (12% of each cell's height for polar plots)
+        // Polar plots need more room because of their circular shape
+        let title_height = cell_height * POLAR_FACET_TITLE_HEIGHT_RATIO;
+        let polar_padding = cell_height * POLAR_FACET_TOP_INSET_RATIO;
+
+        let cell_x_start = col as f64 * (cell_width + x_gap_val);
+        let cell_y_top = 1.0 - row as f64 * (cell_height + y_gap_val);
+        let cell_y_bottom = cell_y_top - cell_height;
+
+        let domain_y_top = cell_y_top - title_height - polar_padding;
+        let domain_y_bottom = cell_y_bottom;
+
+        let annotation_x = cell_x_start + cell_width / 2.0;
+        let annotation_y = cell_y_top - polar_padding * 0.5;
+
+        PolarFacetCell {
+            annotation_x,
+            annotation_y,
+            domain_x: [cell_x_start, cell_x_start + cell_width],
+            domain_y: [domain_y_bottom, domain_y_top],
+        }
+    }
+
+    fn create_facet_annotations_polar(
+        categories: &[String],
+        ncols: usize,
+        nrows: usize,
+        title_style: Option<&Text>,
+        x_gap: Option<f64>,
+        y_gap: Option<f64>,
+    ) -> Vec<plotly::layout::Annotation> {
+        use plotly::common::Anchor;
+        use plotly::layout::Annotation;
+
+        categories
+            .iter()
+            .enumerate()
+            .map(|(i, cat)| {
+                let cell = Self::calculate_polar_facet_cell(i, ncols, nrows, x_gap, y_gap);
+
+                let mut ann = Annotation::new()
+                    .text(cat.as_str())
+                    .x_ref("paper")
+                    .y_ref("paper")
+                    .x_anchor(Anchor::Center)
+                    .y_anchor(Anchor::Bottom)
+                    .x(cell.annotation_x)
+                    .y(cell.annotation_y)
+                    .show_arrow(false);
+
+                if let Some(style) = title_style {
+                    ann = ann.font(style.to_font());
+                }
+
+                ann
+            })
+            .collect()
+    }
+}
+
+/// Helper struct containing calculated annotation positions for a polar facet cell
+struct PolarFacetCell {
+    annotation_x: f64,
+    annotation_y: f64,
+    domain_x: [f64; 2],
+    domain_y: [f64; 2],
+}
+
+impl ScatterPolar {
+    /// Injects polar subplot domain configurations into the layout JSON
+    /// This is a workaround for plotly.rs not supporting LayoutPolar configuration
+    fn inject_polar_domains_static(
+        layout_json: &mut serde_json::Value,
+        ncols: usize,
+        nrows: usize,
+        x_gap: f64,
+        y_gap: f64,
+    ) {
+        // Configure all 8 possible polar subplots (polar, polar2, ..., polar8)
+        // Traces reference these via their subplot parameter
+
+        let total_cells = (ncols * nrows).clamp(1, 8);
+
+        for i in 0..total_cells {
+            let polar_key = if i == 0 {
+                "polar".to_string()
+            } else {
+                format!("polar{}", i + 1)
+            };
+
+            let cell = Self::calculate_polar_facet_cell(i, ncols, nrows, Some(x_gap), Some(y_gap));
+
+            // Create polar domain configuration
+            let polar_config = serde_json::json!({
+                "domain": {
+                    "x": cell.domain_x,
+                    "y": cell.domain_y
+                }
+            });
+
+            // Inject into layout
+            layout_json[polar_key] = polar_config;
+        }
+    }
 }
 
 impl Layout for ScatterPolar {}
@@ -346,5 +987,9 @@ impl PlotHelper for ScatterPolar {
 
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>> {
         &self.traces
+    }
+
+    fn get_layout_override(&self) -> Option<&serde_json::Value> {
+        self.layout_json.as_ref()
     }
 }

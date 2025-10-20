@@ -1,5 +1,9 @@
 use ndarray::Array;
-use plotlars::{Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram, Line, LinePlot, PieChart, Plot, Rgb, SankeyDiagram, ScatterPlot, Shape, Text, TimeSeriesPlot};
+use plotlars::{
+    Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram, Line,
+    LinePlot, Mode, PieChart, Plot, Rgb, SankeyDiagram, ScatterPlot, ScatterPolar, Shape, Text,
+    TimeSeriesPlot,
+};
 use polars::prelude::*;
 
 fn main() {
@@ -12,6 +16,7 @@ fn main() {
     piechart_example();
     sankeydiagram_example();
     scatterplot_example();
+    scatterpolar_example();
     timeseriesplot_example();
 }
 
@@ -279,9 +284,7 @@ fn lineplot_example() {
         .y("sine")
         .facet("category")
         .facet_config(&facet_config)
-        .plot_title(Text::from(
-            "Sine Wave Patterns by Amplitude Level",
-        ))
+        .plot_title(Text::from("Sine Wave Patterns by Amplitude Level"))
         .x_title("x")
         .y_title("sin(x)")
         .width(2.5)
@@ -468,24 +471,42 @@ fn scatterplot_example() {
         .group("gender")
         .facet("species")
         .facet_config(&facet_config)
-        .plot_title(Text::from(
-            "Penguin Bill Morphology with Gender Comparison",
-        ))
+        .plot_title(Text::from("Penguin Bill Morphology with Gender Comparison"))
         .x_title("bill length (mm)")
         .y_title("bill depth (mm)")
         .opacity(0.6)
         .size(8)
-        .colors(vec![
-            Rgb(128, 128, 128),
-            Rgb(255, 0, 255),
-            Rgb(0, 255, 255),
-        ])
-        .shapes(vec![
-            Shape::Diamond,
-            Shape::Circle,
-            Shape::Square,
-        ])
+        .colors(vec![Rgb(128, 128, 128), Rgb(255, 0, 255), Rgb(0, 255, 255)])
+        .shapes(vec![Shape::Diamond, Shape::Circle, Shape::Square])
         .legend_title("gender")
+        .build()
+        .plot();
+}
+
+fn scatterpolar_example() {
+    let dataset = create_scatterpolar_wind_data();
+
+    let facet_config = FacetConfig::new()
+        .highlight_facet(true)
+        .unhighlighted_color(Rgb(220, 220, 220))
+        .ncol(3);
+
+    ScatterPolar::builder()
+        .data(&dataset)
+        .theta("angle")
+        .r("speed")
+        .group("time")
+        .facet("season")
+        .facet_config(&facet_config)
+        .plot_title(Text::from("Wind Patterns by Season and Time of Day"))
+        .mode(Mode::LinesMarkers)
+        .opacity(0.7)
+        .size(7)
+        .width(2.5)
+        .colors(vec![Rgb(255, 105, 180), Rgb(30, 144, 255)])
+        .shapes(vec![Shape::Circle, Shape::Diamond])
+        .lines(vec![Line::Solid, Line::DashDot])
+        .legend_title("time of day")
         .build()
         .plot();
 }
@@ -517,9 +538,9 @@ fn timeseriesplot_example() {
 }
 
 fn create_timeseriesplot_dataset() -> DataFrame {
-    let months = vec![
-        "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06",
-        "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12",
+    let months = [
+        "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08",
+        "2023-09", "2023-10", "2023-11", "2023-12",
     ];
 
     let mut date = Vec::new();
@@ -553,6 +574,52 @@ fn create_timeseriesplot_dataset() -> DataFrame {
         "region" => &region,
         "revenue" => &revenue,
         "costs" => &costs,
+    ]
+    .unwrap()
+}
+
+fn create_scatterpolar_wind_data() -> DataFrame {
+    let mut angles = Vec::new();
+    let mut speeds = Vec::new();
+    let mut seasons = Vec::new();
+    let mut times = Vec::new();
+
+    let season_list = ["Spring", "Summer", "Fall"];
+    let time_list = ["Morning", "Evening"];
+
+    for season in &season_list {
+        for time in &time_list {
+            for angle in (0..=360).step_by(30) {
+                let base_speed = match *season {
+                    "Spring" => 15.0,
+                    "Summer" => 10.0,
+                    "Fall" => 20.0,
+                    _ => 15.0,
+                };
+
+                let time_modifier = match *time {
+                    "Morning" => 0.8,
+                    "Evening" => 1.2,
+                    _ => 1.0,
+                };
+
+                let angle_rad = (angle as f64).to_radians();
+                let variation = (angle_rad * 2.0).sin() * 5.0;
+                let speed = base_speed * time_modifier + variation;
+
+                angles.push(angle as f64);
+                speeds.push(speed.abs());
+                seasons.push(*season);
+                times.push(*time);
+            }
+        }
+    }
+
+    df![
+        "angle" => angles,
+        "speed" => speeds,
+        "season" => seasons,
+        "time" => times,
     ]
     .unwrap()
 }

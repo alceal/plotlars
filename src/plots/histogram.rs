@@ -375,16 +375,17 @@ impl Histogram {
             }
         }
 
-        let global_group_indices: std::collections::HashMap<String, usize> = if let Some(group_col) = group {
-            let global_groups = Self::get_unique_groups(data, group_col, sort_groups_by);
-            global_groups
-                .into_iter()
-                .enumerate()
-                .map(|(idx, group_name)| (group_name, idx))
-                .collect()
-        } else {
-            std::collections::HashMap::new()
-        };
+        let global_group_indices: std::collections::HashMap<String, usize> =
+            if let Some(group_col) = group {
+                let global_groups = Self::get_unique_groups(data, group_col, sort_groups_by);
+                global_groups
+                    .into_iter()
+                    .enumerate()
+                    .map(|(idx, group_name)| (group_name, idx))
+                    .collect()
+            } else {
+                std::collections::HashMap::new()
+            };
 
         let colors = if group.is_some() && colors.is_none() {
             Some(DEFAULT_PLOTLY_COLORS.to_vec())
@@ -418,10 +419,7 @@ impl Histogram {
                         let group_data =
                             Self::filter_data_by_group(&facet_data, group_col, group_val);
 
-                        let global_idx = global_group_indices
-                            .get(group_val)
-                            .copied()
-                            .unwrap_or(0);
+                        let global_idx = global_group_indices.get(group_val).copied().unwrap_or(0);
 
                         let marker = Self::create_marker(
                             global_idx,
