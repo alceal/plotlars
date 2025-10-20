@@ -6,6 +6,10 @@ use polars::prelude::*;
 use plotlars::{ColorBar, Lighting, Palette, Plot, SurfacePlot, Text};
 
 fn main() {
+    basic_surface_plot();
+}
+
+fn basic_surface_plot() {
     let n: usize = 100;
     let (x_base, _): (Vec<f64>, Option<usize>) =
         Array::linspace(-10., 10., n).into_raw_vec_and_offset();

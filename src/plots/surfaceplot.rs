@@ -9,7 +9,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, PlotHelper, Polar},
-    components::{ColorBar, Lighting, Palette, Text},
+    components::{ColorBar, FacetConfig, FacetScales, Legend, Lighting, Palette, Text},
 };
 
 /// A structure representing a 3-D surface plot.
@@ -43,12 +43,15 @@ use crate::{
 ///   legend.
 /// * `lighting` – An optional Reference to a `Lighting` struct that
 ///   specifies *ambient*, *diffuse*, *specular* components, *roughness*,
-///   *fresnel* and light position.  Leaving it `None` applies Plotly’s
+///   *fresnel* and light position.  Leaving it `None` applies Plotly's
 ///   default Phong shading.
 /// * `opacity` – An optional `f64` in `[0.0, 1.0]` that sets the global
 ///   transparency of the surface (1 = opaque, 0 = fully transparent).
+/// * `facet` – An optional string slice specifying the column name to create faceted subplots (one surface per category).
+/// * `facet_config` – An optional reference to a `FacetConfig` struct for customizing facet layout (ncol, nrow, gap sizes, etc.).
 /// * `plot_title` – An optional `Text` that customizes the title (content,
 ///   font, size, alignment).
+/// * `legend` – An optional reference to a `Legend` struct for legend customization.
 ///
 /// # Example
 ///
@@ -113,11 +116,40 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/tdVte4l.png)
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct SurfacePlot {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
+    layout_json: Option<serde_json::Value>,
 }
+
+impl Serialize for SurfacePlot {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("SurfacePlot", 2)?;
+        state.serialize_field("traces", &self.traces)?;
+        if let Some(ref layout_json) = self.layout_json {
+            state.serialize_field("layout", layout_json)?;
+        } else {
+            state.serialize_field("layout", &self.layout)?;
+        }
+        state.end()
+    }
+}
+
+#[derive(Clone)]
+struct FacetGrid {
+    ncols: usize,
+    nrows: usize,
+    x_gap: f64,
+    y_gap: f64,
+}
+
+const SCENE_FACET_TITLE_HEIGHT_RATIO: f64 = 0.12;
+const SCENE_FACET_TOP_INSET_RATIO: f64 = 0.08;
 
 #[bon]
 impl SurfacePlot {
@@ -133,9 +165,11 @@ impl SurfacePlot {
         show_scale: Option<bool>,
         lighting: Option<&Lighting>,
         opacity: Option<f64>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
         plot_title: Option<Text>,
+        legend: Option<&Legend>,
     ) -> Self {
-        let legend = None;
         let legend_title = None;
         let x_title = None;
         let y_title = None;
@@ -146,34 +180,83 @@ impl SurfacePlot {
         let y2_title = None;
         let y2_axis = None;
 
-        let layout = Self::create_layout(
-            plot_title,
-            x_title,
-            y_title,
-            y2_title,
-            z_title,
-            legend_title,
-            x_axis,
-            y_axis,
-            y2_axis,
-            z_axis,
-            legend,
-        );
+        let (layout, traces, layout_json) = match facet {
+            Some(facet_column) => {
+                let config = facet_config.cloned().unwrap_or_default();
 
-        let traces = Self::create_traces(
-            data,
-            x,
-            y,
-            z,
-            color_bar,
-            color_scale,
-            reverse_scale,
-            show_scale,
-            lighting,
-            opacity,
-        );
+                let (layout, grid) = Self::create_faceted_layout(
+                    data,
+                    facet_column,
+                    &config,
+                    plot_title,
+                    legend_title,
+                    legend,
+                );
 
-        Self { traces, layout }
+                let traces = Self::create_faceted_traces(
+                    data,
+                    x,
+                    y,
+                    z,
+                    facet_column,
+                    &config,
+                    color_bar,
+                    color_scale,
+                    reverse_scale,
+                    show_scale,
+                    lighting,
+                    opacity,
+                );
+
+                let mut layout_json = serde_json::to_value(&layout).unwrap();
+                Self::inject_scene_domains_static(
+                    &mut layout_json,
+                    grid.ncols,
+                    grid.nrows,
+                    grid.x_gap,
+                    grid.y_gap,
+                    &config.scales,
+                );
+
+                (layout, traces, Some(layout_json))
+            }
+            None => {
+                let layout = Self::create_layout(
+                    plot_title,
+                    x_title,
+                    y_title,
+                    y2_title,
+                    z_title,
+                    legend_title,
+                    x_axis,
+                    y_axis,
+                    y2_axis,
+                    z_axis,
+                    legend,
+                );
+
+                let traces = Self::create_traces(
+                    data,
+                    x,
+                    y,
+                    z,
+                    color_bar,
+                    color_scale,
+                    reverse_scale,
+                    show_scale,
+                    lighting,
+                    opacity,
+                );
+
+                (layout, traces, None)
+            }
+        };
+
+        Self {
+            traces,
+            layout,
+            layout_json,
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -202,6 +285,7 @@ impl SurfacePlot {
             show_scale,
             lighting,
             opacity,
+            None,
         );
 
         traces.push(trace);
@@ -220,6 +304,7 @@ impl SurfacePlot {
         show_scale: Option<bool>,
         lighting: Option<&Lighting>,
         opacity: Option<f64>,
+        scene: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let x = Self::get_numeric_column(data, x);
         let y = Self::get_numeric_column(data, y);
@@ -244,7 +329,14 @@ impl SurfacePlot {
         trace = Self::set_reverse_scale(trace, reverse_scale);
         trace = Self::set_show_scale(trace, show_scale);
 
-        trace
+        if let Some(scene_ref) = scene {
+            Box::new(SurfaceWithScene {
+                inner: trace,
+                scene: scene_ref.to_string(),
+            })
+        } else {
+            trace
+        }
     }
 
     fn set_show_scale<X, Y, Z>(
@@ -353,6 +445,288 @@ impl SurfacePlot {
             .map(|of| of.into_inner())
             .collect()
     }
+
+    #[allow(clippy::too_many_arguments)]
+    fn create_faceted_traces(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        facet_column: &str,
+        config: &FacetConfig,
+        color_bar: Option<&ColorBar>,
+        color_scale: Option<Palette>,
+        reverse_scale: Option<bool>,
+        show_scale: Option<bool>,
+        lighting: Option<&Lighting>,
+        opacity: Option<f64>,
+    ) -> Vec<Box<dyn Trace + 'static>> {
+        const MAX_FACETS: usize = 8;
+
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+
+        if facet_categories.len() > MAX_FACETS {
+            panic!(
+                "Facet column '{}' has {} unique values, but plotly.rs supports maximum {} 3D scenes",
+                facet_column,
+                facet_categories.len(),
+                MAX_FACETS
+            );
+        }
+
+        let mut all_traces = Vec::new();
+
+        for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+            let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+            let scene = Self::get_scene_reference(facet_idx);
+
+            let trace = Self::create_trace(
+                &facet_data,
+                x,
+                y,
+                z,
+                color_bar,
+                color_scale,
+                reverse_scale,
+                show_scale,
+                lighting,
+                opacity,
+                Some(&scene),
+            );
+
+            all_traces.push(trace);
+        }
+
+        all_traces
+    }
+
+    fn create_faceted_layout(
+        data: &DataFrame,
+        facet_column: &str,
+        config: &FacetConfig,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> (LayoutPlotly, FacetGrid) {
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+        let n_facets = facet_categories.len();
+
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+
+        let x_gap = config.x_gap.unwrap_or(0.08);
+        let y_gap = config.y_gap.unwrap_or(0.12);
+
+        let grid = FacetGrid {
+            ncols,
+            nrows,
+            x_gap,
+            y_gap,
+        };
+
+        let mut layout = LayoutPlotly::new();
+
+        if let Some(title) = plot_title {
+            layout = layout.title(title.to_plotly());
+        }
+
+        let annotations = Self::create_facet_annotations_scene(
+            &facet_categories,
+            ncols,
+            nrows,
+            config.title_style.as_ref(),
+            config.x_gap,
+            config.y_gap,
+        );
+        layout = layout.annotations(annotations);
+
+        layout = layout.legend(Legend::set_legend(legend_title, legend));
+
+        (layout, grid)
+    }
+
+    fn get_scene_reference(index: usize) -> String {
+        match index {
+            0 => "scene".to_string(),
+            1 => "scene2".to_string(),
+            2 => "scene3".to_string(),
+            3 => "scene4".to_string(),
+            4 => "scene5".to_string(),
+            5 => "scene6".to_string(),
+            6 => "scene7".to_string(),
+            7 => "scene8".to_string(),
+            _ => "scene".to_string(),
+        }
+    }
+
+    fn calculate_scene_facet_cell(
+        subplot_index: usize,
+        ncols: usize,
+        nrows: usize,
+        x_gap: Option<f64>,
+        y_gap: Option<f64>,
+    ) -> SceneFacetCell {
+        let row = subplot_index / ncols;
+        let col = subplot_index % ncols;
+
+        let x_gap_val = x_gap.unwrap_or(0.08);
+        let y_gap_val = y_gap.unwrap_or(0.12);
+
+        let cell_width = (1.0 - x_gap_val * (ncols - 1) as f64) / ncols as f64;
+        let cell_height = (1.0 - y_gap_val * (nrows - 1) as f64) / nrows as f64;
+
+        let title_height = cell_height * SCENE_FACET_TITLE_HEIGHT_RATIO;
+        let scene_padding = cell_height * SCENE_FACET_TOP_INSET_RATIO;
+
+        let cell_x_start = col as f64 * (cell_width + x_gap_val);
+        let cell_y_top = 1.0 - row as f64 * (cell_height + y_gap_val);
+        let cell_y_bottom = cell_y_top - cell_height;
+
+        let domain_y_top = cell_y_top - title_height - scene_padding;
+        let domain_y_bottom = cell_y_bottom;
+
+        let annotation_x = cell_x_start + cell_width / 2.0;
+        let annotation_y = cell_y_top - scene_padding * 0.5;
+
+        SceneFacetCell {
+            annotation_x,
+            annotation_y,
+            domain_x: [cell_x_start, cell_x_start + cell_width],
+            domain_y: [domain_y_bottom, domain_y_top],
+        }
+    }
+
+    fn create_facet_annotations_scene(
+        categories: &[String],
+        ncols: usize,
+        nrows: usize,
+        title_style: Option<&Text>,
+        x_gap: Option<f64>,
+        y_gap: Option<f64>,
+    ) -> Vec<plotly::layout::Annotation> {
+        use plotly::common::Anchor;
+        use plotly::layout::Annotation;
+
+        categories
+            .iter()
+            .enumerate()
+            .map(|(i, cat)| {
+                let cell = Self::calculate_scene_facet_cell(i, ncols, nrows, x_gap, y_gap);
+
+                let mut ann = Annotation::new()
+                    .text(cat.as_str())
+                    .x_ref("paper")
+                    .y_ref("paper")
+                    .x_anchor(Anchor::Center)
+                    .y_anchor(Anchor::Bottom)
+                    .x(cell.annotation_x)
+                    .y(cell.annotation_y)
+                    .show_arrow(false);
+
+                if let Some(style) = title_style {
+                    ann = ann.font(style.to_font());
+                }
+
+                ann
+            })
+            .collect()
+    }
+
+    fn inject_scene_domains_static(
+        layout_json: &mut serde_json::Value,
+        ncols: usize,
+        nrows: usize,
+        x_gap: f64,
+        y_gap: f64,
+        scales: &FacetScales,
+    ) {
+        let total_cells = (ncols * nrows).clamp(1, 8);
+
+        for i in 0..total_cells {
+            let scene_key = if i == 0 {
+                "scene".to_string()
+            } else {
+                format!("scene{}", i + 1)
+            };
+
+            let cell = Self::calculate_scene_facet_cell(i, ncols, nrows, Some(x_gap), Some(y_gap));
+
+            let mut scene_config = serde_json::json!({
+                "domain": {
+                    "x": cell.domain_x,
+                    "y": cell.domain_y
+                }
+            });
+
+            if i > 0 {
+                match scales {
+                    FacetScales::Fixed => {
+                        scene_config["xaxis"] = serde_json::json!({"matches": "x"});
+                        scene_config["yaxis"] = serde_json::json!({"matches": "y"});
+                        scene_config["zaxis"] = serde_json::json!({"matches": "z"});
+                    }
+                    FacetScales::FreeX => {
+                        scene_config["yaxis"] = serde_json::json!({"matches": "y"});
+                        scene_config["zaxis"] = serde_json::json!({"matches": "z"});
+                    }
+                    FacetScales::FreeY => {
+                        scene_config["xaxis"] = serde_json::json!({"matches": "x"});
+                        scene_config["zaxis"] = serde_json::json!({"matches": "z"});
+                    }
+                    FacetScales::Free => {}
+                }
+            }
+
+            layout_json[scene_key] = scene_config;
+        }
+    }
+}
+
+struct SceneFacetCell {
+    annotation_x: f64,
+    annotation_y: f64,
+    domain_x: [f64; 2],
+    domain_y: [f64; 2],
+}
+
+#[derive(Clone)]
+struct SurfaceWithScene<X, Y, Z>
+where
+    X: Serialize + Clone,
+    Y: Serialize + Clone,
+    Z: Serialize + Clone,
+{
+    inner: Box<Surface<X, Y, Z>>,
+    scene: String,
+}
+
+impl<X, Y, Z> Serialize for SurfaceWithScene<X, Y, Z>
+where
+    X: Serialize + Clone,
+    Y: Serialize + Clone,
+    Z: Serialize + Clone,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut value: serde_json::Value =
+            serde_json::from_str(&self.inner.to_json()).map_err(serde::ser::Error::custom)?;
+        value["scene"] = serde_json::Value::String(self.scene.clone());
+        value.serialize(serializer)
+    }
+}
+
+impl<X, Y, Z> Trace for SurfaceWithScene<X, Y, Z>
+where
+    X: Serialize + Clone + 'static,
+    Y: Serialize + Clone + 'static,
+    Z: Serialize + Clone + 'static,
+{
+    fn to_json(&self) -> String {
+        let mut value: serde_json::Value = serde_json::from_str(&self.inner.to_json()).unwrap();
+        value["scene"] = serde_json::Value::String(self.scene.clone());
+        serde_json::to_string(&value).unwrap()
+    }
 }
 
 impl Layout for SurfacePlot {}
@@ -365,5 +739,9 @@ impl PlotHelper for SurfacePlot {
 
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>> {
         &self.traces
+    }
+
+    fn get_layout_override(&self) -> Option<&serde_json::Value> {
+        self.layout_json.as_ref()
     }
 }

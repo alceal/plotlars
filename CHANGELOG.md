@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Add faceting support to Scatter3dPlot
 - Add faceting support to ScatterPlot
 - Add faceting support to ScatterPolar
+- Add faceting support to SurfacePlot
 - Add faceting support to TimeSeriesPlot
 
 ## [0.10.0] - 2025-08-07

@@ -1,8 +1,8 @@
 use ndarray::Array;
 use plotlars::{
     Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram,
-    Lighting, Line, LinePlot, Mesh3D, Mode, PieChart, Plot, Rgb, SankeyDiagram, Scatter3dPlot,
-    ScatterPlot, ScatterPolar, Shape, Text, TimeSeriesPlot,
+    Lighting, Line, LinePlot, Mesh3D, Mode, Palette, PieChart, Plot, Rgb, SankeyDiagram,
+    Scatter3dPlot, ScatterPlot, ScatterPolar, Shape, SurfacePlot, Text, TimeSeriesPlot,
 };
 use polars::prelude::*;
 
@@ -19,6 +19,7 @@ fn main() {
     scatter3d_example();
     scatterplot_example();
     scatterpolar_example();
+    surfaceplot_example();
     timeseriesplot_example();
 }
 
@@ -348,7 +349,7 @@ fn mesh3d_example() {
                 let x = (i as f64 / (n - 1) as f64) * 4.0 - 2.0;
                 let y = (j as f64 / (n - 1) as f64) * 4.0 - 2.0;
 
-                let z = match surface.as_ref() {
+                let z = match *surface {
                     "Gaussian" => (-0.5 * (x * x + y * y)).exp(),
                     "Saddle" => 0.3 * (x * x - y * y),
                     "Ripple" => 0.4 * ((x * 3.0).sin() + (y * 3.0).cos()),
@@ -717,4 +718,66 @@ fn create_scatterpolar_wind_data() -> DataFrame {
         "time" => times,
     ]
     .unwrap()
+}
+
+fn surfaceplot_example() {
+    let n: usize = 50;
+    let (x_base, _): (Vec<f64>, Option<usize>) =
+        Array::linspace(-5., 5., n).into_raw_vec_and_offset();
+    let (y_base, _): (Vec<f64>, Option<usize>) =
+        Array::linspace(-5., 5., n).into_raw_vec_and_offset();
+
+    let mut x_all = Vec::new();
+    let mut y_all = Vec::new();
+    let mut z_all = Vec::new();
+    let mut category_all = Vec::new();
+
+    type SurfaceFunction = Box<dyn Fn(f64, f64) -> f64>;
+    let functions: Vec<(&str, SurfaceFunction)> = vec![
+        (
+            "Sine Wave",
+            Box::new(|xi: f64, yj: f64| (xi * xi + yj * yj).sqrt().sin()),
+        ),
+        ("Saddle", Box::new(|xi: f64, yj: f64| xi * xi - yj * yj)),
+        (
+            "Gaussian",
+            Box::new(|xi: f64, yj: f64| (-0.5 * (xi * xi + yj * yj)).exp()),
+        ),
+    ];
+
+    for (name, func) in &functions {
+        for &xi in x_base.iter() {
+            for &yj in y_base.iter() {
+                x_all.push(xi);
+                y_all.push(yj);
+                z_all.push(func(xi, yj));
+                category_all.push(*name);
+            }
+        }
+    }
+
+    let dataset = df![
+        "x" => &x_all,
+        "y" => &y_all,
+        "z" => &z_all,
+        "function" => &category_all,
+    ]
+    .unwrap();
+
+    SurfacePlot::builder()
+        .data(&dataset)
+        .x("x")
+        .y("y")
+        .z("z")
+        .facet("function")
+        .facet_config(&FacetConfig::new().ncol(3).nrow(1).x_gap(0.08).y_gap(0.12))
+        .plot_title(
+            Text::from("3D Mathematical Functions")
+                .font("Arial")
+                .size(20),
+        )
+        .color_scale(Palette::Viridis)
+        .opacity(0.9)
+        .build()
+        .plot();
 }
