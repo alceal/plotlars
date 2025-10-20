@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Add faceting support to Mesh3D
 - Add faceting support to PieChart
 - Add faceting support to SankeyDiagram
+- Add faceting support to Scatter3dPlot
 - Add faceting support to ScatterPlot
 - Add faceting support to ScatterPolar
 - Add faceting support to TimeSeriesPlot

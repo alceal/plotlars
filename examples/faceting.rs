@@ -1,8 +1,8 @@
 use ndarray::Array;
 use plotlars::{
     Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram,
-    Lighting, Line, LinePlot, Mesh3D, Mode, PieChart, Plot, Rgb, SankeyDiagram, ScatterPlot,
-    ScatterPolar, Shape, Text, TimeSeriesPlot,
+    Lighting, Line, LinePlot, Mesh3D, Mode, PieChart, Plot, Rgb, SankeyDiagram, Scatter3dPlot,
+    ScatterPlot, ScatterPolar, Shape, Text, TimeSeriesPlot,
 };
 use polars::prelude::*;
 
@@ -16,6 +16,7 @@ fn main() {
     mesh3d_example();
     piechart_example();
     sankeydiagram_example();
+    scatter3d_example();
     scatterplot_example();
     scatterpolar_example();
     timeseriesplot_example();
@@ -539,6 +540,40 @@ fn scatterplot_example() {
         .colors(vec![Rgb(128, 128, 128), Rgb(255, 0, 255), Rgb(0, 255, 255)])
         .shapes(vec![Shape::Diamond, Shape::Circle, Shape::Square])
         .legend_title("gender")
+        .build()
+        .plot();
+}
+
+fn scatter3d_example() {
+    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+        .finish()
+        .unwrap()
+        .select([
+            col("species"),
+            col("sex").alias("gender"),
+            col("bill_length_mm").cast(DataType::Float32),
+            col("flipper_length_mm").cast(DataType::Int16),
+            col("body_mass_g").cast(DataType::Int16),
+        ])
+        .collect()
+        .unwrap();
+
+    let facet_config = FacetConfig::new()
+        .ncol(3)
+        .highlight_facet(true)
+        .unhighlighted_color(Rgb(220, 220, 220));
+
+    Scatter3dPlot::builder()
+        .data(&dataset)
+        .x("body_mass_g")
+        .y("flipper_length_mm")
+        .z("bill_length_mm")
+        .facet("species")
+        .facet_config(&facet_config)
+        .opacity(0.6)
+        .size(6)
+        .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
+        .plot_title("Penguin Morphological Traits - 3D Faceted Analysis")
         .build()
         .plot();
 }
