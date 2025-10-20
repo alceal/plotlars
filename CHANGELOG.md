@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Add faceting support to HeatMap
 - Add faceting support to Histogram
 - Add faceting support to LinePlot
+- Add faceting support to Mesh3D
 - Add faceting support to PieChart
 - Add faceting support to SankeyDiagram
 - Add faceting support to ScatterPlot

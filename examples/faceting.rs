@@ -1,8 +1,8 @@
 use ndarray::Array;
 use plotlars::{
-    Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram, Line,
-    LinePlot, Mode, PieChart, Plot, Rgb, SankeyDiagram, ScatterPlot, ScatterPolar, Shape, Text,
-    TimeSeriesPlot,
+    Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram,
+    Lighting, Line, LinePlot, Mesh3D, Mode, PieChart, Plot, Rgb, SankeyDiagram, ScatterPlot,
+    ScatterPolar, Shape, Text, TimeSeriesPlot,
 };
 use polars::prelude::*;
 
@@ -13,6 +13,7 @@ fn main() {
     heatmap_example();
     histogram_example();
     lineplot_example();
+    mesh3d_example();
     piechart_example();
     sankeydiagram_example();
     scatterplot_example();
@@ -330,6 +331,65 @@ fn create_lineplot_dataset() -> DataFrame {
         "sine" => &sine_values,
     ]
     .unwrap()
+}
+
+fn mesh3d_example() {
+    let mut x_vals = Vec::new();
+    let mut y_vals = Vec::new();
+    let mut z_vals = Vec::new();
+    let mut surface_type = Vec::new();
+
+    let n = 25;
+
+    for surface in ["Gaussian", "Saddle", "Ripple"].iter() {
+        for i in 0..n {
+            for j in 0..n {
+                let x = (i as f64 / (n - 1) as f64) * 4.0 - 2.0;
+                let y = (j as f64 / (n - 1) as f64) * 4.0 - 2.0;
+
+                let z = match surface.as_ref() {
+                    "Gaussian" => (-0.5 * (x * x + y * y)).exp(),
+                    "Saddle" => 0.3 * (x * x - y * y),
+                    "Ripple" => 0.4 * ((x * 3.0).sin() + (y * 3.0).cos()),
+                    _ => 0.0,
+                };
+
+                x_vals.push(x);
+                y_vals.push(y);
+                z_vals.push(z);
+                surface_type.push(surface.to_string());
+            }
+        }
+    }
+
+    let dataset = DataFrame::new(vec![
+        Column::new("x".into(), x_vals),
+        Column::new("y".into(), y_vals),
+        Column::new("z".into(), z_vals),
+        Column::new("surface_type".into(), surface_type),
+    ])
+    .unwrap();
+
+    let config = FacetConfig::new().ncol(3).nrow(1);
+
+    let lighting = Lighting::new().ambient(0.6).diffuse(0.8).specular(0.4);
+
+    Mesh3D::builder()
+        .data(&dataset)
+        .x("x")
+        .y("y")
+        .z("z")
+        .facet("surface_type")
+        .facet_config(&config)
+        .color(Rgb(100, 150, 200))
+        .lighting(&lighting)
+        .plot_title(
+            Text::from("Mathematical Surfaces Comparison")
+                .font("Arial")
+                .size(20),
+        )
+        .build()
+        .plot();
 }
 
 fn piechart_example() {

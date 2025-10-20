@@ -10,7 +10,7 @@ use serde::Serialize;
 
 use crate::{
     common::{Layout, PlotHelper, Polar},
-    components::{ColorBar, IntensityMode, Legend, Lighting, Palette, Rgb, Text},
+    components::{ColorBar, FacetConfig, IntensityMode, Legend, Lighting, Palette, Rgb, Text},
 };
 
 /// A structure representing a 3D mesh plot.
@@ -104,11 +104,39 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/lKI23dJ.png)
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct Mesh3D {
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
+    layout_json: Option<serde_json::Value>,
 }
+
+impl Serialize for Mesh3D {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Mesh3D", 2)?;
+        state.serialize_field("traces", &self.traces)?;
+        if let Some(ref layout_json) = self.layout_json {
+            state.serialize_field("layout", layout_json)?;
+        } else {
+            state.serialize_field("layout", &self.layout)?;
+        }
+        state.end()
+    }
+}
+
+#[derive(Clone)]
+struct FacetGrid {
+    ncols: usize,
+    nrows: usize,
+    x_gap: f64,
+    y_gap: f64,
+}
+
+const MESH3D_FACET_TITLE_HEIGHT_RATIO: f64 = 0.10;
 
 #[bon]
 impl Mesh3D {
@@ -134,6 +162,8 @@ impl Mesh3D {
         light_position: Option<(i32, i32, i32)>,
         delaunay_axis: Option<&str>,
         contour: Option<bool>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
@@ -147,44 +177,104 @@ impl Mesh3D {
         let y2_title = None;
         let y2_axis = None;
 
-        let layout = Self::create_layout(
-            plot_title,
-            x_title,
-            y_title,
-            y2_title,
-            z_title,
-            legend_title,
-            x_axis,
-            y_axis,
-            y2_axis,
-            z_axis,
-            legend,
-        );
+        let (layout, traces, layout_json) = match facet {
+            Some(facet_column) => {
+                let config = facet_config.cloned().unwrap_or_default();
 
-        let traces = Self::create_traces(
-            data,
-            x,
-            y,
-            z,
-            i,
-            j,
-            k,
-            intensity,
-            intensity_mode,
-            color,
-            color_bar,
-            color_scale,
-            reverse_scale,
-            show_scale,
-            opacity,
-            flat_shading,
-            lighting,
-            light_position,
-            delaunay_axis,
-            contour,
-        );
+                let (layout, grid) = Self::create_faceted_layout(
+                    data,
+                    facet_column,
+                    &config,
+                    plot_title,
+                    x_title,
+                    y_title,
+                    z_title,
+                    legend,
+                );
 
-        Self { traces, layout }
+                let traces = Self::create_faceted_traces(
+                    data,
+                    x,
+                    y,
+                    z,
+                    i,
+                    j,
+                    k,
+                    intensity,
+                    intensity_mode,
+                    color,
+                    color_bar,
+                    color_scale,
+                    reverse_scale,
+                    show_scale,
+                    opacity,
+                    flat_shading,
+                    lighting,
+                    light_position,
+                    delaunay_axis,
+                    contour,
+                    facet_column,
+                    &config,
+                );
+
+                let mut layout_json = serde_json::to_value(&layout).unwrap();
+                Self::inject_scene_domains_static(
+                    &mut layout_json,
+                    grid.ncols,
+                    grid.nrows,
+                    grid.x_gap,
+                    grid.y_gap,
+                );
+
+                (layout, traces, Some(layout_json))
+            }
+            None => {
+                let layout = Self::create_layout(
+                    plot_title,
+                    x_title,
+                    y_title,
+                    y2_title,
+                    z_title,
+                    legend_title,
+                    x_axis,
+                    y_axis,
+                    y2_axis,
+                    z_axis,
+                    legend,
+                );
+
+                let traces = Self::create_traces(
+                    data,
+                    x,
+                    y,
+                    z,
+                    i,
+                    j,
+                    k,
+                    intensity,
+                    intensity_mode,
+                    color,
+                    color_bar,
+                    color_scale,
+                    reverse_scale,
+                    show_scale,
+                    opacity,
+                    flat_shading,
+                    lighting,
+                    light_position,
+                    delaunay_axis,
+                    contour,
+                );
+
+                (layout, traces, None)
+            }
+        };
+
+        Self {
+            traces,
+            layout,
+            layout_json,
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -535,6 +625,313 @@ impl Mesh3D {
 
         lighting_mesh3d
     }
+
+    #[allow(clippy::too_many_arguments)]
+    fn create_faceted_traces(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        i: Option<&str>,
+        j: Option<&str>,
+        k: Option<&str>,
+        intensity: Option<&str>,
+        intensity_mode: Option<IntensityMode>,
+        color: Option<Rgb>,
+        color_bar: Option<&ColorBar>,
+        color_scale: Option<Palette>,
+        reverse_scale: Option<bool>,
+        show_scale: Option<bool>,
+        opacity: Option<f64>,
+        flat_shading: Option<bool>,
+        lighting: Option<&Lighting>,
+        light_position: Option<(i32, i32, i32)>,
+        delaunay_axis: Option<&str>,
+        contour: Option<bool>,
+        facet_column: &str,
+        config: &FacetConfig,
+    ) -> Vec<Box<dyn Trace + 'static>> {
+        const MAX_FACETS: usize = 8;
+
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+
+        if facet_categories.len() > MAX_FACETS {
+            panic!(
+                "Facet column '{}' has {} unique values, but plotly.rs supports maximum {} 3D scenes",
+                facet_column,
+                facet_categories.len(),
+                MAX_FACETS
+            );
+        }
+
+        let mut all_traces = Vec::new();
+
+        for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
+            let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
+            let scene = Self::get_scene_reference(facet_idx);
+
+            let trace = Self::build_mesh3d_trace_with_scene(
+                &facet_data,
+                x,
+                y,
+                z,
+                i,
+                j,
+                k,
+                intensity,
+                intensity_mode,
+                color,
+                color_bar,
+                color_scale,
+                reverse_scale,
+                show_scale,
+                opacity,
+                flat_shading,
+                lighting,
+                light_position,
+                delaunay_axis,
+                contour,
+                Some(&scene),
+            );
+
+            all_traces.push(trace);
+        }
+
+        all_traces
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn create_faceted_layout(
+        data: &DataFrame,
+        facet_column: &str,
+        config: &FacetConfig,
+        plot_title: Option<Text>,
+        _x_title: Option<Text>,
+        _y_title: Option<Text>,
+        _z_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> (LayoutPlotly, FacetGrid) {
+        let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
+        let n_facets = facet_categories.len();
+
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+
+        let x_gap = config.x_gap.unwrap_or(0.08);
+        let y_gap = config.y_gap.unwrap_or(0.12);
+
+        let grid = FacetGrid {
+            ncols,
+            nrows,
+            x_gap,
+            y_gap,
+        };
+
+        let mut layout = LayoutPlotly::new();
+
+        if let Some(title) = plot_title {
+            layout = layout.title(title.to_plotly());
+        }
+
+        let annotations = Self::create_facet_annotations_mesh3d(
+            &facet_categories,
+            ncols,
+            nrows,
+            config.title_style.as_ref(),
+            config.x_gap,
+            config.y_gap,
+        );
+        layout = layout.annotations(annotations);
+
+        if let Some(legend_config) = legend {
+            layout = layout.legend(Legend::set_legend(None, Some(legend_config)));
+        }
+
+        (layout, grid)
+    }
+
+    fn get_scene_reference(index: usize) -> String {
+        match index {
+            0 => "scene".to_string(),
+            1 => "scene2".to_string(),
+            2 => "scene3".to_string(),
+            3 => "scene4".to_string(),
+            4 => "scene5".to_string(),
+            5 => "scene6".to_string(),
+            6 => "scene7".to_string(),
+            7 => "scene8".to_string(),
+            _ => "scene".to_string(),
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn build_mesh3d_trace_with_scene(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        i: Option<&str>,
+        j: Option<&str>,
+        k: Option<&str>,
+        intensity: Option<&str>,
+        intensity_mode: Option<IntensityMode>,
+        color: Option<Rgb>,
+        color_bar: Option<&ColorBar>,
+        color_scale: Option<Palette>,
+        reverse_scale: Option<bool>,
+        show_scale: Option<bool>,
+        opacity: Option<f64>,
+        flat_shading: Option<bool>,
+        lighting: Option<&Lighting>,
+        light_position: Option<(i32, i32, i32)>,
+        delaunay_axis: Option<&str>,
+        contour: Option<bool>,
+        scene: Option<&str>,
+    ) -> Box<dyn Trace + 'static> {
+        let x_data = Self::get_numeric_column(data, x);
+        let y_data = Self::get_numeric_column(data, y);
+        let z_data = Self::get_numeric_column(data, z);
+
+        let mut trace = Mesh3DPlotly::new(x_data, y_data, z_data, None, None, None);
+
+        if let (Some(i_col), Some(j_col), Some(k_col)) = (i, j, k) {
+            let i_data = Self::get_integer_column(data, i_col);
+            let j_data = Self::get_integer_column(data, j_col);
+            let k_data = Self::get_integer_column(data, k_col);
+            trace = trace.i(i_data).j(j_data).k(k_data);
+        }
+
+        if let Some(intensity_col) = intensity {
+            let intensity_data = Self::get_numeric_column_f64(data, intensity_col);
+            trace = trace.intensity(intensity_data);
+        }
+
+        trace = Self::set_intensity_mode(trace, intensity_mode);
+        trace = Self::set_color(trace, color);
+        trace = Self::set_color_bar(trace, color_bar);
+        trace = Self::set_color_scale(trace, color_scale);
+        trace = Self::set_reverse_scale(trace, reverse_scale);
+        trace = Self::set_show_scale(trace, show_scale);
+        trace = Self::set_opacity(trace, opacity);
+        trace = Self::set_flat_shading(trace, flat_shading);
+        trace = Self::set_lighting(trace, lighting);
+        trace = Self::set_light_position(trace, light_position);
+        trace = Self::set_delaunay_axis(trace, delaunay_axis);
+        trace = Self::set_contour(trace, contour);
+
+        if let Some(scene_ref) = scene {
+            trace = trace.scene(scene_ref);
+        }
+
+        trace
+    }
+
+    fn calculate_scene_cell(
+        subplot_index: usize,
+        ncols: usize,
+        nrows: usize,
+        x_gap: Option<f64>,
+        y_gap: Option<f64>,
+    ) -> SceneFacetCell {
+        let row = subplot_index / ncols;
+        let col = subplot_index % ncols;
+
+        let x_gap_val = x_gap.unwrap_or(0.08);
+        let y_gap_val = y_gap.unwrap_or(0.12);
+
+        let cell_width = (1.0 - x_gap_val * (ncols - 1) as f64) / ncols as f64;
+        let cell_height = (1.0 - y_gap_val * (nrows - 1) as f64) / nrows as f64;
+
+        let title_height = cell_height * MESH3D_FACET_TITLE_HEIGHT_RATIO;
+
+        let cell_x_start = col as f64 * (cell_width + x_gap_val);
+        let cell_y_top = 1.0 - row as f64 * (cell_height + y_gap_val);
+        let cell_y_bottom = cell_y_top - cell_height;
+
+        let domain_y_top = cell_y_top - title_height;
+        let domain_y_bottom = cell_y_bottom;
+
+        let annotation_x = cell_x_start + cell_width / 2.0;
+        let annotation_y = cell_y_top - title_height * 0.3;
+
+        SceneFacetCell {
+            annotation_x,
+            annotation_y,
+            domain_x: [cell_x_start, cell_x_start + cell_width],
+            domain_y: [domain_y_bottom, domain_y_top],
+        }
+    }
+
+    fn create_facet_annotations_mesh3d(
+        categories: &[String],
+        ncols: usize,
+        nrows: usize,
+        title_style: Option<&Text>,
+        x_gap: Option<f64>,
+        y_gap: Option<f64>,
+    ) -> Vec<plotly::layout::Annotation> {
+        use plotly::common::Anchor;
+        use plotly::layout::Annotation;
+
+        categories
+            .iter()
+            .enumerate()
+            .map(|(i, cat)| {
+                let cell = Self::calculate_scene_cell(i, ncols, nrows, x_gap, y_gap);
+
+                let mut ann = Annotation::new()
+                    .text(cat.as_str())
+                    .x_ref("paper")
+                    .y_ref("paper")
+                    .x_anchor(Anchor::Center)
+                    .y_anchor(Anchor::Bottom)
+                    .x(cell.annotation_x)
+                    .y(cell.annotation_y)
+                    .show_arrow(false);
+
+                if let Some(style) = title_style {
+                    ann = ann.font(style.to_font());
+                }
+
+                ann
+            })
+            .collect()
+    }
+
+    fn inject_scene_domains_static(
+        layout_json: &mut serde_json::Value,
+        ncols: usize,
+        nrows: usize,
+        x_gap: f64,
+        y_gap: f64,
+    ) {
+        let total_cells = (ncols * nrows).clamp(1, 8);
+
+        for i in 0..total_cells {
+            let scene_key = if i == 0 {
+                "scene".to_string()
+            } else {
+                format!("scene{}", i + 1)
+            };
+
+            let cell = Self::calculate_scene_cell(i, ncols, nrows, Some(x_gap), Some(y_gap));
+
+            let scene_config = serde_json::json!({
+                "domain": {
+                    "x": cell.domain_x,
+                    "y": cell.domain_y
+                }
+            });
+
+            layout_json[scene_key] = scene_config;
+        }
+    }
+}
+
+struct SceneFacetCell {
+    annotation_x: f64,
+    annotation_y: f64,
+    domain_x: [f64; 2],
+    domain_y: [f64; 2],
 }
 
 impl Layout for Mesh3D {}
@@ -547,5 +944,9 @@ impl PlotHelper for Mesh3D {
 
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>> {
         &self.traces
+    }
+
+    fn get_layout_override(&self) -> Option<&serde_json::Value> {
+        self.layout_json.as_ref()
     }
 }
