@@ -1,0 +1,25 @@
+year,source,target,value
+2020,Coal,Fossil Energy,45
+2020,Natural Gas,Fossil Energy,55
+2020,Oil,Fossil Energy,30
+2020,Solar,Renewable Energy,25
+2020,Wind,Renewable Energy,30
+2020,Hydro,Renewable Energy,35
+2021,Coal,Fossil Energy,40
+2021,Natural Gas,Fossil Energy,50
+2021,Oil,Fossil Energy,25
+2021,Solar,Renewable Energy,30
+2021,Wind,Renewable Energy,35
+2021,Hydro,Renewable Energy,40
+2022,Coal,Fossil Energy,35
+2022,Natural Gas,Fossil Energy,45
+2022,Oil,Fossil Energy,20
+2022,Solar,Renewable Energy,35
+2022,Wind,Renewable Energy,40
+2022,Hydro,Renewable Energy,45
+2023,Coal,Fossil Energy,30
+2023,Natural Gas,Fossil Energy,40
+2023,Oil,Fossil Energy,15
+2023,Solar,Renewable Energy,40
+2023,Wind,Renewable Energy,45
+2023,Hydro,Renewable Energy,50

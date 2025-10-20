@@ -24,21 +24,12 @@ fn main() {
 }
 
 fn barplot_example() {
-    let regional_data = df![
-        "region" => &["North", "North", "North", "South", "South", "South",
-                     "East", "East", "East", "West", "West", "West",
-                     "Southwest", "Southwest", "Southwest", "Northeast", "Northeast", "Northeast",
-                     "Southeast", "Southeast", "Southeast", "Northwest", "Northwest", "Northwest"],
-        "product" => &["A", "B", "C", "A", "B", "C",
-                      "A", "B", "C", "A", "B", "C",
-                      "A", "B", "C", "A", "B", "C",
-                      "A", "B", "C", "A", "B", "C"],
-        "sales" => &[180.0f32, 250.0, 210.0, 55.0, 85.0, 65.0,
-                    140.0, 175.0, 160.0, 35.0, 60.0, 48.0,
-                    95.0, 115.0, 105.0, 230.0, 280.0, 255.0,
-                    70.0, 95.0, 80.0, 45.0, 195.0, 120.0],
-    ]
-    .unwrap();
+    let regional_data = CsvReadOptions::default()
+        .with_has_header(true)
+        .try_into_reader_with_file_path(Some("data/regional_sales.csv".into()))
+        .unwrap()
+        .finish()
+        .unwrap();
 
     let facet_config = FacetConfig::new().ncol(4).nrow(2).x_gap(0.05).y_gap(0.30);
 
@@ -395,19 +386,12 @@ fn mesh3d_example() {
 }
 
 fn piechart_example() {
-    let dataset = df![
-        "category" => vec![
-            "Tech", "Tech", "Tech", "Finance", "Finance", "Healthcare", "Retail",
-            "Tech", "Finance", "Finance", "Finance", "Healthcare", "Healthcare", "Retail",
-            "Tech", "Finance", "Healthcare", "Healthcare", "Healthcare", "Retail", "Retail", "Retail",
-        ],
-        "region" => vec![
-            "North", "North", "North", "North", "North", "North", "North",
-            "South", "South", "South", "South", "South", "South", "South",
-            "West", "West", "West", "West", "West", "West", "West", "West",
-        ],
-    ]
-    .unwrap();
+    let dataset = CsvReadOptions::default()
+        .with_has_header(true)
+        .try_into_reader_with_file_path(Some("data/industry_region.csv".into()))
+        .unwrap()
+        .finish()
+        .unwrap();
 
     let facet_config = FacetConfig::new()
         .ncol(3)
@@ -435,33 +419,12 @@ fn piechart_example() {
 }
 
 fn sankeydiagram_example() {
-    let dataset = df![
-        "year" => [
-            "2020", "2020", "2020", "2020", "2020", "2020",
-            "2021", "2021", "2021", "2021", "2021", "2021",
-            "2022", "2022", "2022", "2022", "2022", "2022",
-            "2023", "2023", "2023", "2023", "2023", "2023"
-        ],
-        "source" => [
-            "Coal", "Natural Gas", "Oil", "Solar", "Wind", "Hydro",
-            "Coal", "Natural Gas", "Oil", "Solar", "Wind", "Hydro",
-            "Coal", "Natural Gas", "Oil", "Solar", "Wind", "Hydro",
-            "Coal", "Natural Gas", "Oil", "Solar", "Wind", "Hydro"
-        ],
-        "target" => [
-            "Fossil Energy", "Fossil Energy", "Fossil Energy", "Renewable Energy", "Renewable Energy", "Renewable Energy",
-            "Fossil Energy", "Fossil Energy", "Fossil Energy", "Renewable Energy", "Renewable Energy", "Renewable Energy",
-            "Fossil Energy", "Fossil Energy", "Fossil Energy", "Renewable Energy", "Renewable Energy", "Renewable Energy",
-            "Fossil Energy", "Fossil Energy", "Fossil Energy", "Renewable Energy", "Renewable Energy", "Renewable Energy"
-        ],
-        "value" => [
-            45, 55, 30, 25, 30, 35,
-            40, 50, 25, 30, 35, 40,
-            35, 45, 20, 35, 40, 45,
-            30, 40, 15, 40, 45, 50
-        ],
-    ]
-    .unwrap();
+    let dataset = CsvReadOptions::default()
+        .with_has_header(true)
+        .try_into_reader_with_file_path(Some("data/energy_transition.csv".into()))
+        .unwrap()
+        .finish()
+        .unwrap();
 
     let facet_config = FacetConfig::new()
         .ncol(4)
@@ -580,7 +543,12 @@ fn scatter3d_example() {
 }
 
 fn scatterpolar_example() {
-    let dataset = create_scatterpolar_wind_data();
+    let dataset = CsvReadOptions::default()
+        .with_has_header(true)
+        .try_into_reader_with_file_path(Some("data/wind_patterns.csv".into()))
+        .unwrap()
+        .finish()
+        .unwrap();
 
     let facet_config = FacetConfig::new()
         .highlight_facet(true)
@@ -608,7 +576,12 @@ fn scatterpolar_example() {
 }
 
 fn timeseriesplot_example() {
-    let dataset = create_timeseriesplot_dataset();
+    let dataset = CsvReadOptions::default()
+        .with_has_header(true)
+        .try_into_reader_with_file_path(Some("data/financial_timeseries.csv".into()))
+        .unwrap()
+        .finish()
+        .unwrap();
 
     let facet_config = FacetConfig::new()
         .highlight_facet(true)
@@ -631,93 +604,6 @@ fn timeseriesplot_example() {
         .lines(vec![Line::Solid, Line::Dash])
         .build()
         .plot();
-}
-
-fn create_timeseriesplot_dataset() -> DataFrame {
-    let months = [
-        "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08",
-        "2023-09", "2023-10", "2023-11", "2023-12",
-    ];
-
-    let mut date = Vec::new();
-    let mut region = Vec::new();
-    let mut revenue = Vec::new();
-    let mut costs = Vec::new();
-
-    for reg in ["North", "South", "West", "East"].iter() {
-        let (base_revenue, base_cost, growth) = match *reg {
-            "North" => (100000.0_f64, 60000.0_f64, 1.08_f64),
-            "South" => (150000.0_f64, 90000.0_f64, 1.05_f64),
-            "West" => (120000.0_f64, 70000.0_f64, 1.10_f64),
-            "East" => (130000.0_f64, 75000.0_f64, 1.06_f64),
-            _ => (100000.0_f64, 60000.0_f64, 1.05_f64),
-        };
-
-        for (i, month) in months.iter().enumerate() {
-            date.push(month.to_string());
-            region.push(reg.to_string());
-
-            let month_revenue = base_revenue * growth.powi(i as i32);
-            let month_cost = base_cost * 1.03_f64.powi(i as i32);
-
-            revenue.push(month_revenue);
-            costs.push(month_cost);
-        }
-    }
-
-    df![
-        "date" => &date,
-        "region" => &region,
-        "revenue" => &revenue,
-        "costs" => &costs,
-    ]
-    .unwrap()
-}
-
-fn create_scatterpolar_wind_data() -> DataFrame {
-    let mut angles = Vec::new();
-    let mut speeds = Vec::new();
-    let mut seasons = Vec::new();
-    let mut times = Vec::new();
-
-    let season_list = ["Spring", "Summer", "Fall"];
-    let time_list = ["Morning", "Evening"];
-
-    for season in &season_list {
-        for time in &time_list {
-            for angle in (0..=360).step_by(30) {
-                let base_speed = match *season {
-                    "Spring" => 15.0,
-                    "Summer" => 10.0,
-                    "Fall" => 20.0,
-                    _ => 15.0,
-                };
-
-                let time_modifier = match *time {
-                    "Morning" => 0.8,
-                    "Evening" => 1.2,
-                    _ => 1.0,
-                };
-
-                let angle_rad = (angle as f64).to_radians();
-                let variation = (angle_rad * 2.0).sin() * 5.0;
-                let speed = base_speed * time_modifier + variation;
-
-                angles.push(angle as f64);
-                speeds.push(speed.abs());
-                seasons.push(*season);
-                times.push(*time);
-            }
-        }
-    }
-
-    df![
-        "angle" => angles,
-        "speed" => speeds,
-        "season" => seasons,
-        "time" => times,
-    ]
-    .unwrap()
 }
 
 fn surfaceplot_example() {
