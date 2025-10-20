@@ -38,7 +38,7 @@ pub(crate) trait Polar {
     fn filter_data_by_group(data: &DataFrame, group_col: &str, group_name: &str) -> DataFrame {
         data.clone()
             .lazy()
-            .filter(col(group_col).eq(lit(group_name)))
+            .filter(col(group_col).cast(DataType::String).eq(lit(group_name)))
             .collect()
             .unwrap()
     }
