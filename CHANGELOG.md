@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.1] - 2025-10-21
+
+### 🐛 Bug Fixes
+
+- Fix legend synchronization for faceted Histogram plots
+
 ## [0.11.0] - 2025-10-19
 
 ### 🚀 Features

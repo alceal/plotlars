@@ -295,7 +295,7 @@ impl ScatterPlot {
         group_name: Option<&str>,
         marker: MarkerPlotly,
     ) -> Box<dyn Trace + 'static> {
-        Self::build_scatter_trace_with_axes(data, x, y, group_name, marker, None, None, true)
+        Self::build_scatter_trace_with_axes(data, x, y, group_name, marker, None, None, true, None)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -308,6 +308,7 @@ impl ScatterPlot {
         x_axis: Option<&str>,
         y_axis: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let x = Self::get_numeric_column(data, x_col);
         let y = Self::get_numeric_column(data, y_col);
@@ -330,6 +331,12 @@ impl ScatterPlot {
 
         let trace = if let Some(axis) = y_axis {
             trace.y_axis(axis)
+        } else {
+            trace
+        };
+
+        let trace = if let Some(group) = legend_group {
+            trace.legend_group(group)
         } else {
             trace
         };
@@ -448,6 +455,7 @@ impl ScatterPlot {
                             Some(&x_axis),
                             Some(&y_axis),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
@@ -489,6 +497,7 @@ impl ScatterPlot {
                                 Some(&x_axis),
                                 Some(&y_axis),
                                 show_legend,
+                                Some(group_val),
                             );
 
                             all_traces.push(trace);
@@ -514,6 +523,7 @@ impl ScatterPlot {
                             Some(&x_axis),
                             Some(&y_axis),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
@@ -560,6 +570,7 @@ impl ScatterPlot {
                                 Some(&x_axis),
                                 Some(&y_axis),
                                 show_legend,
+                                Some(group_val),
                             );
 
                             all_traces.push(trace);
@@ -585,6 +596,7 @@ impl ScatterPlot {
                             Some(&x_axis),
                             Some(&y_axis),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);

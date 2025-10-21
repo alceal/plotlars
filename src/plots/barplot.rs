@@ -352,6 +352,7 @@ impl BarPlot {
         x_axis: Option<&str>,
         y_axis: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let values = Self::get_numeric_column(data, values);
         let labels = Self::get_string_column(data, labels);
@@ -387,6 +388,10 @@ impl BarPlot {
                     trace = trace.y_axis(axis);
                 }
 
+                if let Some(group) = legend_group {
+                    trace = trace.legend_group(group);
+                }
+
                 if !show_legend {
                     trace.show_legend(false)
                 } else {
@@ -419,6 +424,10 @@ impl BarPlot {
 
                 if let Some(axis) = y_axis {
                     trace = trace.y_axis(axis);
+                }
+
+                if let Some(group) = legend_group {
+                    trace = trace.legend_group(group);
                 }
 
                 if !show_legend {
@@ -548,6 +557,7 @@ impl BarPlot {
                             Some(&x_axis),
                             Some(&y_axis),
                             show_legend,
+                            Some(group_val),
                         );
 
                         all_traces.push(trace);
@@ -575,6 +585,7 @@ impl BarPlot {
                         Some(&x_axis),
                         Some(&y_axis),
                         false,
+                        None,
                     );
 
                     all_traces.push(trace);

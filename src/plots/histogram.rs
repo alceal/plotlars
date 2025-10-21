@@ -290,6 +290,7 @@ impl Histogram {
         x_axis: Option<&str>,
         y_axis: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let x_data = Self::get_numeric_column(data, x);
 
@@ -314,6 +315,12 @@ impl Histogram {
         if let Some(axis) = y_axis {
             trace = trace.y_axis(axis);
         }
+
+        let trace = if let Some(group) = legend_group {
+            trace.legend_group(group)
+        } else {
+            trace
+        };
 
         if !show_legend {
             trace.show_legend(false)
@@ -442,6 +449,7 @@ impl Histogram {
                             Some(&x_axis),
                             Some(&y_axis),
                             show_legend,
+                            Some(group_val),
                         );
 
                         all_traces.push(trace);
@@ -467,6 +475,7 @@ impl Histogram {
                         Some(&x_axis),
                         Some(&y_axis),
                         false,
+                        None,
                     );
 
                     all_traces.push(trace);
