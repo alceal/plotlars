@@ -450,6 +450,7 @@ impl ScatterPolar {
         fill: Option<Fill>,
         subplot: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let theta_values = Self::get_numeric_column(data, theta);
         let r_values = Self::get_numeric_column(data, r);
@@ -473,6 +474,12 @@ impl ScatterPolar {
         if let Some(subplot_ref) = subplot {
             trace = trace.subplot(subplot_ref);
         }
+
+        let trace = if let Some(group) = legend_group {
+            trace.legend_group(group)
+        } else {
+            trace
+        };
 
         if !show_legend {
             trace.show_legend(false)
@@ -607,6 +614,7 @@ impl ScatterPolar {
                             fill,
                             Some(&subplot),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
@@ -659,6 +667,7 @@ impl ScatterPolar {
                                 fill,
                                 Some(&subplot),
                                 show_legend,
+                                Some(group_val),
                             );
 
                             all_traces.push(trace);
@@ -695,6 +704,7 @@ impl ScatterPolar {
                             fill,
                             Some(&subplot),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
@@ -751,6 +761,7 @@ impl ScatterPolar {
                                 fill,
                                 Some(&subplot),
                                 show_legend,
+                                Some(group_val),
                             );
 
                             all_traces.push(trace);
@@ -787,6 +798,7 @@ impl ScatterPolar {
                             fill,
                             Some(&subplot),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
