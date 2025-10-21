@@ -312,7 +312,7 @@ impl Scatter3dPlot {
         group_name: Option<&str>,
         marker: MarkerPlotly,
     ) -> Box<dyn Trace + 'static> {
-        Self::build_scatter3d_trace(data, x, y, z, group_name, marker, None, true)
+        Self::build_scatter3d_trace(data, x, y, z, group_name, marker, None, true, None)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -325,6 +325,7 @@ impl Scatter3dPlot {
         marker: MarkerPlotly,
         scene: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let x = Self::get_numeric_column(data, x);
         let y = Self::get_numeric_column(data, y);
@@ -340,6 +341,12 @@ impl Scatter3dPlot {
         if let Some(scene_ref) = scene {
             trace = trace.scene(scene_ref);
         }
+
+        let trace = if let Some(group) = legend_group {
+            trace.legend_group(group)
+        } else {
+            trace
+        };
 
         if !show_legend {
             trace.show_legend(false)
@@ -468,6 +475,7 @@ impl Scatter3dPlot {
                             grey_marker,
                             Some(&scene),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
@@ -509,6 +517,7 @@ impl Scatter3dPlot {
                                 marker,
                                 Some(&scene),
                                 show_legend,
+                                Some(group_val),
                             );
 
                             all_traces.push(trace);
@@ -534,6 +543,7 @@ impl Scatter3dPlot {
                             marker,
                             Some(&scene),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
@@ -578,6 +588,7 @@ impl Scatter3dPlot {
                                 marker,
                                 Some(&scene),
                                 show_legend,
+                                Some(group_val),
                             );
 
                             all_traces.push(trace);
@@ -603,6 +614,7 @@ impl Scatter3dPlot {
                             marker,
                             Some(&scene),
                             false,
+                            None,
                         );
 
                         all_traces.push(trace);
