@@ -418,6 +418,7 @@ impl TimeSeriesPlot {
         x_axis: Option<&str>,
         y_axis: Option<&str>,
         show_legend: bool,
+        legend_group: Option<&str>,
     ) -> Box<dyn Trace + 'static> {
         let x_data = Self::get_string_column(data, x_col);
         let y_data = Self::get_numeric_column(data, y_col);
@@ -448,6 +449,12 @@ impl TimeSeriesPlot {
         if let Some(axis) = y_axis {
             trace = trace.y_axis(axis);
         }
+
+        let trace = if let Some(group) = legend_group {
+            trace.legend_group(group)
+        } else {
+            trace
+        };
 
         if !show_legend {
             trace.show_legend(false)
@@ -562,6 +569,7 @@ impl TimeSeriesPlot {
                                 Some(&x_axis),
                                 Some(&y_axis),
                                 false,
+                                None,
                             );
 
                             all_traces.push(trace);
@@ -604,6 +612,7 @@ impl TimeSeriesPlot {
                         Some(&x_axis),
                         Some(&y_axis),
                         show_legend,
+                        Some(*y_col),
                     );
 
                     all_traces.push(trace);
@@ -649,6 +658,7 @@ impl TimeSeriesPlot {
                         Some(&x_axis),
                         Some(&y_axis),
                         show_legend,
+                        Some(*y_col),
                     );
 
                     all_traces.push(trace);
