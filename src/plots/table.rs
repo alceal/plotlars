@@ -33,40 +33,50 @@ use crate::{
 /// use polars::prelude::*;
 /// use plotlars::{Table, Header, Cell, Plot, Text, Rgb};
 ///
-/// let dataset = df![
-///     "name" => &["Alice", "Bob", "Charlie"],
-///     "age" => &[25, 30, 35],
-///     "city" => &["New York", "London", "Tokyo"]
-/// ]
-/// .unwrap();
+/// let dataset = LazyCsvReader::new(PlPath::new("data/employee_data.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
+///     .unwrap();
 ///
 /// let header = Header::new()
-///     .values(vec!["Full Name", "Years", "Location"])
-///     .height(40.0)
+///     .values(vec![
+///          "Employee Name",
+///          "Department",
+///          "Annual Salary ($)",
+///          "Years of Service",
+///     ])
 ///     .align("center")
-///     .font("Arial")
-///     .fill(Rgb(200, 200, 200));
+///     .font("Arial Bold")
+///     .fill(Rgb(70, 130, 180));
 ///
 /// let cell = Cell::new()
-///     .height(30.0)
-///     .align("left")
-///     .fill(Rgb(240, 240, 240));
+///     .align("center")
+///     .height(25.0)
+///     .font("Arial")
+///     .fill(Rgb(240, 248, 255));
 ///
 /// Table::builder()
 ///     .data(&dataset)
-///     .columns(vec!["name", "age", "city"])
+///     .columns(vec![
+///         "name",
+///         "department",
+///         "salary",
+///         "years",
+///     ])
 ///     .header(&header)
 ///     .cell(&cell)
 ///     .plot_title(
-///         Text::from("Data Table")
+///         Text::from("Table")
 ///             .font("Arial")
-///             .size(18)
+///             .size(20)
+///             .color(Rgb(25, 25, 112))
 ///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/50lrDKK.png)
+/// ![Example](https://imgur.com/QDKTeFX.png)
 #[derive(Clone, Serialize)]
 pub struct Table {
     traces: Vec<Box<dyn Trace + 'static>>,

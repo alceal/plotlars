@@ -40,24 +40,11 @@ use crate::{
 /// use plotlars::{Axis, CandlestickPlot, Direction, Plot, Rgb};
 /// use polars::prelude::*;
 ///
-/// let dates = vec![
-///     "2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05",
-///     "2024-01-08", "2024-01-09", "2024-01-10", "2024-01-11", "2024-01-12",
-/// ];
-///
-/// let open_prices = vec![100.0, 102.5, 101.0, 103.5, 105.0, 104.5, 106.0, 105.5, 107.0, 108.5];
-/// let high_prices = vec![103.0, 104.0, 103.5, 106.0, 107.5, 107.0, 108.5, 108.0, 109.5, 111.0];
-/// let low_prices = vec![99.0, 101.5, 100.0, 102.5, 104.0, 103.5, 105.0, 104.5, 106.0, 107.5];
-/// let close_prices = vec![102.5, 101.0, 103.5, 105.0, 104.5, 106.0, 105.5, 107.0, 108.5, 108.0];
-///
-/// let stock_data = df! {
-///     "date" => dates,
-///     "open" => open_prices,
-///     "high" => high_prices,
-///     "low" => low_prices,
-///     "close" => close_prices,
-/// }
-/// .unwrap();
+/// let stock_data = LazyCsvReader::new(PlPath::new("data/stock_prices.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
+///     .unwrap();
 ///
 /// let increasing = Direction::new()
 ///     .line_color(Rgb(0, 200, 100))
@@ -77,14 +64,18 @@ use crate::{
 ///     .increasing(&increasing)
 ///     .decreasing(&decreasing)
 ///     .whisker_width(0.1)
-///     .plot_title("Stock Price - Thin Whiskers")
+///     .plot_title("Candlestick Plot")
 ///     .y_title("Price ($)")
-///     .y_axis(&Axis::new().show_axis(true).show_grid(true))
+///     .y_axis(
+///         &Axis::new()
+///             .show_axis(true)
+///             .show_grid(true)
+///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/z5s2zm7.png)
+/// ![Example](https://imgur.com/fNDRLDX.png)
 #[derive(Clone, Serialize)]
 pub struct CandlestickPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
@@ -194,7 +185,6 @@ impl CandlestickPlot {
         let low_data = Self::get_numeric_column(data, low_col);
         let close_data = Self::get_numeric_column(data, close_col);
 
-        // Convert Option<f32> to f32 for Candlestick trace
         let open_values: Vec<f32> = open_data.into_iter().map(|v| v.unwrap_or(0.0)).collect();
         let high_values: Vec<f32> = high_data.into_iter().map(|v| v.unwrap_or(0.0)).collect();
         let low_values: Vec<f32> = low_data.into_iter().map(|v| v.unwrap_or(0.0)).collect();

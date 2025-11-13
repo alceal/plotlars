@@ -52,14 +52,13 @@ use crate::{
 /// # Example
 ///
 /// ```rust
-/// use polars::prelude::*;
 /// use plotlars::{Arrangement, SankeyDiagram, Orientation, Plot, Rgb, Text};
+/// use polars::prelude::*;
 ///
-/// let dataset = df![
-///         "source" => ["A1", "A2", "A1", "B1", "B2", "B2"],
-///         "target" => &["B1", "B2", "B2", "C1", "C1", "C2"],
-///         "value" => &[8, 4, 2, 8, 4, 2],
-///     ]
+/// let dataset = LazyCsvReader::new(PlPath::new("data/sankey_flow.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
 ///     .unwrap();
 ///
 /// SankeyDiagram::builder()

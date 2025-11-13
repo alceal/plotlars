@@ -62,8 +62,8 @@ use crate::{
 /// use std::iter;
 ///
 /// let n: usize = 100;
-/// let x_base: Vec<f64> = Array::linspace(-10.0, 10.0, n).into_raw_vec();
-/// let y_base: Vec<f64> = Array::linspace(-10.0, 10.0, n).into_raw_vec();
+/// let (x_base, _): (Vec<f64>, Option<usize>) = Array::linspace(-10.0, 10.0, n).into_raw_vec_and_offset();
+/// let (y_base, _): (Vec<f64>, Option<usize>) = Array::linspace(-10.0, 10.0, n).into_raw_vec_and_offset();
 ///
 /// let x = x_base
 ///     .iter()

@@ -42,6 +42,8 @@ use crate::{
 /// * `light_position` - An optional tuple `(x, y, z)` specifying the light source position.
 /// * `delaunay_axis` - An optional string specifying the axis for Delaunay triangulation ("x", "y", or "z").
 /// * `contour` - An optional boolean to enable contour lines on the mesh.
+/// * `facet` - An optional string slice specifying the column name to be used for faceting (creating multiple subplots).
+/// * `facet_config` - An optional reference to a `FacetConfig` struct for customizing facet behavior (grid dimensions, scales, gaps, etc.).
 /// * `plot_title` - An optional `Text` struct specifying the plot title.
 /// * `x_title` - An optional `Text` struct for the x-axis title.
 /// * `y_title` - An optional `Text` struct for the y-axis title.
@@ -95,7 +97,7 @@ use crate::{
 ///     .flat_shading(false)
 ///     .contour(true)
 ///     .plot_title(
-///         Text::from("Wavy Surface with Custom Lighting")
+///         Text::from("Mesh 3D Plot")
 ///             .font("Arial")
 ///             .size(22),
 ///     )
@@ -103,7 +105,7 @@ use crate::{
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/lKI23dJ.png)
+/// ![Example](https://imgur.com/bljzmw5.png)
 #[derive(Clone)]
 pub struct Mesh3D {
     traces: Vec<Box<dyn Trace + 'static>>,

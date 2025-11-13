@@ -44,10 +44,11 @@ use crate::{
 /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
 /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
 /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
+/// * `y2_title` - An optional `Text` struct specifying the title of the secondary y-axis.
 /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
 /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
 /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
-/// * `y_axis2` - An optional reference to an `Axis` struct for customizing the y-axis2.
+/// * `y2_axis` - An optional reference to an `Axis` struct for customizing the secondary y-axis.
 /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
 ///
 /// # Examples
@@ -77,9 +78,15 @@ use crate::{
 ///         Rgb(0, 0, 255),
 ///         Rgb(255, 0, 0),
 ///     ])
-///     .lines(vec![Line::Dash, Line::Solid])
+///     .lines(vec![
+///         Line::Dash,
+///         Line::Solid,
+///     ])
 ///     .with_shape(true)
-///     .shapes(vec![Shape::Circle, Shape::Square])
+///     .shapes(vec![
+///         Shape::Circle,
+///         Shape::Square,
+///     ])
 ///     .plot_title(
 ///         Text::from("Time Series Plot")
 ///             .font("Arial")
@@ -95,7 +102,7 @@ use crate::{
 ///         Text::from("y")
 ///             .color(Rgb(0, 0, 255))
 ///     )
-///     .y_title2(
+///     .y2_title(
 ///         Text::from("y2")
 ///             .color(Rgb(255, 0, 0))
 ///     )
@@ -105,7 +112,7 @@ use crate::{
 ///             .show_grid(false)
 ///             .zero_line_color(Rgb(0, 0, 0))
 ///     )
-///     .y_axis2(
+///     .y2_axis(
 ///         &Axis::new()
 ///             .axis_side(plotlars::AxisSide::Right)
 ///             .value_color(Rgb(255, 0, 0))
@@ -184,11 +191,11 @@ impl TimeSeriesPlot {
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
-        y_title2: Option<Text>,
+        y2_title: Option<Text>,
         legend_title: Option<Text>,
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
-        y_axis2: Option<&Axis>,
+        y2_axis: Option<&Axis>,
         legend: Option<&Legend>,
     ) -> Self {
         let z_title = None;
@@ -232,22 +239,22 @@ impl TimeSeriesPlot {
                 (layout, traces)
             }
             None => {
-                let mut has_y_axis2 = false;
+                let mut has_y2_axis = false;
 
-                if y_axis2.is_some() {
-                    has_y_axis2 = true;
+                if y2_axis.is_some() {
+                    has_y2_axis = true;
                 }
 
                 let layout = Self::create_layout(
                     plot_title,
                     x_title,
                     y_title,
-                    y_title2,
+                    y2_title,
                     z_title,
                     legend_title,
                     x_axis,
                     y_axis,
-                    y_axis2,
+                    y2_axis,
                     z_axis,
                     legend,
                 );
@@ -257,7 +264,7 @@ impl TimeSeriesPlot {
                     x,
                     y,
                     additional_series,
-                    has_y_axis2,
+                    has_y2_axis,
                     size,
                     color,
                     colors,
@@ -282,7 +289,7 @@ impl TimeSeriesPlot {
         x_col: &str,
         y_col: &str,
         additional_series: Option<Vec<&str>>,
-        has_y_axis2: bool,
+        has_y2_axis: bool,
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
@@ -350,7 +357,7 @@ impl TimeSeriesPlot {
 
                 let name = Some(series);
 
-                if has_y_axis2 {
+                if has_y2_axis {
                     y_axis_index = "y2";
                 }
 

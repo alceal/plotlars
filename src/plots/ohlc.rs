@@ -38,23 +38,11 @@ use crate::{
 /// use plotlars::{Axis, OhlcPlot, Plot};
 /// use polars::prelude::*;
 ///
-/// let dates = vec![
-///     "2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05",
-/// ];
-///
-/// let open_prices = vec![100.0, 102.5, 101.0, 103.5, 105.0];
-/// let high_prices = vec![103.0, 104.0, 103.5, 106.0, 107.5];
-/// let low_prices = vec![99.0, 101.5, 100.0, 102.5, 104.0];
-/// let close_prices = vec![102.5, 101.0, 103.5, 105.0, 104.5];
-///
-/// let stock_data = df! {
-///     "date" => dates,
-///     "open" => open_prices,
-///     "high" => high_prices,
-///     "low" => low_prices,
-///     "close" => close_prices,
-/// }
-/// .unwrap();
+/// let stock_data = LazyCsvReader::new(PlPath::new("data/stock_prices.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
+///     .unwrap();
 ///
 /// OhlcPlot::builder()
 ///     .data(&stock_data)
@@ -63,13 +51,16 @@ use crate::{
 ///     .high("high")
 ///     .low("low")
 ///     .close("close")
-///     .plot_title("Stock Price - Custom Axes")
+///     .plot_title("OHLC Plot")
 ///     .y_title("Price ($)")
-///     .y_axis(&Axis::new().show_axis(true))
+///     .y_axis(
+///         &Axis::new()
+///             .show_axis(true)
+///     )
 ///     .build()
 ///     .plot();
 /// ```
-/// ![Exmple](https://imgur.com/jZM3bGq.png)
+/// ![Exmple](https://imgur.com/Sv8r9VN.png)
 #[derive(Clone, Serialize)]
 pub struct OhlcPlot {
     traces: Vec<Box<dyn Trace + 'static>>,

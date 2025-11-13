@@ -30,6 +30,8 @@ use crate::{
 /// * `r` - A string slice specifying the column name to be used for the radial coordinates.
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
 /// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
+/// * `facet` - An optional string slice specifying the column name to be used for faceting (creating multiple subplots).
+/// * `facet_config` - An optional reference to a `FacetConfig` struct for customizing facet behavior (grid dimensions, scales, gaps, etc.).
 /// * `mode` - An optional `Mode` specifying the drawing mode (lines, markers, or both). Defaults to markers.
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot elements (range: 0.0 to 1.0).
 /// * `fill` - An optional `Fill` type specifying how to fill the area under the trace.
@@ -48,31 +50,14 @@ use crate::{
 /// # Example
 ///
 /// ```rust
-/// use polars::prelude::*;
 /// use plotlars::{Legend, Line, Mode, Plot, Rgb, ScatterPolar, Shape, Text};
+/// use polars::prelude::*;
 ///
-/// // Create sample data - comparing two products across multiple metrics
-/// let angles = vec![
-///     0., 60., 120., 180., 240., 300., 360., // Product A
-///     0., 60., 120., 180., 240., 300., 360., // Product B
-/// ];
-/// let values = vec![
-///     7.0, 8.5, 6.0, 5.5, 9.0, 8.0, 7.0, // Product A values
-///     6.0, 7.0, 8.0, 9.0, 6.5, 7.5, 6.0, // Product B values
-/// ];
-/// let products = vec![
-///     "Product A", "Product A", "Product A", "Product A",
-///     "Product A", "Product A", "Product A",
-///     "Product B", "Product B", "Product B", "Product B",
-///     "Product B", "Product B", "Product B",
-/// ];
-///
-/// let dataset = DataFrame::new(vec![
-///     Column::new("angle".into(), angles),
-///     Column::new("score".into(), values),
-///     Column::new("product".into(), products),
-/// ])
-/// .unwrap();
+/// let dataset = LazyCsvReader::new(PlPath::new("data/product_comparison_polar.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
+///     .unwrap();
 ///
 /// ScatterPolar::builder()
 ///     .data(&dataset)
@@ -84,18 +69,36 @@ use crate::{
 ///         Rgb(255, 99, 71),
 ///         Rgb(60, 179, 113),
 ///     ])
-///     .shapes(vec![Shape::Circle, Shape::Square])
-///     .lines(vec![Line::Solid, Line::Dash])
+///     .shapes(vec![
+///         Shape::Circle,
+///         Shape::Square,
+///     ])
+///     .lines(vec![
+///         Line::Solid,
+///         Line::Dash,
+///     ])
 ///     .width(2.5)
 ///     .size(8)
-///     .plot_title(Text::from("Product Comparison").font("Arial").size(24))
-///     .legend_title(Text::from("Products").font("Arial").size(14))
-///     .legend(&Legend::new().x(0.65).y(0.75))
+///     .plot_title(
+///         Text::from("Scatter Polar Plot")
+///             .font("Arial")
+///             .size(24)
+///     )
+///     .legend_title(
+///         Text::from("Products")
+///             .font("Arial")
+///             .size(14)
+///     )
+///     .legend(
+///         &Legend::new()
+///             .x(0.85)
+///             .y(0.95)
+///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/fJiNlqn.png)
+/// ![Example](https://imgur.com/kl1pY9c.png)
 #[derive(Clone)]
 pub struct ScatterPolar {
     traces: Vec<Box<dyn Trace + 'static>>,
@@ -882,8 +885,6 @@ impl ScatterPolar {
         let cell_width = (1.0 - x_gap_val * (ncols - 1) as f64) / ncols as f64;
         let cell_height = (1.0 - y_gap_val * (nrows - 1) as f64) / nrows as f64;
 
-        // Reserve space for facet title (12% of each cell's height for polar plots)
-        // Polar plots need more room because of their circular shape
         let title_height = cell_height * POLAR_FACET_TITLE_HEIGHT_RATIO;
         let polar_padding = cell_height * POLAR_FACET_TOP_INSET_RATIO;
 
@@ -894,14 +895,17 @@ impl ScatterPolar {
         let domain_y_top = cell_y_top - title_height - polar_padding;
         let domain_y_bottom = cell_y_bottom;
 
+        let domain_x = [cell_x_start, cell_x_start + cell_width];
+        let domain_y = [domain_y_bottom, domain_y_top];
+
         let annotation_x = cell_x_start + cell_width / 2.0;
-        let annotation_y = cell_y_top - polar_padding * 0.5;
+        let annotation_y = cell_y_top - title_height / 2.0;
 
         PolarFacetCell {
             annotation_x,
             annotation_y,
-            domain_x: [cell_x_start, cell_x_start + cell_width],
-            domain_y: [domain_y_bottom, domain_y_top],
+            domain_x,
+            domain_y,
         }
     }
 
@@ -974,15 +978,21 @@ impl ScatterPolar {
 
             let cell = Self::calculate_polar_facet_cell(i, ncols, nrows, Some(x_gap), Some(y_gap));
 
-            // Create polar domain configuration
+            let compression_factor = 0.9;
+            let domain_height = cell.domain_y[1] - cell.domain_y[0];
+            let height_reduction = domain_height * (1.0 - compression_factor);
+            let compressed_domain_y = [
+                cell.domain_y[0] + height_reduction / 2.0,
+                cell.domain_y[1] - height_reduction / 2.0,
+            ];
+
             let polar_config = serde_json::json!({
                 "domain": {
                     "x": cell.domain_x,
-                    "y": cell.domain_y
+                    "y": compressed_domain_y
                 }
             });
 
-            // Inject into layout
             layout_json[polar_key] = polar_config;
         }
     }

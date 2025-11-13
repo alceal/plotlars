@@ -28,6 +28,8 @@ use crate::{
 /// * `y` - A string slice specifying the column name to be used for the y-axis (dependent variable).
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
 /// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering. Groups are sorted lexically by default.
+/// * `facet` - An optional string slice specifying the column name to be used for faceting (creating multiple subplots).
+/// * `facet_config` - An optional reference to a `FacetConfig` struct for customizing facet behavior (grid dimensions, scales, gaps, etc.).
 /// * `opacity` - An optional `f64` value specifying the opacity of the plot markers (range: 0.0 to 1.0).
 /// * `size` - An optional `usize` specifying the size of the markers.
 /// * `color` - An optional `Rgb` value specifying the color of the markers. This is used when `group` is not specified.
@@ -45,8 +47,8 @@ use crate::{
 /// # Example
 ///
 /// ```rust
-/// use polars::prelude::*;
 /// use plotlars::{Axis, Legend, Plot, Rgb, ScatterPlot, Shape, Text, TickDirection};
+/// use polars::prelude::*;
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
@@ -70,6 +72,13 @@ use crate::{
 ///     .x("body_mass_g")
 ///     .y("flipper_length_mm")
 ///     .group("species")
+///     .sort_groups_by(|a, b| {
+///         if a.len() == b.len() {
+///             a.cmp(b)
+///         } else {
+///             a.len().cmp(&b.len())
+///         }
+///     })
 ///     .opacity(0.5)
 ///     .size(12)
 ///     .colors(vec![

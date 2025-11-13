@@ -41,15 +41,13 @@ use crate::{
 /// ## Basic Pie Chart with Customization
 ///
 /// ```rust
-/// use polars::prelude::*;
 /// use plotlars::{PieChart, Plot, Text};
+/// use polars::prelude::*;
 ///
 /// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
-///     .select([
-///         col("species"),
-///     ])
+///     .select([col("species")])
 ///     .collect()
 ///     .unwrap();
 ///
@@ -63,12 +61,13 @@ use crate::{
 ///         Text::from("Pie Chart")
 ///             .font("Arial")
 ///             .size(18)
+///             .x(0.485)
 ///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/jE70hYS.png)
+/// ![Example](https://imgur.com/q44HDwT.png)
 #[derive(Clone, Serialize)]
 pub struct PieChart {
     traces: Vec<Box<dyn Trace + 'static>>,
@@ -176,9 +175,7 @@ impl PieChart {
 
         // Create default domain that reserves 10% space at top for title
         // This matches the default title y-position of 0.9, creating visual separation
-        let default_domain = Domain::new()
-            .x(&[0.0, 1.0]) // Full width
-            .y(&[0.0, 0.9]); // 90% height, reserves 10% at top
+        let default_domain = Domain::new().x(&[0.0, 1.0]).y(&[0.0, 0.9]);
 
         let trace = Self::create_trace(
             data,

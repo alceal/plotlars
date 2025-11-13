@@ -47,14 +47,11 @@ use crate::{
 /// use plotlars::{Plot, Rgb, ScatterGeo, Shape, Text, Mode};
 /// use polars::prelude::*;
 ///
-/// // Create sample data with cities and their coordinates
-/// let data = df![
-///     "city" => ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"],
-///     "lat" => [40.7128, 34.0522, 41.8781, 29.7604, 33.4484],
-///     "lon" => [-74.0060, -118.2437, -87.6298, -95.3698, -112.0740],
-///     "population" => [8336817, 3979576, 2693976, 2320268, 1680992],
-///     "region" => ["East", "West", "Central", "South", "West"]
-/// ].unwrap();
+/// let data = LazyCsvReader::new(PlPath::new("data/us_cities_regions.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
+///     .unwrap();
 ///
 /// ScatterGeo::builder()
 ///     .data(&data)
@@ -71,16 +68,20 @@ use crate::{
 ///         Rgb(255, 165, 0),
 ///     ])
 ///     .plot_title(
-///         Text::from("US Cities by Region")
+///         Text::from("Scatter Geo Plot")
 ///             .font("Arial")
-///             .size(20)
+///             .size(24)
+///             .x(0.5)
 ///     )
-///     .legend_title("Region")
+///     .legend_title(
+///         Text::from("Region")
+///             .size(14)
+///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/tYHM5FH.png)
+/// ![Example](https://imgur.com/8PCEbhN.png)
 #[derive(Clone, Serialize)]
 pub struct ScatterGeo {
     traces: Vec<Box<dyn Trace + 'static>>,

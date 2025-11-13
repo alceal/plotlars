@@ -31,6 +31,8 @@ use crate::{
 /// * `group` - An optional string slice specifying the column name to be used for grouping data points.
 /// * `sort_groups_by` - Optional comparator `fn(&str, &str) -> std::cmp::Ordering` to control group ordering.
 ///   Groups are sorted lexically by default.
+/// * `facet` - An optional string slice specifying the column name to be used for faceting (creating multiple subplots).
+/// * `facet_config` - An optional reference to a `FacetConfig` struct for customizing facet behavior (grid dimensions, scales, gaps, etc.).
 /// * `error` - An optional string slice specifying the column name containing error values for the y-axis data.
 /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot. This is used when `group` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot. This is used when `group` is specified to differentiate between groups.
@@ -45,15 +47,13 @@ use crate::{
 /// # Example
 ///
 /// ```rust
-/// use polars::prelude::*;
 /// use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
+/// use polars::prelude::*;
 ///
-/// let dataset = df![
-///         "animal" => &["giraffe", "giraffe", "orangutan", "orangutan", "monkey", "monkey"],
-///         "gender" => &vec!["female", "male", "female", "male", "female", "male"],
-///         "value" => &vec![20.0f32, 25.0, 14.0, 18.0, 23.0, 31.0],
-///         "error" => &vec![1.0, 0.5, 1.5, 1.0, 0.5, 1.5],
-///     ]
+/// let dataset = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
 ///     .unwrap();
 ///
 /// BarPlot::builder()

@@ -47,30 +47,31 @@ use crate::{
 /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
 /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
 /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
+/// * `y2_title` - An optional `Text` struct specifying the title of the secondary y-axis.
 /// * `legend_title` - An optional `Text` struct specifying the title of the legend.
 /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
 /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+/// * `y2_axis` - An optional reference to an `Axis` struct for customizing the secondary y-axis.
 /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
 ///
 /// # Example
 ///
 /// ```rust
 /// use ndarray::Array;
-///
-/// use polars::prelude::*;
 /// use plotlars::{Axis, Line, LinePlot, Plot, Rgb, Text, TickDirection};
+/// use polars::prelude::*;
 ///
-/// let x_values: Array<f64, _> = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 1000);
-/// let sine_values = x_values.mapv(f64::sin).to_vec();
-/// let cosine_values = x_values.mapv(f64::cos).to_vec();
-/// let x_values = x_values.to_vec();
 ///
-/// let dataset = DataFrame::new(vec![
-///     Column::new("x".into(), x_values),
-///     Column::new("sine".into(), sine_values),
-///     Column::new("cosine".into(), cosine_values),
-/// ])
-/// .unwrap();
+/// let x_values = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 1000).to_vec();
+/// let sine_values = x_values.iter().map(|arg0: &f64| f64::sin(*arg0)).collect::<Vec<_>>();
+/// let cosine_values = x_values.iter().map(|arg0: &f64| f64::cos(*arg0)).collect::<Vec<_>>();
+///
+/// let dataset = df![
+///         "x" => &x_values,
+///         "sine" => &sine_values,
+///         "cosine" => &cosine_values,
+///     ]
+///     .unwrap();
 ///
 /// LinePlot::builder()
 ///     .data(&dataset)
@@ -81,7 +82,10 @@ use crate::{
 ///         Rgb(255, 0, 0),
 ///         Rgb(0, 255, 0),
 ///     ])
-///     .lines(vec![Line::Solid, Line::Dot])
+///     .lines(vec![
+///         Line::Solid,
+///         Line::Dot,
+///     ])
 ///     .width(3.0)
 ///     .with_shape(false)
 ///     .plot_title(

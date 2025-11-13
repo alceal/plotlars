@@ -30,6 +30,8 @@ use crate::{
 /// * `y` - A string slice specifying the column name for y‑axis values.
 /// * `z` - A string slice specifying the column name for z‑axis values whose magnitude
 ///   determines each contour line.
+/// * `facet` - An optional string slice specifying the column name to be used for faceting (creating multiple subplots).
+/// * `facet_config` - An optional reference to a `FacetConfig` struct for customizing facet behavior (grid dimensions, scales, gaps, etc.).
 /// * `color_bar` - An optional reference to a `ColorBar` struct for customizing the color bar
 ///   appearance.
 /// * `color_scale` - An optional `Palette` enum for specifying the color palette (e.g.,
@@ -47,14 +49,13 @@ use crate::{
 /// # Example
 ///
 /// ```rust
+/// use plotlars::{Coloring, ContourPlot, Palette, Plot, Text};
 /// use polars::prelude::*;
-/// use plotlars::{Plot, Coloring, ContourPlot, Palette, Text};
 ///
-/// let dataset = df!(
-///         "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],
-///         "y" => &[0.0, 7.5, 15.0, 0.0, 7.5, 15.0, 0.0, 7.5, 15.0],
-///         "z" => &[0.0, 5.0, 10.0, 5.0, 2.5, 5.0, 10.0, 0.0, 0.0],
-///     )
+/// let dataset = LazyCsvReader::new(PlPath::new("data/contour_surface.csv"))
+///     .finish()
+///     .unwrap()
+///     .collect()
 ///     .unwrap();
 ///
 /// ContourPlot::builder()
