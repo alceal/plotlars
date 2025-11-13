@@ -1,9 +1,7 @@
+use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 use polars::prelude::*;
 
-use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
-
 fn main() {
-    // Example 1: Revenue and Cost with advanced styling
     let revenue_dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
         .finish()
         .unwrap()
@@ -29,14 +27,14 @@ fn main() {
         .legend(&Legend::new().x(0.05).y(0.9))
         .x_title("x")
         .y_title(Text::from("y").color(Rgb(0, 0, 255)))
-        .y_title2(Text::from("y2").color(Rgb(255, 0, 0)))
+        .y2_title(Text::from("y2").color(Rgb(255, 0, 0)))
         .y_axis(
             &Axis::new()
                 .value_color(Rgb(0, 0, 255))
                 .show_grid(false)
                 .zero_line_color(Rgb(0, 0, 0)),
         )
-        .y_axis2(
+        .y2_axis(
             &Axis::new()
                 .axis_side(plotlars::AxisSide::Right)
                 .value_color(Rgb(255, 0, 0))
@@ -45,7 +43,6 @@ fn main() {
         .build()
         .plot();
 
-    // Example 2: Temperature data with date parsing
     let temperature_dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
         .with_has_header(true)
         .with_try_parse_dates(true)

@@ -1,6 +1,5 @@
-use polars::prelude::*;
-
 use plotlars::{Axis, Legend, Plot, Rgb, ScatterPlot, Shape, Text, TickDirection};
+use polars::prelude::*;
 
 fn main() {
     let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
@@ -31,7 +30,7 @@ fn main() {
             } else {
                 a.len().cmp(&b.len())
             }
-        }) //sort by length unless equal length then lexical
+        })
         .opacity(0.5)
         .size(12)
         .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])

@@ -1,14 +1,12 @@
+use plotlars::{Coloring, ContourPlot, Palette, Plot, Text};
 use polars::prelude::*;
 
-use plotlars::{Coloring, ContourPlot, Palette, Plot, Text};
-
 fn main() {
-    let dataset = df!(
-        "x" => &[0.0, 0.0, 0.0, 2.5, 2.5, 2.5, 5.0, 5.0, 5.0],
-        "y" => &[0.0, 7.5, 15.0, 0.0, 7.5, 15.0, 0.0, 7.5, 15.0],
-        "z" => &[0.0, 5.0, 10.0, 5.0, 2.5, 5.0, 10.0, 0.0, 0.0],
-    )
-    .unwrap();
+    let dataset = LazyCsvReader::new(PlPath::new("data/contour_surface.csv"))
+        .finish()
+        .unwrap()
+        .collect()
+        .unwrap();
 
     ContourPlot::builder()
         .data(&dataset)

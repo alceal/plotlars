@@ -1,15 +1,12 @@
+use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
 use polars::prelude::*;
 
-use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
-
 fn main() {
-    let dataset = df![
-        "animal" => &["giraffe", "giraffe", "orangutan", "orangutan", "monkey", "monkey"],
-        "gender" => &vec!["female", "male", "female", "male", "female", "male"],
-        "value" => &vec![20.0f32, 25.0, 14.0, 18.0, 23.0, 31.0],
-        "error" => &vec![1.0, 0.5, 1.5, 1.0, 0.5, 1.5],
-    ]
-    .unwrap();
+    let dataset = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+        .finish()
+        .unwrap()
+        .collect()
+        .unwrap();
 
     BarPlot::builder()
         .data(&dataset)

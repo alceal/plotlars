@@ -2,13 +2,13 @@ use plotlars::{Mode, Plot, Rgb, ScatterGeo, Shape, Text};
 use polars::prelude::*;
 
 fn main() {
-    // Example 1: Basic ScatterGeo with markers only
-    let cities = df![
-        "city" => ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"],
-        "lat" => [40.7128, 34.0522, 41.8781, 29.7604, 33.4484],
-        "lon" => [-74.0060, -118.2437, -87.6298, -95.3698, -112.0740],
-    ]
-    .unwrap();
+    let cities = LazyCsvReader::new(PlPath::new("data/us_cities_regions.csv"))
+        .finish()
+        .unwrap()
+        .select([col("city"), col("lat"), col("lon")])
+        .limit(5)
+        .collect()
+        .unwrap();
 
     ScatterGeo::builder()
         .data(&cities)
@@ -19,15 +19,11 @@ fn main() {
         .build()
         .plot();
 
-    // Example 2: ScatterGeo with grouping by region
-    let cities_with_regions = df![
-        "city" => ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"],
-        "lat" => [40.7128, 34.0522, 41.8781, 29.7604, 33.4484, 39.9526, 29.4241, 32.7157, 32.7767, 37.3382],
-        "lon" => [-74.0060, -118.2437, -87.6298, -95.3698, -112.0740, -75.1652, -98.4936, -117.1611, -96.7970, -121.8863],
-        "population" => [8336817, 3979576, 2693976, 2320268, 1680992, 1584064, 1547253, 1423851, 1343573, 1021795],
-        "region" => ["Northeast", "West", "Midwest", "South", "West", "Northeast", "South", "West", "South", "West"]
-    ]
-    .unwrap();
+    let cities_with_regions = LazyCsvReader::new(PlPath::new("data/us_cities_regions.csv"))
+        .finish()
+        .unwrap()
+        .collect()
+        .unwrap();
 
     ScatterGeo::builder()
         .data(&cities_with_regions)
@@ -60,12 +56,11 @@ fn main() {
         .plot();
 
     // Example 3: ScatterGeo with lines connecting cities (flight paths)
-    let flight_path = df![
-        "city" => ["New York", "Chicago", "Denver", "Los Angeles"],
-        "lat" => [40.7128, 41.8781, 39.7392, 34.0522],
-        "lon" => [-74.0060, -87.6298, -104.9903, -118.2437],
-    ]
-    .unwrap();
+    let flight_path = LazyCsvReader::new(PlPath::new("data/flight_path.csv"))
+        .finish()
+        .unwrap()
+        .collect()
+        .unwrap();
 
     ScatterGeo::builder()
         .data(&flight_path)
@@ -83,14 +78,11 @@ fn main() {
         .plot();
 
     // Example 4: World cities with custom styling
-    let world_cities = df![
-        "city" => ["London", "Paris", "Tokyo", "Sydney", "Cairo", "Mumbai", "Beijing", "Rio de Janeiro", "Toronto"],
-        "lat" => [51.5074, 48.8566, 35.6762, -33.8688, 30.0444, 19.0760, 39.9042, -22.9068, 43.6532],
-        "lon" => [-0.1278, 2.3522, 139.6503, 151.2093, 31.2357, 72.8777, 116.4074, -43.1729, -79.3832],
-        "continent" => ["Europe", "Europe", "Asia", "Oceania", "Africa", "Asia", "Asia", "South America", "North America"],
-        "population_millions" => [9.0, 2.2, 13.9, 5.3, 9.5, 12.4, 21.5, 6.7, 2.9]
-    ]
-    .unwrap();
+    let world_cities = LazyCsvReader::new(PlPath::new("data/world_cities.csv"))
+        .finish()
+        .unwrap()
+        .collect()
+        .unwrap();
 
     ScatterGeo::builder()
         .data(&world_cities)

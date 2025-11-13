@@ -105,11 +105,7 @@ fn example_with_intensity() {
         .color_scale(Palette::Viridis)
         .reverse_scale(false)
         .show_scale(true)
-        .color_bar(
-            &ColorBar::new()
-                .x(0.85) // Move color bar very close to the plot
-                .title("Intensity"),
-        )
+        .color_bar(&ColorBar::new().x(0.85).title("Intensity"))
         .opacity(0.95)
         .plot_title(
             Text::from("Mesh3D with Intensity Coloring")
@@ -164,11 +160,7 @@ fn example_with_lighting() {
         .opacity(1.0)
         .flat_shading(false)
         .contour(true)
-        .plot_title(
-            Text::from("Wavy Surface with Custom Lighting")
-                .font("Arial")
-                .size(22),
-        )
+        .plot_title(Text::from("Mesh 3D").font("Arial").size(22))
         .build()
         .plot();
 }

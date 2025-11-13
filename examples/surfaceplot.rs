@@ -1,20 +1,14 @@
+use ndarray::Array;
+use plotlars::{ColorBar, Palette, Plot, SurfacePlot, Text};
+use polars::prelude::*;
 use std::iter;
 
-use ndarray::Array;
-use polars::prelude::*;
-
-use plotlars::{ColorBar, Lighting, Palette, Plot, SurfacePlot, Text};
-
 fn main() {
-    basic_surface_plot();
-}
-
-fn basic_surface_plot() {
     let n: usize = 100;
     let (x_base, _): (Vec<f64>, Option<usize>) =
-        Array::linspace(-10., 10., n).into_raw_vec_and_offset();
+        Array::linspace(-10.0, 10.0, n).into_raw_vec_and_offset();
     let (y_base, _): (Vec<f64>, Option<usize>) =
-        Array::linspace(-10., 10., n).into_raw_vec_and_offset();
+        Array::linspace(-10.0, 10.0, n).into_raw_vec_and_offset();
 
     let x = x_base
         .iter()
@@ -54,15 +48,6 @@ fn basic_surface_plot() {
         .color_bar(&ColorBar::new().border_width(1))
         .color_scale(Palette::Cividis)
         .reverse_scale(true)
-        .lighting(
-            &Lighting::new()
-                .position(1, 0, 0)
-                .ambient(1.0)
-                .diffuse(1.0)
-                .fresnel(1.0)
-                .roughness(1.0)
-                .specular(1.0),
-        )
         .opacity(0.5)
         .build()
         .plot();

@@ -1,6 +1,5 @@
+use plotlars::{Legend, Plot, Rgb, Scatter3dPlot, Shape};
 use polars::prelude::*;
-
-use plotlars::{Plot, Rgb, Scatter3dPlot, Shape};
 
 fn main() {
     let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
@@ -27,6 +26,7 @@ fn main() {
         .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
         .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
         .plot_title("Scatter 3D Plot")
+        .legend(&Legend::new().x(0.6))
         .build()
         .plot();
 }

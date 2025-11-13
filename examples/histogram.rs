@@ -1,6 +1,5 @@
-use polars::prelude::*;
-
 use plotlars::{Axis, Histogram, Legend, Plot, Rgb, Text, TickDirection};
+use polars::prelude::*;
 
 fn main() {
     let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))

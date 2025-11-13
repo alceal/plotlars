@@ -1,15 +1,12 @@
+use plotlars::{Cell, Header, Plot, Rgb, Table, Text};
 use polars::prelude::*;
 
-use plotlars::{Cell, Header, Plot, Rgb, Table, Text};
-
 fn main() {
-    let dataset = df![
-        "name" => &["Alice Johnson", "Bob Smith", "Charlie Davis", "Diana Martinez", "Eva Wilson"],
-        "department" => &["Engineering", "Marketing", "Engineering", "Sales", "Marketing"],
-        "salary" => &[95000, 78000, 102000, 85000, 82000],
-        "years" => &[5, 3, 7, 4, 2]
-    ]
-    .unwrap();
+    let dataset = LazyCsvReader::new(PlPath::new("data/employee_data.csv"))
+        .finish()
+        .unwrap()
+        .collect()
+        .unwrap();
 
     let header = Header::new()
         .values(vec![

@@ -1,15 +1,22 @@
 use ndarray::Array;
-use polars::prelude::*;
-
 use plotlars::{Axis, Line, LinePlot, Plot, Rgb, Text, TickDirection};
+use polars::prelude::*;
 
 fn main() {
     let x_values = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 1000).to_vec();
+    let sine_values = x_values
+        .iter()
+        .map(|arg0: &f64| f64::sin(*arg0))
+        .collect::<Vec<_>>();
+    let cosine_values = x_values
+        .iter()
+        .map(|arg0: &f64| f64::cos(*arg0))
+        .collect::<Vec<_>>();
 
     let dataset = df![
         "x" => &x_values,
-        "sine" => &x_values.iter().map(|arg0: &f64| f64::sin(*arg0)).collect::<Vec<_>>(),
-        "cosine" => &x_values.iter().map(|arg0: &f64| f64::cos(*arg0)).collect::<Vec<_>>(),
+        "sine" => &sine_values,
+        "cosine" => &cosine_values,
     ]
     .unwrap();
 

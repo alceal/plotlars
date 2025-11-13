@@ -1,6 +1,5 @@
-use polars::prelude::*;
-
 use plotlars::{Plot, ScatterMap, Text};
+use polars::prelude::*;
 
 fn main() {
     let dataset = LazyCsvReader::new(PlPath::new("data/cities.csv"))

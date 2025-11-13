@@ -432,23 +432,23 @@ fn sankeydiagram_example() {
         .title_style(Text::from("").size(11).color(Rgb(50, 50, 50)));
 
     let node_colors = vec![
-        Rgb(64, 64, 64),    // Coal - Dark Gray
-        Rgb(100, 149, 237), // Natural Gas - Cornflower Blue
-        Rgb(139, 69, 19),   // Oil - Saddle Brown
-        Rgb(255, 195, 0),   // Solar - Yellow
-        Rgb(135, 206, 250), // Wind - Sky Blue
-        Rgb(65, 105, 225),  // Hydro - Royal Blue
-        Rgb(220, 20, 60),   // Fossil Energy - Crimson
-        Rgb(34, 139, 34),   // Renewable Energy - Forest Green
+        Rgb(64, 64, 64),
+        Rgb(100, 149, 237),
+        Rgb(139, 69, 19),
+        Rgb(255, 195, 0),
+        Rgb(135, 206, 250),
+        Rgb(65, 105, 225),
+        Rgb(220, 20, 60),
+        Rgb(34, 139, 34),
     ];
 
     let link_colors = vec![
-        Rgb(220, 220, 220), // Coal links - Light Gray
-        Rgb(200, 220, 245), // Gas links - Light Blue
-        Rgb(220, 200, 180), // Oil links - Light Brown
-        Rgb(255, 240, 200), // Solar links - Light Yellow
-        Rgb(220, 240, 255), // Wind links - Very Light Blue
-        Rgb(200, 220, 240), // Hydro links - Light Royal Blue
+        Rgb(220, 220, 220),
+        Rgb(200, 220, 245),
+        Rgb(220, 200, 180),
+        Rgb(255, 240, 200),
+        Rgb(220, 240, 255),
+        Rgb(200, 220, 240),
     ];
 
     SankeyDiagram::builder()
