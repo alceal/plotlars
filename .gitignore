@@ -78,4 +78,4 @@ target/
 notebook
 
 **/main*.rs
-FEATURE_IMPLEMENTATION_GUIDE.md
+project_docs/
