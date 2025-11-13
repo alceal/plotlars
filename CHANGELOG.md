@@ -6,20 +6,54 @@ All notable changes to this project will be documented in this file.
 
 ### 🚀 Features
 
-- Add faceting support to BarPlot
-- Add faceting support to BoxPlot
-- Add faceting support to ContourPlot
-- Add faceting support to HeatMap
-- Add faceting support to Histogram
-- Add faceting support to LinePlot
-- Add faceting support to Mesh3D
-- Add faceting support to PieChart
-- Add faceting support to SankeyDiagram
-- Add faceting support to Scatter3dPlot
-- Add faceting support to ScatterPlot
-- Add faceting support to ScatterPolar
-- Add faceting support to SurfacePlot
-- Add faceting support to TimeSeriesPlot
+#### SubplotGrid
+- Add SubplotGrid for creating multi-plot grid layouts
+- Support for regular grid layouts with automatic positioning
+- Individual subplot titles and axis labels preserved
+- Configurable horizontal and vertical spacing
+- Automatic legend generation from plot traces
+- Sparse grid support (fewer plots than grid capacity)
+
+#### Faceting
+- Add comprehensive faceting support to 14 plot types:
+  - BarPlot, BoxPlot, ContourPlot, HeatMap, Histogram
+  - LinePlot, Mesh3D, PieChart, SankeyDiagram
+  - Scatter3dPlot, ScatterPlot, ScatterPolar, SurfacePlot, TimeSeriesPlot
+- Add FacetConfig for customizing facet behavior (grid dimensions, scales, gaps, etc.)
+- Support for facet highlighting mode
+- Custom facet title styling
+- Multiple scale options (Fixed, Free, FreeX, FreeY)
+
+#### Legend Improvements
+- Add legend synchronization for faceted plots
+- Legend sync support for TimeSeriesPlot, ScatterPolar, and Scatter3dPlot
+- Legend background color now defaults to white explicitly
+
+#### Layout Enhancements
+- Add support for custom positioned axis titles using plotly annotations
+- Axis titles with custom x/y positions are rendered as annotations for flexible positioning
+
+### 🔄 Breaking Changes
+
+- **FacetConfig parameter naming** (standardization with SubplotGrid):
+  - `.ncol()` → `.cols()`
+  - `.nrow()` → `.rows()`
+  - `.x_gap()` → `.h_gap()`
+  - `.y_gap()` → `.v_gap()`
+  - Parameter order now: `rows`, `cols`, `h_gap`, `v_gap`
+
+### 📚 Documentation
+
+- Update all plot documentation examples to use CSV data files
+- Update README with refreshed plot images
+- Add comprehensive SubplotGrid example with BarPlot, ScatterPlot, and TimeSeriesPlot
+- Update faceting examples to reflect new parameter names
+
+### 🔧 Refactoring
+
+- Refactor examples to use CSV data files instead of inline DataFrames
+- Add 10 CSV example data files for plots
+- Update .gitignore to ignore project_docs/ directory
 
 ## [0.10.0] - 2025-08-07
 
