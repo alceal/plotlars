@@ -20,12 +20,16 @@ pub(crate) trait Layout {
         legend: Option<&Legend>,
     ) -> LayoutPlotly {
         let mut layout = LayoutPlotly::new();
+        let mut annotations = Vec::new();
 
         if let Some(title) = plot_title {
             layout = layout.title(title.to_plotly());
         }
 
-        match (x_axis, x_title) {
+        let (x_title_for_axis, x_annotation) =
+            Self::split_title_or_annotation(x_title, true, "x", false);
+
+        match (x_axis, x_title_for_axis) {
             (Some(axis), title) => {
                 layout = layout.x_axis(Axis::set_axis(title, axis, None));
             }
@@ -36,7 +40,14 @@ pub(crate) trait Layout {
             _ => {}
         }
 
-        match (y_axis, y_title) {
+        if let Some(ann) = x_annotation {
+            annotations.push(ann);
+        }
+
+        let (y_title_for_axis, y_annotation) =
+            Self::split_title_or_annotation(y_title, false, "y", false);
+
+        match (y_axis, y_title_for_axis) {
             (Some(axis), title) => {
                 layout = layout.y_axis(Axis::set_axis(title, axis, None));
             }
@@ -45,6 +56,10 @@ pub(crate) trait Layout {
                 layout = layout.y_axis(Axis::set_axis(Some(title), &default_axis, None));
             }
             _ => {}
+        }
+
+        if let Some(ann) = y_annotation {
+            annotations.push(ann);
         }
 
         // Handle y2-axis
@@ -65,6 +80,11 @@ pub(crate) trait Layout {
         }
 
         layout = layout.legend(Legend::set_legend(legend_title, legend));
+
+        if !annotations.is_empty() {
+            layout = layout.annotations(annotations);
+        }
+
         layout
     }
 
@@ -152,5 +172,23 @@ pub(crate) trait Layout {
     fn is_left_column(subplot_index: usize, ncols: usize) -> bool {
         let col = subplot_index % ncols;
         col == 0
+    }
+
+    fn split_title_or_annotation(
+        title: Option<Text>,
+        is_x_axis: bool,
+        axis_ref: &str,
+        use_domain: bool,
+    ) -> (Option<Text>, Option<Annotation>) {
+        if let Some(text) = title {
+            if text.has_custom_position() {
+                let annotation = text.to_axis_annotation(is_x_axis, axis_ref, use_domain);
+                (None, Some(annotation))
+            } else {
+                (Some(text), None)
+            }
+        } else {
+            (None, None)
+        }
     }
 }

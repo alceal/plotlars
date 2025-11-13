@@ -47,7 +47,7 @@ use crate::{Orientation, Rgb, Text};
 /// ```
 ///
 /// ![example](https://imgur.com/GpUsgli.png)
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct Legend {
     pub(crate) background_color: Option<Rgb>,
     pub(crate) border_color: Option<Rgb>,
@@ -56,6 +56,20 @@ pub struct Legend {
     pub(crate) orientation: Option<Orientation>,
     pub(crate) x: Option<f64>,
     pub(crate) y: Option<f64>,
+}
+
+impl Default for Legend {
+    fn default() -> Self {
+        Self {
+            background_color: Some(Rgb(255, 255, 255)),
+            border_color: None,
+            border_width: None,
+            font: None,
+            orientation: None,
+            x: None,
+            y: None,
+        }
+    }
 }
 
 impl Legend {
