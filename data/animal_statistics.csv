@@ -1,0 +1,7 @@
+animal,gender,value,error
+giraffe,female,20.0,1.0
+giraffe,male,25.0,0.5
+orangutan,female,14.0,1.5
+orangutan,male,18.0,1.0
+monkey,female,23.0,0.5
+monkey,male,31.0,1.5

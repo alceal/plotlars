@@ -1,0 +1,10 @@
+city,lat,lon,continent,population_millions
+London,51.5074,-0.1278,Europe,9.0
+Paris,48.8566,2.3522,Europe,2.2
+Tokyo,35.6762,139.6503,Asia,13.9
+Sydney,-33.8688,151.2093,Oceania,5.3
+Cairo,30.0444,31.2357,Africa,9.5
+Mumbai,19.0760,72.8777,Asia,12.4
+Beijing,39.9042,116.4074,Asia,21.5
+Rio de Janeiro,-22.9068,-43.1729,South America,6.7
+Toronto,43.6532,-79.3832,North America,2.9

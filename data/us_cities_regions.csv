@@ -1,0 +1,11 @@
+city,lat,lon,population,region
+New York,40.7128,-74.0060,8336817,Northeast
+Los Angeles,34.0522,-118.2437,3979576,West
+Chicago,41.8781,-87.6298,2693976,Midwest
+Houston,29.7604,-95.3698,2320268,South
+Phoenix,33.4484,-112.0740,1680992,West
+Philadelphia,39.9526,-75.1652,1584064,Northeast
+San Antonio,29.4241,-98.4936,1547253,South
+San Diego,32.7157,-117.1611,1423851,West
+Dallas,32.7767,-96.7970,1343573,South
+San Jose,37.3382,-121.8863,1021795,West
