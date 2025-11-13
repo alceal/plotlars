@@ -322,7 +322,7 @@ impl SankeyDiagram {
         }
 
         let n_facets = facet_categories.len();
-        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.cols, config.rows);
 
         // Filter out facets with no data to prevent empty diagrams
         let facet_categories_non_empty: Vec<String> = facet_categories
@@ -344,7 +344,7 @@ impl SankeyDiagram {
             let facet_data = Self::filter_data_by_group(data, facet_column, facet_value);
 
             let domain =
-                Self::calculate_sankey_domain(idx, ncols, nrows, config.x_gap, config.y_gap);
+                Self::calculate_sankey_domain(idx, ncols, nrows, config.h_gap, config.v_gap);
 
             let trace = Self::create_trace(
                 &facet_data,
@@ -389,7 +389,7 @@ impl SankeyDiagram {
             .collect();
 
         let n_facets = facet_categories_non_empty.len();
-        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.cols, config.rows);
 
         let mut layout = LayoutPlotly::new();
 
@@ -402,8 +402,8 @@ impl SankeyDiagram {
             ncols,
             nrows,
             config.title_style.as_ref(),
-            config.x_gap,
-            config.y_gap,
+            config.h_gap,
+            config.v_gap,
         );
         layout = layout.annotations(annotations);
 

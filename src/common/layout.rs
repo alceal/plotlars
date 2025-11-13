@@ -90,10 +90,10 @@ pub(crate) trait Layout {
 
     fn calculate_grid_dimensions(
         n_facets: usize,
-        ncol: Option<usize>,
-        nrow: Option<usize>,
+        cols: Option<usize>,
+        rows: Option<usize>,
     ) -> (usize, usize) {
-        match (ncol, nrow) {
+        match (cols, rows) {
             (Some(c), Some(r)) => {
                 if c * r < n_facets {
                     panic!("Grid dimensions {}x{} cannot fit {} facets", c, r, n_facets);

@@ -31,7 +31,7 @@ fn barplot_example() {
         .finish()
         .unwrap();
 
-    let facet_config = FacetConfig::new().ncol(4).nrow(2).x_gap(0.05).y_gap(0.30);
+    let facet_config = FacetConfig::new().cols(4).rows(2).h_gap(0.05).v_gap(0.30);
 
     BarPlot::builder()
         .data(&regional_data)
@@ -67,7 +67,7 @@ fn boxplot_example() {
         .group("sex")
         .colors(vec![Rgb(0, 119, 182), Rgb(0, 180, 216), Rgb(144, 224, 239)])
         .facet("species")
-        .facet_config(&FacetConfig::new().ncol(3))
+        .facet_config(&FacetConfig::new().cols(3))
         .plot_title(Text::from("Body Mass by Island, Sex and Species").size(16))
         .x_title(Text::from("Island"))
         .y_title(Text::from("Body Mass (g)"))
@@ -177,7 +177,7 @@ fn contourplot_example() {
         .y("y")
         .z("z")
         .facet("pattern")
-        .facet_config(&FacetConfig::new().nrow(2).ncol(3))
+        .facet_config(&FacetConfig::new().rows(2).cols(3))
         .plot_title(Text::from("Mathematical Surface Patterns").size(16))
         .x_title(Text::from("X Axis"))
         .y_title(Text::from("Y Axis"))
@@ -233,7 +233,7 @@ fn heatmap_example() {
         .y("y")
         .z("intensity")
         .facet("region")
-        .facet_config(&FacetConfig::new().nrow(2).ncol(2))
+        .facet_config(&FacetConfig::new().rows(2).cols(2))
         .plot_title(Text::from("Regional Heat Intensity Patterns").size(16))
         .x_title(Text::from("X Coordinate"))
         .y_title(Text::from("Y Coordinate"))
@@ -251,7 +251,7 @@ fn histogram_example() {
         .finish()
         .unwrap();
 
-    let facet_config = FacetConfig::new().nrow(2).ncol(3);
+    let facet_config = FacetConfig::new().rows(2).cols(3);
 
     Histogram::builder()
         .data(&df)
@@ -363,7 +363,7 @@ fn mesh3d_example() {
     ])
     .unwrap();
 
-    let config = FacetConfig::new().ncol(3).nrow(1);
+    let config = FacetConfig::new().cols(3).rows(1);
 
     let lighting = Lighting::new().ambient(0.6).diffuse(0.8).specular(0.4);
 
@@ -394,10 +394,10 @@ fn piechart_example() {
         .unwrap();
 
     let facet_config = FacetConfig::new()
-        .ncol(3)
+        .cols(3)
         .scales(FacetScales::Free)
-        .x_gap(0.08)
-        .y_gap(0.12)
+        .h_gap(0.08)
+        .v_gap(0.12)
         .title_style(Text::from("").size(13).color(Rgb(60, 60, 60)));
 
     PieChart::builder()
@@ -427,8 +427,8 @@ fn sankeydiagram_example() {
         .unwrap();
 
     let facet_config = FacetConfig::new()
-        .ncol(4)
-        .x_gap(0.06)
+        .cols(4)
+        .h_gap(0.06)
         .title_style(Text::from("").size(11).color(Rgb(50, 50, 50)));
 
     let node_colors = vec![
@@ -523,7 +523,7 @@ fn scatter3d_example() {
         .unwrap();
 
     let facet_config = FacetConfig::new()
-        .ncol(3)
+        .cols(3)
         .highlight_facet(true)
         .unhighlighted_color(Rgb(220, 220, 220));
 
@@ -553,7 +553,7 @@ fn scatterpolar_example() {
     let facet_config = FacetConfig::new()
         .highlight_facet(true)
         .unhighlighted_color(Rgb(220, 220, 220))
-        .ncol(3);
+        .cols(3);
 
     ScatterPolar::builder()
         .data(&dataset)
@@ -656,7 +656,7 @@ fn surfaceplot_example() {
         .y("y")
         .z("z")
         .facet("function")
-        .facet_config(&FacetConfig::new().ncol(3).nrow(1).x_gap(0.08).y_gap(0.12))
+        .facet_config(&FacetConfig::new().cols(3).rows(1).h_gap(0.08).v_gap(0.12))
         .plot_title(
             Text::from("3D Mathematical Functions")
                 .font("Arial")

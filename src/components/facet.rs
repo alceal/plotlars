@@ -35,10 +35,10 @@ pub enum FacetScales {
 /// .unwrap();
 ///
 /// let facet_config = FacetConfig::new()
-///     .ncol(3)
+///     .cols(3)
 ///     .scales(FacetScales::Free)
-///     .x_gap(0.05)
-///     .y_gap(0.08)
+///     .h_gap(0.05)
+///     .v_gap(0.08)
 ///     .title_style(Text::from("").size(14).color(Rgb(50, 50, 50)));
 ///
 /// ScatterPlot::builder()
@@ -58,11 +58,11 @@ pub enum FacetScales {
 /// ```
 #[derive(Clone, Default)]
 pub struct FacetConfig {
-    pub(crate) ncol: Option<usize>,
-    pub(crate) nrow: Option<usize>,
+    pub(crate) rows: Option<usize>,
+    pub(crate) cols: Option<usize>,
     pub(crate) scales: FacetScales,
-    pub(crate) x_gap: Option<f64>,
-    pub(crate) y_gap: Option<f64>,
+    pub(crate) h_gap: Option<f64>,
+    pub(crate) v_gap: Option<f64>,
     pub(crate) title_style: Option<Text>,
     pub(crate) sorter: Option<fn(&str, &str) -> Ordering>,
     pub(crate) highlight_facet: bool,
@@ -78,27 +78,6 @@ impl FacetConfig {
         Self::default()
     }
 
-    /// Sets the number of columns in the facet grid.
-    ///
-    /// When specified, the grid will have exactly this many columns, and the number
-    /// of rows will be calculated automatically based on the number of facets. If not
-    /// specified, both dimensions are calculated automatically.
-    ///
-    /// # Argument
-    ///
-    /// * `ncol` - A `usize` value specifying the number of columns (must be greater than 0).
-    ///
-    /// # Panics
-    ///
-    /// Panics if `ncol` is 0.
-    pub fn ncol(mut self, ncol: usize) -> Self {
-        if ncol == 0 {
-            panic!("ncol must be greater than 0");
-        }
-        self.ncol = Some(ncol);
-        self
-    }
-
     /// Sets the number of rows in the facet grid.
     ///
     /// When specified, the grid will have exactly this many rows, and the number
@@ -107,16 +86,37 @@ impl FacetConfig {
     ///
     /// # Argument
     ///
-    /// * `nrow` - A `usize` value specifying the number of rows (must be greater than 0).
+    /// * `rows` - A `usize` value specifying the number of rows (must be greater than 0).
     ///
     /// # Panics
     ///
-    /// Panics if `nrow` is 0.
-    pub fn nrow(mut self, nrow: usize) -> Self {
-        if nrow == 0 {
-            panic!("nrow must be greater than 0");
+    /// Panics if `rows` is 0.
+    pub fn rows(mut self, rows: usize) -> Self {
+        if rows == 0 {
+            panic!("rows must be greater than 0");
         }
-        self.nrow = Some(nrow);
+        self.rows = Some(rows);
+        self
+    }
+
+    /// Sets the number of columns in the facet grid.
+    ///
+    /// When specified, the grid will have exactly this many columns, and the number
+    /// of rows will be calculated automatically based on the number of facets. If not
+    /// specified, both dimensions are calculated automatically.
+    ///
+    /// # Argument
+    ///
+    /// * `cols` - A `usize` value specifying the number of columns (must be greater than 0).
+    ///
+    /// # Panics
+    ///
+    /// Panics if `cols` is 0.
+    pub fn cols(mut self, cols: usize) -> Self {
+        if cols == 0 {
+            panic!("cols must be greater than 0");
+        }
+        self.cols = Some(cols);
         self
     }
 
@@ -134,7 +134,7 @@ impl FacetConfig {
         self
     }
 
-    /// Sets the horizontal spacing between facets.
+    /// Sets the horizontal spacing between columns.
     ///
     /// The gap is specified as a proportion of the plot width, with typical values
     /// ranging from 0.0 (no gap) to 0.2 (20% gap). If not specified, plotly's default
@@ -147,15 +147,15 @@ impl FacetConfig {
     /// # Panics
     ///
     /// Panics if `gap` is negative, NaN, or infinite.
-    pub fn x_gap(mut self, gap: f64) -> Self {
+    pub fn h_gap(mut self, gap: f64) -> Self {
         if !gap.is_finite() || gap < 0.0 {
-            panic!("x_gap must be a finite non-negative number");
+            panic!("h_gap must be a finite non-negative number");
         }
-        self.x_gap = Some(gap);
+        self.h_gap = Some(gap);
         self
     }
 
-    /// Sets the vertical spacing between facets.
+    /// Sets the vertical spacing between rows.
     ///
     /// The gap is specified as a proportion of the plot height, with typical values
     /// ranging from 0.0 (no gap) to 0.2 (20% gap). If not specified, plotly's default
@@ -168,11 +168,11 @@ impl FacetConfig {
     /// # Panics
     ///
     /// Panics if `gap` is negative, NaN, or infinite.
-    pub fn y_gap(mut self, gap: f64) -> Self {
+    pub fn v_gap(mut self, gap: f64) -> Self {
         if !gap.is_finite() || gap < 0.0 {
-            panic!("y_gap must be a finite non-negative number");
+            panic!("v_gap must be a finite non-negative number");
         }
-        self.y_gap = Some(gap);
+        self.v_gap = Some(gap);
         self
     }
 

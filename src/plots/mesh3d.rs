@@ -716,10 +716,10 @@ impl Mesh3D {
         let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
         let n_facets = facet_categories.len();
 
-        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.cols, config.rows);
 
-        let x_gap = config.x_gap.unwrap_or(0.08);
-        let y_gap = config.y_gap.unwrap_or(0.12);
+        let x_gap = config.h_gap.unwrap_or(0.08);
+        let y_gap = config.v_gap.unwrap_or(0.12);
 
         let grid = FacetGrid {
             ncols,
@@ -739,8 +739,8 @@ impl Mesh3D {
             ncols,
             nrows,
             config.title_style.as_ref(),
-            config.x_gap,
-            config.y_gap,
+            config.h_gap,
+            config.v_gap,
         );
         layout = layout.annotations(annotations);
 

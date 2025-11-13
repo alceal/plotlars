@@ -628,17 +628,17 @@ impl BoxPlot {
         let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
         let n_facets = facet_categories.len();
 
-        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.ncol, config.nrow);
+        let (ncols, nrows) = Self::calculate_grid_dimensions(n_facets, config.cols, config.rows);
 
         let mut grid = LayoutGrid::new()
             .rows(nrows)
             .columns(ncols)
             .pattern(GridPattern::Independent);
 
-        if let Some(x_gap) = config.x_gap {
+        if let Some(x_gap) = config.h_gap {
             grid = grid.x_gap(x_gap);
         }
-        if let Some(y_gap) = config.y_gap {
+        if let Some(y_gap) = config.v_gap {
             grid = grid.y_gap(y_gap);
         }
 
