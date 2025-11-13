@@ -17,6 +17,7 @@ pub(crate) mod scattergeo;
 pub(crate) mod scattermap;
 pub(crate) mod scatterplot;
 pub(crate) mod scatterpolar;
+pub(crate) mod subplot_grid;
 pub(crate) mod surfaceplot;
 pub(crate) mod table;
 pub(crate) mod timeseriesplot;

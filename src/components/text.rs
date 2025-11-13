@@ -1,4 +1,5 @@
-use plotly::common::{Font, Title};
+use plotly::common::{Anchor, Font, Title};
+use plotly::layout::Annotation;
 
 use crate::components::Rgb;
 
@@ -63,7 +64,7 @@ impl Default for Text {
     ///
     /// - `content`: An empty string.
     /// - `font`: An empty string.
-    /// - `size`: `0`.
+    /// - `size`: `12` (reasonable default for visibility).
     /// - `color`: Default `Rgb` value.
     /// - `x`: `0.5`.
     /// - `y`: `0.9`.
@@ -71,7 +72,7 @@ impl Default for Text {
         Text {
             content: String::new(),
             font: String::new(),
-            size: 0,
+            size: 12,
             color: Rgb::default(),
             x: 0.5,
             y: 0.9,
@@ -159,6 +160,68 @@ impl Text {
             .family(self.font.as_str())
             .size(self.size)
             .color(self.color.to_plotly())
+    }
+
+    pub(crate) fn has_custom_position(&self) -> bool {
+        const EPSILON: f64 = 1e-6;
+        (self.x - 0.5).abs() > EPSILON || (self.y - 0.9).abs() > EPSILON
+    }
+
+    pub(crate) fn to_axis_annotation(
+        &self,
+        is_x_axis: bool,
+        axis_ref: &str,
+        use_domain: bool,
+    ) -> Annotation {
+        let (x_ref, y_ref) = if use_domain {
+            let axis_num = axis_ref.trim_start_matches(['x', 'y']);
+
+            let x_axis = if axis_num.is_empty() {
+                "x"
+            } else {
+                &format!("x{}", axis_num)
+            };
+            let y_axis = if axis_num.is_empty() {
+                "y"
+            } else {
+                &format!("y{}", axis_num)
+            };
+
+            (format!("{} domain", x_axis), format!("{} domain", y_axis))
+        } else {
+            ("paper".to_string(), "paper".to_string())
+        };
+
+        let y_anchor = Anchor::Middle;
+        let x_anchor = if is_x_axis {
+            Anchor::Center
+        } else {
+            Anchor::Left
+        };
+
+        let effective_size = if self.size == 0 { 12 } else { self.size };
+
+        let mut annotation = Annotation::new()
+            .text(&self.content)
+            .font(
+                Font::new()
+                    .family(self.font.as_str())
+                    .size(effective_size)
+                    .color(self.color.to_plotly()),
+            )
+            .x_ref(&x_ref)
+            .y_ref(&y_ref)
+            .x(self.x)
+            .y(self.y)
+            .x_anchor(x_anchor)
+            .y_anchor(y_anchor)
+            .show_arrow(false);
+
+        if !is_x_axis {
+            annotation = annotation.text_angle(-90.0);
+        }
+
+        annotation
     }
 }
 

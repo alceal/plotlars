@@ -1,7 +1,11 @@
 use std::env;
+use std::fs;
+use std::process::Command;
 
 use plotly::{Layout, Plot as Plotly, Trace};
 use serde_json::Value;
+
+use crate::components::{Rgb, Text};
 
 #[cfg(any(
     feature = "static_export_chromedriver",
@@ -22,7 +26,7 @@ pub trait Plot {
 
     fn to_html(&self) -> String;
 
-    fn to_inline_html(&self, plot_div_id: Option<&str>) -> String;
+    fn to_inline_html(&self, plot_div_id: Option<&str>) -> String; // We need it?
 
     #[cfg(any(
         feature = "static_export_chromedriver",
@@ -41,13 +45,182 @@ pub trait Plot {
 /// Helper trait for internal use by the `Plot` trait implementation.
 /// Can be used to get the underlying layout and traces of a plot (for example, to create a subplot).
 pub trait PlotHelper {
+    #[doc(hidden)]
     fn get_layout(&self) -> &Layout;
+    #[doc(hidden)]
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>>;
 
+    #[doc(hidden)]
     fn get_layout_override(&self) -> Option<&Value> {
         None
     }
 
+    #[doc(hidden)]
+    fn get_main_title(&self) -> Option<String> {
+        let layout_json = serde_json::to_value(self.get_layout()).ok()?;
+        layout_json
+            .get("title")
+            .and_then(|t| t.get("text"))
+            .and_then(|t| t.as_str())
+            .map(|s| s.to_string())
+    }
+
+    #[doc(hidden)]
+    fn get_x_title(&self) -> Option<String> {
+        let layout_json = serde_json::to_value(self.get_layout()).ok()?;
+        layout_json
+            .get("xaxis")
+            .and_then(|axis| axis.get("title"))
+            .and_then(|title| title.get("text"))
+            .and_then(|text| text.as_str())
+            .map(|s| s.to_string())
+    }
+
+    #[doc(hidden)]
+    fn get_y_title(&self) -> Option<String> {
+        let layout_json = serde_json::to_value(self.get_layout()).ok()?;
+        layout_json
+            .get("yaxis")
+            .and_then(|axis| axis.get("title"))
+            .and_then(|title| title.get("text"))
+            .and_then(|text| text.as_str())
+            .map(|s| s.to_string())
+    }
+
+    #[doc(hidden)]
+    fn get_main_title_text(&self) -> Option<Text> {
+        let layout_json = serde_json::to_value(self.get_layout()).ok()?;
+        let title_obj = layout_json.get("title")?;
+
+        let content = title_obj
+            .get("text")
+            .and_then(|t| t.as_str())
+            .map(|s| s.to_string())?;
+
+        let mut text = Text::from(content);
+
+        if let Some(font_obj) = title_obj.get("font") {
+            if let Some(family) = font_obj.get("family").and_then(|f| f.as_str()) {
+                if !family.is_empty() {
+                    text = text.font(family);
+                }
+            }
+
+            if let Some(size) = font_obj.get("size").and_then(|s| s.as_u64()) {
+                if size > 0 {
+                    text = text.size(size as usize);
+                }
+            }
+
+            if let Some(color) = font_obj.get("color").and_then(|c| c.as_str()) {
+                if let Some(rgb) = parse_color(color) {
+                    text = text.color(rgb);
+                }
+            }
+        }
+
+        if let Some(x) = title_obj.get("x").and_then(|v| v.as_f64()) {
+            text = text.x(x);
+        }
+
+        if let Some(y) = title_obj.get("y").and_then(|v| v.as_f64()) {
+            text = text.y(y);
+        }
+
+        Some(text)
+    }
+
+    #[doc(hidden)]
+    fn get_x_title_text(&self) -> Option<Text> {
+        let layout_json = serde_json::to_value(self.get_layout()).ok()?;
+        let title_obj = layout_json
+            .get("xaxis")
+            .and_then(|axis| axis.get("title"))?;
+
+        let content = title_obj
+            .get("text")
+            .and_then(|t| t.as_str())
+            .map(|s| s.to_string())?;
+
+        let mut text = Text::from(content);
+
+        if let Some(font_obj) = title_obj.get("font") {
+            if let Some(family) = font_obj.get("family").and_then(|f| f.as_str()) {
+                if !family.is_empty() {
+                    text = text.font(family);
+                }
+            }
+
+            if let Some(size) = font_obj.get("size").and_then(|s| s.as_u64()) {
+                if size > 0 {
+                    text = text.size(size as usize);
+                }
+            }
+
+            if let Some(color) = font_obj.get("color").and_then(|c| c.as_str()) {
+                if let Some(rgb) = parse_color(color) {
+                    text = text.color(rgb);
+                }
+            }
+        }
+
+        if let Some(x) = title_obj.get("x").and_then(|v| v.as_f64()) {
+            text = text.x(x);
+        }
+
+        if let Some(y) = title_obj.get("y").and_then(|v| v.as_f64()) {
+            text = text.y(y);
+        }
+
+        Some(text)
+    }
+
+    #[doc(hidden)]
+    fn get_y_title_text(&self) -> Option<Text> {
+        let layout_json = serde_json::to_value(self.get_layout()).ok()?;
+        let title_obj = layout_json
+            .get("yaxis")
+            .and_then(|axis| axis.get("title"))?;
+
+        let content = title_obj
+            .get("text")
+            .and_then(|t| t.as_str())
+            .map(|s| s.to_string())?;
+
+        let mut text = Text::from(content);
+
+        if let Some(font_obj) = title_obj.get("font") {
+            if let Some(family) = font_obj.get("family").and_then(|f| f.as_str()) {
+                if !family.is_empty() {
+                    text = text.font(family);
+                }
+            }
+
+            if let Some(size) = font_obj.get("size").and_then(|s| s.as_u64()) {
+                if size > 0 {
+                    text = text.size(size as usize);
+                }
+            }
+
+            if let Some(color) = font_obj.get("color").and_then(|c| c.as_str()) {
+                if let Some(rgb) = parse_color(color) {
+                    text = text.color(rgb);
+                }
+            }
+        }
+
+        if let Some(x) = title_obj.get("x").and_then(|v| v.as_f64()) {
+            text = text.x(x);
+        }
+
+        if let Some(y) = title_obj.get("y").and_then(|v| v.as_f64()) {
+            text = text.y(y);
+        }
+
+        Some(text)
+    }
+
+    #[doc(hidden)]
     #[cfg(any(
         feature = "static_export_chromedriver",
         feature = "static_export_geckodriver",
@@ -68,72 +241,179 @@ pub trait PlotHelper {
     }
 }
 
+fn parse_color(color_str: &str) -> Option<Rgb> {
+    if color_str.starts_with("rgb(") || color_str.starts_with("rgba(") {
+        let start = color_str.find('(')?;
+        let end = color_str.find(')')?;
+        let values = &color_str[start + 1..end];
+        let parts: Vec<&str> = values.split(',').map(|s| s.trim()).collect();
+
+        if parts.len() >= 3 {
+            let r = parts[0].parse::<u8>().ok()?;
+            let g = parts[1].parse::<u8>().ok()?;
+            let b = parts[2].parse::<u8>().ok()?;
+            return Some(Rgb(r, g, b));
+        }
+    }
+
+    if let Some(hex) = color_str.strip_prefix('#') {
+        if hex.len() == 6 {
+            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+            return Some(Rgb(r, g, b));
+        } else if hex.len() == 3 {
+            let r = u8::from_str_radix(&hex[0..1], 16).ok()? * 17;
+            let g = u8::from_str_radix(&hex[1..2], 16).ok()? * 17;
+            let b = u8::from_str_radix(&hex[2..3], 16).ok()? * 17;
+            return Some(Rgb(r, g, b));
+        }
+    }
+
+    match color_str.to_lowercase().as_str() {
+        "black" => Some(Rgb(0, 0, 0)),
+        "white" => Some(Rgb(255, 255, 255)),
+        "red" => Some(Rgb(255, 0, 0)),
+        "green" => Some(Rgb(0, 128, 0)),
+        "blue" => Some(Rgb(0, 0, 255)),
+        "yellow" => Some(Rgb(255, 255, 0)),
+        "cyan" => Some(Rgb(0, 255, 255)),
+        "magenta" => Some(Rgb(255, 0, 255)),
+        "gray" | "grey" => Some(Rgb(128, 128, 128)),
+        "orange" => Some(Rgb(255, 165, 0)),
+        "purple" => Some(Rgb(128, 0, 128)),
+        "pink" => Some(Rgb(255, 192, 203)),
+        "brown" => Some(Rgb(165, 42, 42)),
+        "lime" => Some(Rgb(0, 255, 0)),
+        "navy" => Some(Rgb(0, 0, 128)),
+        "teal" => Some(Rgb(0, 128, 128)),
+        "silver" => Some(Rgb(192, 192, 192)),
+        "maroon" => Some(Rgb(128, 0, 0)),
+        "olive" => Some(Rgb(128, 128, 0)),
+        _ => None,
+    }
+}
+
 // Implement the public trait `Plot` for any type that implements `PlotHelper`.
 impl<T> Plot for T
 where
     T: PlotHelper + Serialize + Clone,
 {
     fn plot(&self) {
-        let mut plot = Plotly::new();
-        plot.set_layout(self.get_layout().to_owned());
-        plot.add_traces(self.get_traces().to_owned());
+        if self.get_layout_override().is_some() {
+            let html = self.to_html();
 
-        let spec_json = build_spec_json(self, &plot);
+            match env::var("EVCXR_IS_RUNTIME") {
+                Ok(_) => {
+                    // For Jupyter/evcxr, print the HTML directly
+                    println!("HTML");
+                    println!("{}", html);
+                }
+                _ => {
+                    // Write HTML to temp file and open in browser
+                    let temp_dir = env::temp_dir();
+                    let timestamp = std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_nanos();
+                    let temp_file = temp_dir.join(format!(
+                        "plotlars_{}_{}.html",
+                        std::process::id(),
+                        timestamp
+                    ));
+                    fs::write(&temp_file, html).expect("Failed to write HTML file");
 
-        match env::var("EVCXR_IS_RUNTIME") {
-            Ok(_) => {
-                let html = render_jupyter_notebook_html(&spec_json);
-                println!("EVCXR_BEGIN_CONTENT text/html\n{html}\nEVCXR_END_CONTENT");
+                    // Open the file in default browser
+                    open_html_file(&temp_file);
+                }
             }
-            _ => {
-                let mut html = plot.to_html();
-                replace_plot_spec(&mut html, &spec_json);
-                plot_show(html);
+        } else {
+            let mut plot = Plotly::new();
+            plot.set_layout(self.get_layout().to_owned());
+            plot.add_traces(self.get_traces().to_owned());
+
+            match env::var("EVCXR_IS_RUNTIME") {
+                Ok(_) => plot.evcxr_display(),
+                _ => plot.show(),
             }
         }
     }
 
     fn write_html(&self, path: impl Into<String>) {
-        let mut plot = Plotly::new();
-        plot.set_layout(self.get_layout().to_owned());
-        plot.add_traces(self.get_traces().to_owned());
-
-        let spec_json = build_spec_json(self, &plot);
-        let mut html = plot.to_html();
-        replace_plot_spec(&mut html, &spec_json);
-
-        std::fs::write(path.into(), html).expect("failed to write html output");
+        if self.get_layout_override().is_some() {
+            let html = self.to_html();
+            fs::write(path.into(), html).expect("Failed to write HTML file");
+        } else {
+            let mut plot = Plotly::new();
+            plot.set_layout(self.get_layout().to_owned());
+            plot.add_traces(self.get_traces().to_owned());
+            plot.write_html(path.into());
+        }
     }
 
     fn to_json(&self) -> Result<String, serde_json::Error> {
-        let mut plot = Plotly::new();
-        plot.set_layout(self.get_layout().to_owned());
-        plot.add_traces(self.get_traces().to_owned());
-
-        let spec_value = build_spec_value(self, &plot);
-        serde_json::to_string(&spec_value)
+        serde_json::to_string(self)
     }
 
     fn to_html(&self) -> String {
-        let mut plot = Plotly::new();
-        plot.set_layout(self.get_layout().to_owned());
-        plot.add_traces(self.get_traces().to_owned());
+        if self.get_layout_override().is_some() {
+            let plot_json = serde_json::to_string(self).unwrap();
+            let escaped_json = plot_json
+                .replace('\\', "\\\\")
+                .replace('\'', "\\'")
+                .replace('\n', "\\n")
+                .replace('\r', "\\r");
 
-        let spec_json = build_spec_json(self, &plot);
-        let mut html = plot.to_html();
-        replace_plot_spec(&mut html, &spec_json);
-        html
+            format!(
+                r#"<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="https://cdn.plot.ly/plotly-2.18.0.min.js"></script>
+</head>
+<body>
+    <div id="plotly-div" style="width:100%;height:100%;"></div>
+    <script type="text/javascript">
+        var plotData = JSON.parse('{}');
+        Plotly.newPlot('plotly-div', plotData.traces, plotData.layout, {{responsive: true}});
+    </script>
+</body>
+</html>"#,
+                escaped_json
+            )
+        } else {
+            let mut plot = Plotly::new();
+            plot.set_layout(self.get_layout().to_owned());
+            plot.add_traces(self.get_traces().to_owned());
+            plot.to_html()
+        }
     }
 
     fn to_inline_html(&self, plot_div_id: Option<&str>) -> String {
-        let mut plot = Plotly::new();
-        plot.set_layout(self.get_layout().to_owned());
-        plot.add_traces(self.get_traces().to_owned());
+        let div_id = plot_div_id.unwrap_or("plotly-div");
 
-        let spec_json = build_spec_json(self, &plot);
-        let mut html = plot.to_inline_html(plot_div_id);
-        replace_plot_spec(&mut html, &spec_json);
-        html
+        if self.get_layout_override().is_some() {
+            let plot_json = serde_json::to_string(self).unwrap();
+            let escaped_json = plot_json
+                .replace('\\', "\\\\")
+                .replace('\'', "\\'")
+                .replace('\n', "\\n")
+                .replace('\r', "\\r");
+
+            format!(
+                r#"<div id="{}" style="width:100%;height:100%;"></div>
+<script type="text/javascript">
+    var plotData = JSON.parse('{}');
+    Plotly.newPlot('{}', plotData.traces, plotData.layout, {{responsive: true}});
+</script>"#,
+                div_id, escaped_json, div_id
+            )
+        } else {
+            let mut plot = Plotly::new();
+            plot.set_layout(self.get_layout().to_owned());
+            plot.add_traces(self.get_traces().to_owned());
+            plot.to_inline_html(plot_div_id)
+        }
     }
 
     #[cfg(any(
@@ -148,151 +428,92 @@ where
         height: usize,
         scale: f64,
     ) -> Result<(), std::boxed::Box<(dyn std::error::Error + 'static)>> {
-        let mut plot = Plotly::new();
-        plot.set_layout(self.get_layout().to_owned());
-        plot.add_traces(self.get_traces().to_owned());
+        let path_string = path.into();
 
-        if let Some((filename, extension)) = path.into().rsplit_once('.') {
-            let format = self.get_image_format(extension)?;
-            plot.write_image(filename, format, width, height, scale)?;
-            Ok(())
+        if self.get_layout_override().is_some() {
+            // For plots with layout overrides, generate HTML and convert to image
+            let html = self.to_html();
+            let temp_dir = env::temp_dir();
+            let timestamp = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            let temp_html = temp_dir.join(format!(
+                "plotlars_img_{}_{}.html",
+                std::process::id(),
+                timestamp
+            ));
+            fs::write(&temp_html, html)?;
+
+            if let Some((_, extension)) = path_string.rsplit_once('.') {
+                let format = self.get_image_format(extension)?;
+
+                // Use plotly_static to convert HTML to image
+                let temp_output = temp_html.with_extension(extension);
+                plotly_static::to_image(temp_html.to_str().unwrap(), format, width, height, scale)?;
+
+                // Move the generated image to the desired path
+                fs::rename(&temp_output, &path_string)?;
+
+                // Clean up temp HTML file
+                let _ = fs::remove_file(&temp_html);
+            } else {
+                return Err("No extension provided for image.".into());
+            }
         } else {
-            Err("No extension provided for image.".into())
+            let mut plot = Plotly::new();
+            plot.set_layout(self.get_layout().to_owned());
+            plot.add_traces(self.get_traces().to_owned());
+
+            if let Some((filename, extension)) = path_string.rsplit_once('.') {
+                let format = self.get_image_format(extension)?;
+                plot.write_image(filename, format, width, height, scale)?;
+            } else {
+                return Err("No extension provided for image.".into());
+            }
         }
+
+        Ok(())
     }
 }
 
-fn build_spec_value<T>(plot_helper: &T, plot: &Plotly) -> Value
-where
-    T: PlotHelper,
-{
-    let mut spec = serde_json::to_value(plot).unwrap();
-    if let Some(layout_override) = plot_helper.get_layout_override() {
-        spec["layout"] = layout_override.clone();
-    }
-    spec
-}
-
-fn build_spec_json<T>(plot_helper: &T, plot: &Plotly) -> String
-where
-    T: PlotHelper,
-{
-    serde_json::to_string(&build_spec_value(plot_helper, plot)).unwrap()
-}
-
-fn replace_plot_spec(html: &mut String, spec_json: &str) {
-    const PREFIX: &str = "await Plotly.newPlot(graph_div, ";
-    if let Some(start) = html.find(PREFIX) {
-        let json_start = start + PREFIX.len();
-        if let Some(end) = html[json_start..].find(");") {
-            html.replace_range(json_start..json_start + end, spec_json);
-        }
-    }
-}
-
-fn plot_show(html: String) {
-    use std::fs::File;
-    use std::io::Write;
-    use std::time::{SystemTime, UNIX_EPOCH};
-
-    let mut temp = std::env::temp_dir();
-    let timestamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_nanos();
-    let pid = std::process::id();
-    temp.push(format!("plotlars_{pid}_{timestamp}.html"));
-
-    let temp_path = temp.to_str().unwrap().to_string();
-    {
-        let mut file = File::create(&temp_path).expect("failed to create temp html file");
-        file.write_all(html.as_bytes())
-            .expect("failed to write html output");
-        file.flush().expect("failed to flush html output");
-    }
-
-    open_with_default_app(&temp_path);
-}
-
-#[cfg(all(not(target_family = "wasm"), not(target_os = "android")))]
-fn open_with_default_app(temp_path: &str) {
-    #[cfg(all(unix, not(target_os = "macos")))]
-    {
-        use std::process::Command;
-        Command::new("xdg-open")
-            .args([temp_path])
-            .output()
-            .expect("Could not open HTML file with default application.");
-    }
-
+/// Helper function to open an HTML file in the default browser
+fn open_html_file(path: &std::path::Path) {
     #[cfg(target_os = "macos")]
     {
-        use std::process::Command;
-        Command::new("open")
-            .args([temp_path])
-            .output()
-            .expect("Could not open HTML file with default application.");
+        let _ = Command::new("open").arg(path).spawn().map(|mut child| {
+            // Spawn browser process and detach - we don't want to wait for it
+            let _ = std::thread::spawn(move || {
+                let _ = child.wait();
+            });
+        });
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        let _ = Command::new("xdg-open").arg(path).spawn().map(|mut child| {
+            // Spawn browser process and detach - we don't want to wait for it
+            let _ = std::thread::spawn(move || {
+                let _ = child.wait();
+            });
+        });
     }
 
     #[cfg(target_os = "windows")]
     {
-        use std::process::Command;
-        Command::new("explorer")
-            .arg(temp_path)
+        let _ = Command::new("cmd")
+            .args(&["/C", "start", "", path.to_str().unwrap()])
             .spawn()
-            .expect("Could not open HTML file with default application.");
+            .map(|mut child| {
+                // Spawn browser process and detach - we don't want to wait for it
+                let _ = std::thread::spawn(move || {
+                    let _ = child.wait();
+                });
+            });
     }
-}
 
-#[cfg(any(target_family = "wasm", target_os = "android"))]
-fn open_with_default_app(_: &str) {
-    // Opening a browser is not supported in these environments.
-}
-
-fn render_jupyter_notebook_html(spec_json: &str) -> String {
-    use std::time::{SystemTime, UNIX_EPOCH};
-
-    let div_id = format!(
-        "plotlars_div_{}_{}",
-        std::process::id(),
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_nanos()
-    );
-
-    format!(
-        r#"<div>
-    <div id="{div_id}" class="plotly-graph-div" style="height:100%; width:100%;"></div>
-    <script type="text/javascript">
-        require(['https://cdn.plot.ly/plotly-3.0.1.min.js'], function(Plotly) {{
-            Plotly.newPlot(
-                "{div_id}",
-                {spec_json}
-        ).then(function () {{
-            var gd = document.getElementById('{div_id}');
-            var x = new MutationObserver(function (mutations, observer) {{
-                var display = window.getComputedStyle(gd).display;
-                if (!display || display === 'none') {{
-                    Plotly.purge(gd);
-                    observer.disconnect();
-                }}
-            }});
-
-            var notebookContainer = gd.closest('#notebook-container');
-            if (notebookContainer) {{
-                x.observe(notebookContainer, {{ childList: true }});
-            }}
-
-            var outputEl = gd.closest('.output');
-            if (outputEl) {{
-                x.observe(outputEl, {{ childList: true }});
-            }}
-        }});
-        }});
-    </script>
-</div>"#,
-        div_id = div_id,
-        spec_json = spec_json
-    )
+    #[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "windows")))]
+    {
+        eprintln!("Cannot automatically open browser on this platform. Please open the file manually: {:?}", path);
+    }
 }

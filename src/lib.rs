@@ -47,6 +47,7 @@ pub use crate::plots::scattergeo::ScatterGeo;
 pub use crate::plots::scattermap::ScatterMap;
 pub use crate::plots::scatterplot::ScatterPlot;
 pub use crate::plots::scatterpolar::ScatterPolar;
+pub use crate::plots::subplot_grid::SubplotGrid;
 pub use crate::plots::surfaceplot::SurfacePlot;
 pub use crate::plots::table::Table;
 pub use crate::plots::timeseriesplot::TimeSeriesPlot;
