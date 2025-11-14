@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.11.0] - 2025-11-15
+
+### 🚀 Features
+
+- SubplotGrid: Create multi-plot grid layouts with automatic positioning and configurable spacing (cartesian 2D plots only)
+  - Regular grids with automatic plot arrangement
+  - Irregular grids with custom row/column spanning support
+- Faceting: Split data by categorical variables across 14 plot types (BarPlot, BoxPlot, ContourPlot, HeatMap, Histogram, LinePlot, Mesh3D, PieChart, SankeyDiagram, Scatter3dPlot, ScatterPlot, ScatterPolar, SurfacePlot, TimeSeriesPlot)
+- Custom Axis Title Positioning: Precisely position axis titles anywhere on the plot
 
 ### ⚠️ BREAKING CHANGES
 
@@ -10,16 +18,9 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
-- Fix HeatMap colorbar length and width not being applied to plots - added layout override support to properly serialize colorbar fraction values
-- Fix colorbar height extending beyond subplot boundaries in irregular SubplotGrid - colorbar lengths are now automatically scaled to match subplot domain heights
-
-## [0.11.0] - 2025-11-13
-
-### 🚀 Features
-
-- Add SubplotGrid for multi-plot grid layouts with automatic positioning, configurable spacing, and automatic legend generation (cartesian 2D plots only)
-- Add faceting support to 14 plot types: BarPlot, BoxPlot, ContourPlot, HeatMap, Histogram, LinePlot, Mesh3D, PieChart, SankeyDiagram, Scatter3dPlot, ScatterPlot, ScatterPolar, SurfacePlot, TimeSeriesPlot
-- Add support for custom positioned axis titles
+- Fix HeatMap colorbar length and width not being applied to plots
+- Fix colorbar extending beyond subplot boundaries in irregular SubplotGrid
+- Fix custom legend border rendering without explicit border color
 
 ## [0.10.0] - 2025-08-07
 
