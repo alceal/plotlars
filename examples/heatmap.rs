@@ -15,7 +15,7 @@ fn main() {
         .z("z")
         .color_bar(
             &ColorBar::new()
-                .length(290)
+                .length(0.7)
                 .value_exponent(ValueExponent::None)
                 .separate_thousands(true)
                 .tick_length(5)

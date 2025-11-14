@@ -1,4 +1,5 @@
 use plotly::common::{ColorBar as ColorBarPlotly, Font};
+use serde_json::Value;
 
 use crate::components::{Orientation, Rgb, Text, TickDirection, ValueExponent};
 
@@ -24,7 +25,7 @@ use crate::components::{Orientation, Rgb, Text, TickDirection, ValueExponent};
 ///     .color_bar(
 ///         &ColorBar::new()
 ///             .orientation(Orientation::Horizontal)
-///             .length(290)
+///             .length(0.7)
 ///             .value_exponent(ValueExponent::None)
 ///             .separate_thousands(true)
 ///             .tick_length(5)
@@ -45,13 +46,13 @@ pub struct ColorBar {
     pub(crate) border_width: Option<usize>,
     pub(crate) tick_step: Option<f64>,
     pub(crate) value_exponent: Option<ValueExponent>,
-    pub(crate) length: Option<usize>,
+    pub(crate) length: Option<f64>,
     pub(crate) n_ticks: Option<usize>,
     pub(crate) orientation: Option<Orientation>,
     pub(crate) outline_color: Option<Rgb>,
     pub(crate) outline_width: Option<usize>,
     pub(crate) separate_thousands: Option<bool>,
-    pub(crate) width: Option<usize>,
+    pub(crate) width: Option<f64>,
     pub(crate) tick_angle: Option<f64>,
     pub(crate) tick_color: Option<Rgb>,
     pub(crate) tick_font: Option<String>,
@@ -69,6 +70,38 @@ impl ColorBar {
     /// Creates a new `ColorBar` instance with default settings.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Returns the original f64 values for length and width.
+    /// These are used for JSON post-processing to inject proper fractions.
+    pub(crate) fn get_fraction_values(&self) -> (Option<f64>, Option<f64>) {
+        (self.length, self.width)
+    }
+
+    /// Post-processes a trace JSON value to inject f64 length/width values into the colorbar.
+    /// This bypasses plotly.rs's usize limitation for fraction-based sizing.
+    pub(crate) fn patch_trace_json(
+        trace_json: &mut Value,
+        length: Option<f64>,
+        thickness: Option<f64>,
+    ) {
+        // Navigate to marker.colorbar or colorbar depending on trace type
+        let colorbar_obj = if let Some(marker) = trace_json.get_mut("marker") {
+            marker.get_mut("colorbar")
+        } else {
+            trace_json.get_mut("colorbar")
+        };
+
+        if let Some(colorbar) = colorbar_obj {
+            if let Some(len) = length {
+                colorbar["len"] = Value::from(len);
+                colorbar["lenmode"] = Value::from("fraction");
+            }
+            if let Some(thick) = thickness {
+                colorbar["thickness"] = Value::from(thick);
+                colorbar["thicknessmode"] = Value::from("fraction");
+            }
+        }
     }
 
     pub(crate) fn to_plotly(&self) -> ColorBarPlotly {
@@ -94,11 +127,8 @@ impl ColorBar {
             color_bar = color_bar.exponent_format(value_exponent.to_plotly());
         }
 
-        if let Some(length) = self.length {
-            color_bar = color_bar
-                .len_mode(plotly::common::ThicknessMode::Pixels)
-                .len(length);
-        }
+        // NOTE: length (len) is NOT set here to avoid plotly.rs's usize limitation.
+        // Instead, it will be injected as f64 via JSON post-processing using patch_trace_json().
 
         if let Some(n_ticks) = self.n_ticks {
             color_bar = color_bar.n_ticks(n_ticks);
@@ -120,11 +150,8 @@ impl ColorBar {
             color_bar = color_bar.separate_thousands(separate_thousands);
         }
 
-        if let Some(width) = self.width {
-            color_bar = color_bar
-                .thickness_mode(plotly::common::ThicknessMode::Pixels)
-                .thickness(width);
-        }
+        // NOTE: width (thickness) is NOT set here to avoid plotly.rs's usize limitation.
+        // Instead, it will be injected as f64 via JSON post-processing using patch_trace_json().
 
         if let Some(angle) = self.tick_angle {
             color_bar = color_bar.tick_angle(angle);
@@ -225,10 +252,10 @@ impl ColorBar {
 
     /// Sets the length of the color bar.
     ///
-    /// # Arguments
+    /// # Argument
     ///
-    /// * `length` - A `usize` value specifying the length in pixels.
-    pub fn length(mut self, length: usize) -> Self {
+    /// * `length` - A `f64` value between 0.0 and 1.0 specifying the length as a fraction of the subplot height.
+    pub fn length(mut self, length: f64) -> Self {
         self.length = Some(length);
         self
     }
@@ -285,10 +312,10 @@ impl ColorBar {
 
     /// Sets the width of the color bar.
     ///
-    /// # Arguments
+    /// # Argument
     ///
-    /// * `width` - A `usize` value specifying the width in pixels.
-    pub fn width(mut self, width: usize) -> Self {
+    /// * `width` - A `f64` value between 0.0 and 1.0 specifying the width as a fraction of the subplot width.
+    pub fn width(mut self, width: f64) -> Self {
         self.width = Some(width);
         self
     }

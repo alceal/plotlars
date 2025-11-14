@@ -58,7 +58,7 @@ use crate::{
 ///     .z("z")
 ///     .color_bar(
 ///         &ColorBar::new()
-///             .length(290)
+///             .length(0.7)
 ///             .value_exponent(ValueExponent::None)
 ///             .separate_thousands(true)
 ///             .tick_length(5)
@@ -75,10 +75,45 @@ use crate::{
 /// ```
 ///
 /// ![Example](https://imgur.com/5uFih4M.png)
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct HeatMap {
     pub traces: Vec<Box<dyn Trace + 'static>>,
     pub layout: LayoutPlotly,
+    #[allow(dead_code)]
+    colorbar_fractions: Option<(Option<f64>, Option<f64>)>,
+    layout_json: Option<serde_json::Value>,
+}
+
+impl serde::Serialize for HeatMap {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+
+        // Serialize traces to JSON, patch colorbar values, then serialize the patched version
+        let mut traces_json: Vec<serde_json::Value> = self
+            .traces
+            .iter()
+            .map(|trace| serde_json::to_value(trace).unwrap())
+            .collect();
+
+        // Patch colorbar fractions if present
+        if let Some((length, thickness)) = self.colorbar_fractions {
+            for trace_json in &mut traces_json {
+                crate::components::ColorBar::patch_trace_json(trace_json, length, thickness);
+            }
+        }
+
+        let mut state = serializer.serialize_struct("HeatMap", 2)?;
+        state.serialize_field("traces", &traces_json)?;
+        if let Some(ref layout_json) = self.layout_json {
+            state.serialize_field("layout", layout_json)?;
+        } else {
+            state.serialize_field("layout", &self.layout)?;
+        }
+        state.end()
+    }
 }
 
 #[bon]
@@ -108,6 +143,8 @@ impl HeatMap {
         let z_axis = None;
         let y2_title = None;
         let y2_axis = None;
+
+        let colorbar_fractions = color_bar.map(|cb| cb.get_fraction_values());
 
         let (layout, traces) = match facet {
             Some(facet_column) => {
@@ -171,7 +208,28 @@ impl HeatMap {
             }
         };
 
-        Self { traces, layout }
+        // Create a temporary instance to serialize and extract the layout JSON
+        // This triggers the custom Serialize implementation which patches colorbar values
+        let temp_heatmap = Self {
+            traces: traces.clone(),
+            layout: layout.clone(),
+            colorbar_fractions,
+            layout_json: None,
+        };
+
+        // Serialize to JSON to trigger colorbar patching
+        let plot_json =
+            serde_json::to_value(&temp_heatmap).expect("Failed to serialize HeatMap to JSON");
+
+        // Extract the patched layout
+        let layout_json = plot_json.get("layout").cloned();
+
+        Self {
+            traces,
+            layout,
+            colorbar_fractions,
+            layout_json,
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -619,5 +677,25 @@ impl PlotHelper for HeatMap {
 
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>> {
         &self.traces
+    }
+
+    fn get_layout_override(&self) -> Option<&serde_json::Value> {
+        self.layout_json.as_ref()
+    }
+
+    fn get_serialized_traces(&self) -> Option<Vec<serde_json::Value>> {
+        let mut traces_json: Vec<serde_json::Value> = self
+            .traces
+            .iter()
+            .map(|trace| serde_json::to_value(trace).unwrap())
+            .collect();
+
+        if let Some((length, thickness)) = self.colorbar_fractions {
+            for trace_json in &mut traces_json {
+                crate::components::ColorBar::patch_trace_json(trace_json, length, thickness);
+            }
+        }
+
+        Some(traces_json)
     }
 }

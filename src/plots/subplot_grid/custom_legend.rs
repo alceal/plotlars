@@ -327,9 +327,13 @@ impl CustomLegend {
         }
 
         if let Some(border_color) = &self.border_color {
-            annotation = annotation
-                .border_color(border_color.to_plotly())
-                .border_width(self.border_width);
+            annotation = annotation.border_color(border_color.to_plotly());
+        } else if self.border_width > 0.0 {
+            annotation = annotation.border_color(Rgb(0, 0, 0).to_plotly());
+        }
+
+        if self.border_width > 0.0 {
+            annotation = annotation.border_width(self.border_width);
         }
 
         annotation = annotation.border_pad(self.padding);

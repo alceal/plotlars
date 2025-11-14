@@ -24,38 +24,72 @@ pub enum FacetScales {
 /// # Example
 ///
 /// ```rust
-/// use plotlars::{ScatterPlot, FacetConfig, FacetScales, Plot, Rgb, Text};
+/// use plotlars::{SurfacePlot, FacetConfig, Plot, Palette, Text};
 /// use polars::prelude::*;
+/// use ndarray::Array;
+///
+/// let n: usize = 50;
+/// let (x_base, _): (Vec<f64>, Option<usize>) =
+///     Array::linspace(-5., 5., n).into_raw_vec_and_offset();
+/// let (y_base, _): (Vec<f64>, Option<usize>) =
+///     Array::linspace(-5., 5., n).into_raw_vec_and_offset();
+///
+/// let mut x_all = Vec::new();
+/// let mut y_all = Vec::new();
+/// let mut z_all = Vec::new();
+/// let mut category_all = Vec::new();
+///
+/// type SurfaceFunction = Box<dyn Fn(f64, f64) -> f64>;
+/// let functions: Vec<(&str, SurfaceFunction)> = vec![
+///     (
+///         "Sine Wave",
+///         Box::new(|xi: f64, yj: f64| (xi * xi + yj * yj).sqrt().sin()),
+///     ),
+///     ("Saddle", Box::new(|xi: f64, yj: f64| xi * xi - yj * yj)),
+///     (
+///         "Gaussian",
+///         Box::new(|xi: f64, yj: f64| (-0.5 * (xi * xi + yj * yj)).exp()),
+///     ),
+/// ];
+///
+/// for (name, func) in &functions {
+///     for &xi in x_base.iter() {
+///         for &yj in y_base.iter() {
+///             x_all.push(xi);
+///             y_all.push(yj);
+///             z_all.push(func(xi, yj));
+///             category_all.push(*name);
+///         }
+///     }
+/// }
 ///
 /// let dataset = df![
-///     "species" => &["Adelie", "Adelie", "Chinstrap", "Chinstrap", "Gentoo", "Gentoo"],
-///     "body_mass_g" => &[3750, 3800, 3500, 3650, 5000, 5200],
-///     "flipper_length_mm" => &[181, 186, 195, 201, 217, 221]
+///     "x" => &x_all,
+///     "y" => &y_all,
+///     "z" => &z_all,
+///     "function" => &category_all,
 /// ]
 /// .unwrap();
 ///
-/// let facet_config = FacetConfig::new()
-///     .cols(3)
-///     .scales(FacetScales::Free)
-///     .h_gap(0.05)
-///     .v_gap(0.08)
-///     .title_style(Text::from("").size(14).color(Rgb(50, 50, 50)));
-///
-/// ScatterPlot::builder()
+/// SurfacePlot::builder()
 ///     .data(&dataset)
-///     .x("body_mass_g")
-///     .y("flipper_length_mm")
-///     .facet("species")
-///     .facet_config(&facet_config)
-///     .plot_title("Penguin Measurements by Species")
-///     .x_title("body mass (g)")
-///     .y_title("flipper length (mm)")
-///     .opacity(0.7)
-///     .size(10)
-///     .color(Rgb(65, 105, 225))
+///     .x("x")
+///     .y("y")
+///     .z("z")
+///     .facet("function")
+///     .facet_config(&FacetConfig::new().cols(3).rows(1).h_gap(0.08).v_gap(0.12))
+///     .plot_title(
+///         Text::from("3D Mathematical Functions")
+///             .font("Arial")
+///             .size(20),
+///     )
+///     .color_scale(Palette::Viridis)
+///     .opacity(0.9)
 ///     .build()
 ///     .plot();
 /// ```
+///
+/// ![Example](https://imgur.com/nHdLCAB.png)
 #[derive(Clone, Default)]
 pub struct FacetConfig {
     pub(crate) rows: Option<usize>,

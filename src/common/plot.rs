@@ -56,6 +56,11 @@ pub trait PlotHelper {
     }
 
     #[doc(hidden)]
+    fn get_serialized_traces(&self) -> Option<Vec<Value>> {
+        None
+    }
+
+    #[doc(hidden)]
     fn get_main_title(&self) -> Option<String> {
         let layout_json = serde_json::to_value(self.get_layout()).ok()?;
         layout_json

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### ⚠️ BREAKING CHANGES
+
+- ColorBar `length()` and `width()` now accept fractions (0.0-1.0) instead of pixels
+
+### 🐛 Bug Fixes
+
+- Fix HeatMap colorbar length and width not being applied to plots - added layout override support to properly serialize colorbar fraction values
+- Fix colorbar height extending beyond subplot boundaries in irregular SubplotGrid - colorbar lengths are now automatically scaled to match subplot domain heights
+
 ## [0.11.0] - 2025-11-13
 
 ### 🚀 Features

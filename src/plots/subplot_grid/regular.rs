@@ -8,7 +8,9 @@ use crate::common::PlotHelper;
 use crate::components::{Rgb, Text};
 
 use super::custom_legend::CustomLegend;
-use super::shared::{detect_plot_type, JsonTrace, PlotType};
+use super::shared::{
+    detect_plot_type, determine_bar_mode, determine_box_mode, JsonTrace, PlotType,
+};
 use super::SubplotGrid;
 
 #[derive(Clone)]
@@ -309,16 +311,33 @@ pub(super) fn build_regular(
             format!("y{}", plot_idx + 1)
         };
 
-        for trace in traces {
-            let modified_trace = match plot_type {
-                PlotType::Cartesian2D => {
-                    let mut json_trace = JsonTrace::new(trace.clone());
-                    json_trace.set_axis_references(&x_axis, &y_axis);
-                    Box::new(json_trace)
-                }
-                _ => trace.clone(),
-            };
-            all_traces.push(modified_trace);
+        if let Some(serialized_traces) = plot.get_serialized_traces() {
+            for trace_value in serialized_traces {
+                let modified_trace = match plot_type {
+                    PlotType::Cartesian2D => {
+                        let mut json_trace = JsonTrace::from_value(trace_value);
+                        json_trace.set_axis_references(&x_axis, &y_axis);
+                        Box::new(json_trace)
+                    }
+                    _ => {
+                        let json_trace = JsonTrace::from_value(trace_value);
+                        Box::new(json_trace)
+                    }
+                };
+                all_traces.push(modified_trace);
+            }
+        } else {
+            for trace in traces {
+                let modified_trace = match plot_type {
+                    PlotType::Cartesian2D => {
+                        let mut json_trace = JsonTrace::new(trace.clone());
+                        json_trace.set_axis_references(&x_axis, &y_axis);
+                        Box::new(json_trace)
+                    }
+                    _ => trace.clone(),
+                };
+                all_traces.push(modified_trace);
+            }
         }
     }
 
@@ -354,6 +373,14 @@ fn create_regular_layout(
     plots: &[&dyn PlotHelper],
 ) -> (LayoutPlotly, Value) {
     let mut layout = LayoutPlotly::new().show_legend(false);
+
+    if let Some(bar_mode) = determine_bar_mode(plots) {
+        layout = layout.bar_mode(bar_mode);
+    }
+
+    if let Some(box_mode) = determine_box_mode(plots) {
+        layout = layout.box_mode(box_mode);
+    }
 
     if let Some(title) = plot_title {
         layout = layout.title(title.to_plotly());

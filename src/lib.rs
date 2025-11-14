@@ -18,7 +18,7 @@ pub use crate::components::exponent::ValueExponent;
 pub use crate::components::facet::{FacetConfig, FacetScales};
 pub use crate::components::fill::Fill;
 pub use crate::components::header::Header;
-pub use crate::components::intensity_mode::IntensityMode;
+pub use crate::components::intensity::IntensityMode;
 pub use crate::components::legend::Legend;
 pub use crate::components::lighting::Lighting;
 pub use crate::components::line::Line;
