@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### 🚀 Features
 
+- Dimensions: New component for controlling plot sizing with width, height, and auto_size parameters
+  - Integrated into all plot types and SubplotGrid
+  - Enables precise control over plot dimensions, particularly useful for multi-plot layouts
 - SubplotGrid: Create multi-plot grid layouts with automatic positioning and configurable spacing (cartesian 2D plots only)
   - Regular grids with automatic plot arrangement
   - Irregular grids with custom row/column spanning support
