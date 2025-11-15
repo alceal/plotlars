@@ -27,7 +27,7 @@ fn main() {
         .decreasing(&decreasing)
         .whisker_width(0.1)
         .plot_title("Candlestick")
-        .y_title("Price ($)")
+        .y_title("price ($)")
         .y_axis(&Axis::new().show_axis(true).show_grid(true))
         .build()
         .plot();

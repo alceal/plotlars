@@ -30,7 +30,6 @@ fn main() {
         .width(3.0)
         .with_shape(false)
         .plot_title(Text::from("Line Plot").font("Arial").size(18))
-        .legend_title(Text::from("series").font("Arial").size(15))
         .x_axis(
             &Axis::new()
                 .tick_direction(TickDirection::OutSide)

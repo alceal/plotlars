@@ -16,7 +16,7 @@ fn main() {
         .low("low")
         .close("close")
         .plot_title("OHLC Plot")
-        .y_title("Price ($)")
+        .y_title("price ($)")
         .y_axis(&Axis::new().show_axis(true))
         .build()
         .plot();

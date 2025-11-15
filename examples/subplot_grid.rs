@@ -1,6 +1,6 @@
 use plotlars::{
-    Axis, BarPlot, BoxPlot, CandlestickPlot, ColorBar, Direction, HeatMap, Histogram, Legend,
-    Line, Orientation, Palette, Plot, Rgb, ScatterPlot, Shape, SubplotGrid, Text, TickDirection,
+    Axis, BarPlot, BoxPlot, CandlestickPlot, ColorBar, Direction, HeatMap, Histogram, Legend, Line,
+    Orientation, Palette, Plot, Rgb, ScatterPlot, Shape, SubplotGrid, Text, TickDirection,
     TimeSeriesPlot, ValueExponent,
 };
 use polars::prelude::*;
@@ -71,7 +71,7 @@ fn regular_grid_example() {
         .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
         .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
         .plot_title(Text::from("Scatter Plot").x(-0.075).y(1.35).size(14))
-        .x_title("body mass (g)")
+        .x_title(Text::from("body mass (g)").y(-0.4))
         .y_title(Text::from("flipper length (mm)").x(-0.078).y(0.5))
         .legend_title("species")
         .x_axis(&axis.clone().value_range(vec![2500.0, 6500.0]))
@@ -197,7 +197,7 @@ fn irregular_grid_example() {
         .decreasing(&decreasing)
         .whisker_width(0.1)
         .plot_title(Text::from("Candlestick").x(0.0).y(1.35).size(14))
-        .y_title(Text::from("Price ($)").x(-0.06).y(0.76))
+        .y_title(Text::from("price ($)").x(-0.06).y(0.76))
         .y_axis(&Axis::new().show_axis(true).show_grid(true))
         .build();
 
