@@ -1,4 +1,3 @@
-use bon::bon;
 use plotly::common::Anchor;
 use plotly::layout::Annotation;
 use plotly::Trace;
@@ -153,99 +152,7 @@ impl Default for CustomLegend {
     }
 }
 
-#[bon]
 impl CustomLegend {
-    #[builder]
-    pub(crate) fn new(
-        entries: Option<Vec<LegendEntry>>,
-        x: Option<f64>,
-        y: Option<f64>,
-        x_anchor: Option<&str>,
-        y_anchor: Option<&str>,
-        background_color: Option<Rgb>,
-        border_color: Option<Rgb>,
-        border_width: Option<f64>,
-        font_family: Option<&str>,
-        font_size: Option<usize>,
-        font_color: Option<Rgb>,
-        padding: Option<f64>,
-        line_spacing: Option<f64>,
-        visible: Option<bool>,
-        title: Option<&str>,
-        title_font_size: Option<usize>,
-        orientation: Option<Orientation>,
-    ) -> Self {
-        let mut legend = Self::default();
-
-        if let Some(e) = entries {
-            legend.entries = e;
-        }
-        if let Some(v) = x {
-            legend.x = v;
-        }
-        if let Some(v) = y {
-            legend.y = v;
-        }
-        if let Some(v) = x_anchor {
-            legend.x_anchor = match v {
-                "left" => Anchor::Left,
-                "center" => Anchor::Center,
-                "right" => Anchor::Right,
-                _ => Anchor::Left,
-            };
-        }
-        if let Some(v) = y_anchor {
-            legend.y_anchor = match v {
-                "top" => Anchor::Top,
-                "middle" => Anchor::Middle,
-                "bottom" => Anchor::Bottom,
-                _ => Anchor::Top,
-            };
-        }
-        if background_color.is_some() {
-            legend.background_color = background_color;
-        }
-        if border_color.is_some() {
-            legend.border_color = border_color;
-        }
-        if let Some(v) = border_width {
-            legend.border_width = v;
-        }
-        if let Some(v) = font_family {
-            legend.font_family = v.to_string();
-        }
-        if let Some(v) = font_size {
-            legend.font_size = v;
-        }
-        if let Some(v) = font_color {
-            legend.font_color = v;
-        }
-        if let Some(v) = padding {
-            legend.padding = v;
-        }
-        if let Some(v) = line_spacing {
-            legend.line_spacing = v;
-        }
-        if let Some(v) = visible {
-            legend.visible = v;
-        }
-        if let Some(t) = title {
-            legend.title = Some(t.to_string());
-        }
-        if let Some(s) = title_font_size {
-            legend.title_font_size = Some(s);
-        }
-        if let Some(o) = orientation {
-            legend.orientation = o;
-        }
-
-        legend
-    }
-
-    pub(crate) fn add_entry(&mut self, entry: LegendEntry) {
-        self.entries.push(entry);
-    }
-
     pub(crate) fn to_annotation(&self, subplot_idx: usize) -> Option<Annotation> {
         if !self.visible || self.entries.is_empty() {
             return None;
