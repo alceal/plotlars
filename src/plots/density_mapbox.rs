@@ -112,6 +112,7 @@ impl DensityMapbox {
             y2_axis,
             z_axis,
             legend,
+            None,
         )
         .margin(Margin::new().bottom(0));
 

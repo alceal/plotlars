@@ -5,7 +5,7 @@ use plotly::{
 use serde_json::Value;
 
 use crate::common::PlotHelper;
-use crate::components::Text;
+use crate::components::{Dimensions, Text};
 
 use super::custom_legend::CustomLegend;
 use super::shared::{
@@ -31,6 +31,7 @@ pub(super) fn build_irregular(
     title: Option<Text>,
     h_gap: Option<f64>,
     v_gap: Option<f64>,
+    dimensions: Option<&Dimensions>,
 ) -> SubplotGrid {
     let rows = rows.unwrap_or(1);
     let cols = cols.unwrap_or(1);
@@ -90,8 +91,16 @@ pub(super) fn build_irregular(
 
     assign_axis_references(&mut all_traces, &plots);
 
-    let (layout, layout_json) =
-        create_irregular_layout(rows, cols, h_gap, v_gap, title, &plot_configs, &plots);
+    let (layout, layout_json) = create_irregular_layout(
+        rows,
+        cols,
+        h_gap,
+        v_gap,
+        title,
+        &plot_configs,
+        &plots,
+        dimensions,
+    );
 
     scale_colorbars_for_subplots(
         &mut all_traces,
@@ -219,6 +228,7 @@ fn scale_colorbars_for_subplots(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn create_irregular_layout(
     rows: usize,
     cols: usize,
@@ -227,6 +237,7 @@ fn create_irregular_layout(
     plot_title: Option<Text>,
     plot_configs: &[PlotConfig],
     plots: &[(&dyn PlotHelper, usize, usize, usize, usize)],
+    dimensions: Option<&Dimensions>,
 ) -> (LayoutPlotly, Value) {
     let mut layout = LayoutPlotly::new().show_legend(false);
 
@@ -240,7 +251,7 @@ fn create_irregular_layout(
     }
 
     if let Some(title) = plot_title {
-        layout = layout.title(title.to_plotly());
+        layout = layout.title(title.with_plot_title_defaults().to_plotly());
     }
 
     for (idx, ((row, col, rowspan, colspan), _, x_config, y_config, x_axis_type, y_axis_type)) in
@@ -297,6 +308,18 @@ fn create_irregular_layout(
         layout = layout.annotations(annotations);
     }
 
+    if let Some(dims) = dimensions {
+        if let Some(width) = dims.width {
+            layout = layout.width(width);
+        }
+        if let Some(height) = dims.height {
+            layout = layout.height(height);
+        }
+        if let Some(auto_size) = dims.auto_size {
+            layout = layout.auto_size(auto_size);
+        }
+    }
+
     let layout_json = serde_json::to_value(&layout).unwrap();
     (layout, layout_json)
 }
@@ -337,27 +360,31 @@ fn collect_annotations(
 ) -> Vec<Annotation> {
     let mut annotations = Vec::new();
 
+    // Convert ALL axis titles to annotations for grid-aware positioning
+    // This ensures titles work correctly regardless of how they were specified
     for (idx, (_, _, x_config, y_config, _, _)) in plot_configs.iter().enumerate() {
         if let Some(ref x_title) = x_config.title {
-            if x_title.has_custom_position() {
-                let axis_ref = if idx == 0 {
-                    "x".to_string()
-                } else {
-                    format!("x{}", idx + 1)
-                };
-                annotations.push(x_title.to_axis_annotation(true, &axis_ref, true));
-            }
+            let axis_ref = if idx == 0 {
+                "x".to_string()
+            } else {
+                format!("x{}", idx + 1)
+            };
+
+            // Apply defaults to ensure proper positioning (fills in any unset coordinates)
+            let x_title_with_defaults = x_title.clone().with_x_title_defaults();
+            annotations.push(x_title_with_defaults.to_axis_annotation(true, &axis_ref, true));
         }
 
         if let Some(ref y_title) = y_config.title {
-            if y_title.has_custom_position() {
-                let axis_ref = if idx == 0 {
-                    "y".to_string()
-                } else {
-                    format!("y{}", idx + 1)
-                };
-                annotations.push(y_title.to_axis_annotation(false, &axis_ref, true));
-            }
+            let axis_ref = if idx == 0 {
+                "y".to_string()
+            } else {
+                format!("y{}", idx + 1)
+            };
+
+            // Apply defaults to ensure proper positioning (fills in any unset coordinates)
+            let y_title_with_defaults = y_title.clone().with_y_title_defaults();
+            annotations.push(y_title_with_defaults.to_axis_annotation(false, &axis_ref, true));
         }
     }
 
@@ -374,14 +401,16 @@ fn collect_annotations(
                 format!("y{} domain", idx + 1)
             };
 
+            let title = title_text.clone().with_subplot_title_defaults();
+
             annotations.push(
                 Annotation::new()
-                    .text(&title_text.content)
-                    .font(title_text.to_font())
+                    .text(&title.content)
+                    .font(title.to_font())
                     .x_ref(&x_ref)
                     .y_ref(&y_ref)
-                    .x(title_text.x)
-                    .y(title_text.y)
+                    .x(title.x)
+                    .y(title.y)
                     .show_arrow(false),
             );
         }

@@ -2,7 +2,7 @@ use plotly::common::Anchor;
 use plotly::layout::Annotation;
 use plotly::Layout as LayoutPlotly;
 
-use crate::components::{Axis, Legend, Text};
+use crate::components::{Axis, Dimensions, Legend, Text};
 
 #[allow(clippy::too_many_arguments)]
 pub(crate) trait Layout {
@@ -18,6 +18,7 @@ pub(crate) trait Layout {
         y2_axis: Option<&Axis>,
         z_axis: Option<&Axis>,
         legend: Option<&Legend>,
+        dimensions: Option<&Dimensions>,
     ) -> LayoutPlotly {
         let mut layout = LayoutPlotly::new();
         let mut annotations = Vec::new();
@@ -26,8 +27,17 @@ pub(crate) trait Layout {
             layout = layout.title(title.to_plotly());
         }
 
-        let (x_title_for_axis, x_annotation) =
-            Self::split_title_or_annotation(x_title, true, "x", false);
+        let (x_title_for_axis, x_annotation) = if let Some(text) = x_title {
+            if text.has_custom_position() {
+                let text_with_defaults = text.with_x_title_defaults_for_annotation();
+                let ann = text_with_defaults.to_axis_annotation(true, "x", false);
+                (None, Some(ann))
+            } else {
+                (Some(text.with_x_title_defaults()), None)
+            }
+        } else {
+            (None, None)
+        };
 
         match (x_axis, x_title_for_axis) {
             (Some(axis), title) => {
@@ -44,8 +54,17 @@ pub(crate) trait Layout {
             annotations.push(ann);
         }
 
-        let (y_title_for_axis, y_annotation) =
-            Self::split_title_or_annotation(y_title, false, "y", false);
+        let (y_title_for_axis, y_annotation) = if let Some(text) = y_title {
+            if text.has_custom_position() {
+                let text_with_defaults = text.with_y_title_defaults_for_annotation();
+                let ann = text_with_defaults.to_axis_annotation(false, "y", false);
+                (None, Some(ann))
+            } else {
+                (Some(text.with_y_title_defaults()), None)
+            }
+        } else {
+            (None, None)
+        };
 
         match (y_axis, y_title_for_axis) {
             (Some(axis), title) => {
@@ -83,6 +102,18 @@ pub(crate) trait Layout {
 
         if !annotations.is_empty() {
             layout = layout.annotations(annotations);
+        }
+
+        if let Some(dims) = dimensions {
+            if let Some(width) = dims.width {
+                layout = layout.width(width);
+            }
+            if let Some(height) = dims.height {
+                layout = layout.height(height);
+            }
+            if let Some(auto_size) = dims.auto_size {
+                layout = layout.auto_size(auto_size);
+            }
         }
 
         layout
@@ -174,21 +205,4 @@ pub(crate) trait Layout {
         col == 0
     }
 
-    fn split_title_or_annotation(
-        title: Option<Text>,
-        is_x_axis: bool,
-        axis_ref: &str,
-        use_domain: bool,
-    ) -> (Option<Text>, Option<Annotation>) {
-        if let Some(text) = title {
-            if text.has_custom_position() {
-                let annotation = text.to_axis_annotation(is_x_axis, axis_ref, use_domain);
-                (None, Some(annotation))
-            } else {
-                (Some(text), None)
-            }
-        } else {
-            (None, None)
-        }
-    }
 }

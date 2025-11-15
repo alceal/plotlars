@@ -117,6 +117,7 @@ impl Table {
             y2_axis,
             z_axis,
             legend,
+            None,
         );
 
         let traces = Self::create_traces(data, &columns, header, cell, column_width);

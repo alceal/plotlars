@@ -215,6 +215,7 @@ impl Scatter3dPlot {
                     y2_axis,
                     z_axis,
                     legend,
+                    None,
                 );
 
                 let traces = Self::create_traces(

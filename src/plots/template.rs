@@ -48,6 +48,7 @@ impl TemplatePlot {
             y_axis,
             z_axis,
             legend,
+            None,
         );
 
         let traces = Self::create_traces(data, x, y);

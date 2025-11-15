@@ -154,11 +154,8 @@ pub(super) fn parse_color(color_str: &str) -> Option<Rgb> {
 pub(super) fn build_axis_from_config(config: &AxisConfig) -> AxisPlotly {
     let mut axis = AxisPlotly::new();
 
-    if let Some(title_text) = &config.title {
-        if !title_text.has_custom_position() {
-            axis = axis.title(title_text.to_plotly());
-        }
-    }
+    // Note: Titles are now handled as annotations for better grid positioning
+    // See annotation creation loop in create_irregular_layout
 
     if let Some(axis_obj) = config.axis_json.as_object() {
         if let Some(show_line) = axis_obj.get("showline").and_then(|v| v.as_bool()) {

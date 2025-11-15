@@ -103,6 +103,7 @@ impl OhlcPlot {
             y_axis2,
             z_axis,
             legend,
+            None,
         );
 
         let traces = Self::create_traces(data, dates, open, high, low, close, tick_width);

@@ -5,7 +5,7 @@ use plotly::{
 use serde_json::Value;
 
 use crate::common::PlotHelper;
-use crate::components::{Rgb, Text};
+use crate::components::{Dimensions, Rgb, Text};
 
 use super::custom_legend::CustomLegend;
 use super::shared::{
@@ -111,12 +111,8 @@ fn build_axis_from_config(config: &AxisConfig) -> Option<AxisPlotly> {
 
     let mut axis = AxisPlotly::new();
 
-    if let Some(title_text) = &config.title {
-        if !title_text.has_custom_position() {
-            let title = title_text.to_plotly();
-            axis = axis.title(title);
-        }
-    }
+    // Note: Titles are now handled as annotations for better grid positioning
+    // See annotation creation loop in create_regular_layout
 
     if let Some(show_line) = axis_obj.get("showline").and_then(|v| v.as_bool()) {
         axis = axis.show_line(show_line);
@@ -250,6 +246,7 @@ fn validate_regular_grid(plots: &[&dyn PlotHelper], rows: usize, cols: usize) {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) fn build_regular(
     plots: Vec<&dyn PlotHelper>,
     rows: Option<usize>,
@@ -258,6 +255,7 @@ pub(super) fn build_regular(
     h_gap: Option<f64>,
     v_gap: Option<f64>,
     legends: Option<Vec<Option<&CustomLegend>>>,
+    dimensions: Option<&Dimensions>,
 ) -> SubplotGrid {
     let rows = rows.unwrap_or(1);
     let cols = cols.unwrap_or(1);
@@ -355,6 +353,7 @@ pub(super) fn build_regular(
         &axis_configs,
         legends,
         &plots,
+        dimensions,
     );
 
     SubplotGrid {
@@ -371,6 +370,7 @@ fn create_regular_layout(
     axis_configs: &[(AxisConfig, AxisConfig)],
     legends: Option<Vec<Option<&CustomLegend>>>,
     plots: &[&dyn PlotHelper],
+    dimensions: Option<&Dimensions>,
 ) -> (LayoutPlotly, Value) {
     let mut layout = LayoutPlotly::new().show_legend(false);
 
@@ -383,7 +383,7 @@ fn create_regular_layout(
     }
 
     if let Some(title) = plot_title {
-        layout = layout.title(title.to_plotly());
+        layout = layout.title(title.with_plot_title_defaults().to_plotly());
     }
 
     let grid = LayoutGrid::new()
@@ -427,29 +427,33 @@ fn create_regular_layout(
 
     let mut annotations = Vec::new();
 
+    // Convert ALL axis titles to annotations for grid-aware positioning
+    // This ensures titles work correctly regardless of how they were specified
     for (idx, (x_config, y_config)) in axis_configs.iter().enumerate() {
         if let Some(ref x_title) = x_config.title {
-            if x_title.has_custom_position() {
-                let axis_ref = if idx == 0 {
-                    "x".to_string()
-                } else {
-                    format!("x{}", idx + 1)
-                };
-                let annotation = x_title.to_axis_annotation(true, &axis_ref, true);
-                annotations.push(annotation);
-            }
+            let axis_ref = if idx == 0 {
+                "x".to_string()
+            } else {
+                format!("x{}", idx + 1)
+            };
+
+            // Apply defaults to ensure proper positioning (fills in any unset coordinates)
+            let x_title_with_defaults = x_title.clone().with_x_title_defaults();
+            let annotation = x_title_with_defaults.to_axis_annotation(true, &axis_ref, true);
+            annotations.push(annotation);
         }
 
         if let Some(ref y_title) = y_config.title {
-            if y_title.has_custom_position() {
-                let axis_ref = if idx == 0 {
-                    "y".to_string()
-                } else {
-                    format!("y{}", idx + 1)
-                };
-                let annotation = y_title.to_axis_annotation(false, &axis_ref, true);
-                annotations.push(annotation);
-            }
+            let axis_ref = if idx == 0 {
+                "y".to_string()
+            } else {
+                format!("y{}", idx + 1)
+            };
+
+            // Apply defaults to ensure proper positioning (fills in any unset coordinates)
+            let y_title_with_defaults = y_title.clone().with_y_title_defaults();
+            let annotation = y_title_with_defaults.to_axis_annotation(false, &axis_ref, true);
+            annotations.push(annotation);
         }
     }
 
@@ -466,13 +470,15 @@ fn create_regular_layout(
                 format!("y{} domain", idx + 1)
             };
 
+            let title = title_text.clone().with_subplot_title_defaults();
+
             let ann = Annotation::new()
-                .text(&title_text.content)
-                .font(title_text.to_font())
+                .text(&title.content)
+                .font(title.to_font())
                 .x_ref(&x_ref)
                 .y_ref(&y_ref)
-                .x(title_text.x)
-                .y(title_text.y)
+                .x(title.x)
+                .y(title.y)
                 .show_arrow(false);
 
             annotations.push(ann);
@@ -499,6 +505,18 @@ fn create_regular_layout(
 
     if !annotations.is_empty() {
         layout = layout.annotations(annotations);
+    }
+
+    if let Some(dims) = dimensions {
+        if let Some(width) = dims.width {
+            layout = layout.width(width);
+        }
+        if let Some(height) = dims.height {
+            layout = layout.height(height);
+        }
+        if let Some(auto_size) = dims.auto_size {
+            layout = layout.auto_size(auto_size);
+        }
     }
 
     let layout_json = serde_json::to_value(&layout).unwrap();

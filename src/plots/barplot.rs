@@ -92,13 +92,13 @@ use crate::{
 ///         &Legend::new()
 ///             .orientation(Orientation::Horizontal)
 ///             .y(1.0)
-///             .x(0.4)
+///             .x(0.43)
 ///     )
 ///     .build()
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/xKHucCp.png)
+/// ![Example](https://imgur.com/HQQvQey.png)
 #[derive(Clone, Serialize)]
 pub struct BarPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
@@ -179,6 +179,7 @@ impl BarPlot {
                     y2_axis,
                     z_axis,
                     legend,
+                    None,
                 );
 
                 layout = layout.bar_mode(BarMode::Group);

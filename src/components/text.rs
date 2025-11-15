@@ -167,6 +167,99 @@ impl Text {
         (self.x - 0.5).abs() > EPSILON || (self.y - 0.9).abs() > EPSILON
     }
 
+    /// Apply default positioning for plot titles (x=0.5, y=1.0 - centered above)
+    pub(crate) fn with_plot_title_defaults(mut self) -> Self {
+        const EPSILON: f64 = 1e-6;
+        let y_is_default = (self.y - 0.9).abs() < EPSILON;
+
+        if y_is_default {
+            self.y = 1.0;
+        }
+
+        self
+    }
+
+    /// Apply default positioning for subplot titles (x=0.5, y=1.1 - centered above, higher than overall)
+    pub(crate) fn with_subplot_title_defaults(mut self) -> Self {
+        const EPSILON: f64 = 1e-6;
+        let y_is_default = (self.y - 0.9).abs() < EPSILON;
+        let y_is_plot_default = (self.y - 1.0).abs() < EPSILON;
+
+        // Override both Text::default (0.9) and plot_title default (1.0)
+        if y_is_default || y_is_plot_default {
+            self.y = 1.1;
+        }
+
+        self
+    }
+
+    /// Apply default positioning for x-axis titles (x=0.5, y=-0.15 - centered below)
+    pub(crate) fn with_x_title_defaults(mut self) -> Self {
+        const EPSILON: f64 = 1e-6;
+        let y_is_default = (self.y - 0.9).abs() < EPSILON;
+
+        if y_is_default {
+            self.y = -0.15;
+        }
+
+        self
+    }
+
+    /// Apply default positioning for y-axis titles (x=-0.08, y=0.5 - left side, vertically centered)
+    pub(crate) fn with_y_title_defaults(mut self) -> Self {
+        const EPSILON: f64 = 1e-6;
+        let x_is_default = (self.x - 0.5).abs() < EPSILON;
+        let y_is_default = (self.y - 0.9).abs() < EPSILON;
+
+        if x_is_default {
+            self.x = -0.08;
+        }
+
+        if y_is_default {
+            self.y = 0.5;
+        }
+
+        self
+    }
+
+    /// Apply default positioning for x-axis title annotations
+    /// Used when user sets custom position and annotation mode is triggered
+    /// Ensures unset coordinates get appropriate axis defaults
+    pub(crate) fn with_x_title_defaults_for_annotation(mut self) -> Self {
+        const EPSILON: f64 = 1e-6;
+        let x_is_default = (self.x - 0.5).abs() < EPSILON;
+        let y_is_default = (self.y - 0.9).abs() < EPSILON;
+
+        if x_is_default {
+            self.x = 0.5;
+        }
+
+        if y_is_default {
+            self.y = -0.15;
+        }
+
+        self
+    }
+
+    /// Apply default positioning for y-axis title annotations
+    /// Used when user sets custom position and annotation mode is triggered
+    /// Ensures unset coordinates get appropriate axis defaults
+    pub(crate) fn with_y_title_defaults_for_annotation(mut self) -> Self {
+        const EPSILON: f64 = 1e-6;
+        let x_is_default = (self.x - 0.5).abs() < EPSILON;
+        let y_is_default = (self.y - 0.9).abs() < EPSILON;
+
+        if x_is_default {
+            self.x = -0.08;
+        }
+
+        if y_is_default {
+            self.y = 0.5;
+        }
+
+        self
+    }
+
     pub(crate) fn to_axis_annotation(
         &self,
         is_x_axis: bool,

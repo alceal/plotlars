@@ -120,6 +120,7 @@ impl CandlestickPlot {
             y_axis2,
             z_axis,
             legend,
+            None,
         );
 
         let traces = Self::create_traces(

@@ -80,6 +80,7 @@ impl Image {
             y2_axis,
             z_axis,
             legend,
+            None,
         );
 
         let mut traces = vec![];

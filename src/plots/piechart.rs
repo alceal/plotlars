@@ -138,6 +138,7 @@ impl PieChart {
                     y2_axis,
                     z_axis,
                     legend,
+                    None,
                 );
 
                 let traces = Self::create_traces(data, labels, hole, pull, rotation, colors);

@@ -114,7 +114,7 @@ use crate::{
 ///     .plot();
 /// ```
 ///
-/// ![Example](https://imgur.com/uj1LY90.png)
+/// ![Example](https://imgur.com/jdA3g9r.png)
 #[derive(Clone, Serialize)]
 pub struct BoxPlot {
     traces: Vec<Box<dyn Trace + 'static>>,
@@ -202,6 +202,7 @@ impl BoxPlot {
                     y2_axis,
                     z_axis,
                     legend,
+                    None,
                 );
 
                 if group.is_some() {

@@ -13,6 +13,7 @@ pub use crate::components::cell::Cell;
 pub use crate::components::color::Rgb;
 pub use crate::components::colorbar::ColorBar;
 pub use crate::components::coloring::Coloring;
+pub use crate::components::dimensions::Dimensions;
 pub use crate::components::direction::Direction;
 pub use crate::components::exponent::ValueExponent;
 pub use crate::components::facet::{FacetConfig, FacetScales};

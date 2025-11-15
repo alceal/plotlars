@@ -181,6 +181,7 @@ impl Histogram {
                     y2_axis,
                     z_axis,
                     legend,
+                    None,
                 );
 
                 layout = layout.bar_mode(BarMode::Overlay);

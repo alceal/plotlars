@@ -4,7 +4,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 use serde_json::Value;
 
 use crate::common::{Layout, PlotHelper, Polar};
-use crate::components::Text;
+use crate::components::{Dimensions, Text};
 
 mod custom_legend;
 mod irregular;
@@ -138,7 +138,7 @@ impl SubplotGrid {
     ///     .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
     ///     .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
     ///     .plot_title(Text::from("Scatter Plot").x(-0.075).y(1.35).size(14))
-    ///     .x_title("body mass (g)")
+    ///     .x_title(Text::from("body mass (g)").y(-0.4))
     ///     .y_title(Text::from("flipper length (mm)").x(-0.078).y(0.5))
     ///     .legend_title("species")
     ///     .x_axis(&axis.clone().value_range(vec![2500.0, 6500.0]))
@@ -214,8 +214,9 @@ impl SubplotGrid {
         title: Option<Text>,
         h_gap: Option<f64>,
         v_gap: Option<f64>,
+        dimensions: Option<&Dimensions>,
     ) -> Self {
-        regular::build_regular(plots, rows, cols, title, h_gap, v_gap, None)
+        regular::build_regular(plots, rows, cols, title, h_gap, v_gap, None, dimensions)
     }
 
     /// Creates an irregular grid subplot layout with custom row/column spanning.
@@ -360,8 +361,9 @@ impl SubplotGrid {
         title: Option<Text>,
         h_gap: Option<f64>,
         v_gap: Option<f64>,
+        dimensions: Option<&Dimensions>,
     ) -> Self {
-        irregular::build_irregular(plots, rows, cols, title, h_gap, v_gap)
+        irregular::build_irregular(plots, rows, cols, title, h_gap, v_gap, dimensions)
     }
 }
 
