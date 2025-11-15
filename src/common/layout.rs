@@ -204,5 +204,4 @@ pub(crate) trait Layout {
         let col = subplot_index % ncols;
         col == 0
     }
-
 }

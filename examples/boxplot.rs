@@ -27,7 +27,7 @@ fn main() {
         .colors(vec![Rgb(0, 191, 255), Rgb(57, 255, 20), Rgb(255, 105, 180)])
         .plot_title(Text::from("Box Plot").font("Arial").size(18))
         .x_title(Text::from("species").font("Arial").size(15))
-        .y_title(Text::from("body mass (g)").font("Arial").size(15). x(-0.04))
+        .y_title(Text::from("body mass (g)").font("Arial").size(15).x(-0.04))
         .legend_title(Text::from("gender").font("Arial").size(15))
         .y_axis(&Axis::new().value_thousands(true))
         .legend(&Legend::new().border_width(1).x(0.9))
