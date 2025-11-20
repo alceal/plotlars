@@ -1,16 +1,41 @@
 use plotly::{layout::Axis as AxisPlotly, Trace};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{json, Map, Value};
 use std::collections::HashMap;
 
 use crate::common::PlotHelper;
 use crate::components::{Rgb, Text};
+
+pub(super) const DEFAULT_COLORWAY: &[(u8, u8, u8)] = &[
+    (31, 119, 180),
+    (255, 127, 14),
+    (44, 160, 44),
+    (214, 39, 40),
+    (148, 103, 189),
+    (140, 86, 75),
+    (227, 119, 194),
+    (127, 127, 127),
+    (188, 189, 34),
+    (23, 190, 207),
+];
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) enum PlotType {
     Cartesian2D,
     Cartesian3D,
     Polar,
+    Domain,
+    Mapbox,
+    Geo,
+}
+
+#[derive(Clone)]
+pub(super) struct NonCartesianLayout {
+    pub plot_type: PlotType,
+    pub domain_x: [f64; 2],
+    pub domain_y: [f64; 2],
+    pub layout_fragment: Option<Value>,
+    pub subplot_ref: String,
 }
 
 #[derive(Clone)]
@@ -27,6 +52,9 @@ pub(super) fn detect_plot_type(trace: &(dyn Trace + 'static)) -> PlotType {
                 "scatter3d" | "mesh3d" | "surface" | "isosurface" | "volume" | "streamtube"
                 | "cone" => PlotType::Cartesian3D,
                 "scatterpolar" | "scatterpolargl" | "barpolar" => PlotType::Polar,
+                "pie" | "sankey" | "table" => PlotType::Domain,
+                "scattermapbox" | "densitymapbox" => PlotType::Mapbox,
+                "scattergeo" => PlotType::Geo,
                 _ => PlotType::Cartesian2D,
             }
         } else {
@@ -34,6 +62,86 @@ pub(super) fn detect_plot_type(trace: &(dyn Trace + 'static)) -> PlotType {
         }
     } else {
         PlotType::Cartesian2D
+    }
+}
+
+pub(super) fn adjust_domain_for_type(
+    plot_type: PlotType,
+    x_start: f64,
+    x_end: f64,
+    y_start: f64,
+    y_end: f64,
+) -> ([f64; 2], [f64; 2]) {
+    let height = y_end - y_start;
+    let padding_ratio = match plot_type {
+        PlotType::Polar => 0.18, // extra room for polar titles
+        PlotType::Cartesian3D => 0.12,
+        PlotType::Domain => 0.08,
+        PlotType::Mapbox | PlotType::Geo => 0.06,
+        PlotType::Cartesian2D => 0.0,
+    };
+
+    let padding = height * padding_ratio;
+    let adjusted_y = [y_start + padding / 2.0, y_end - padding / 2.0];
+    ([x_start, x_end], adjusted_y)
+}
+
+pub(super) fn inject_non_cartesian_domains(
+    layout_json: &mut Value,
+    configs: &[NonCartesianLayout],
+) {
+    for info in configs {
+        match info.plot_type {
+            PlotType::Cartesian3D => {
+                let scene_key = info.subplot_ref.clone();
+                let mut scene_obj = info
+                    .layout_fragment
+                    .clone()
+                    .unwrap_or_else(|| Value::Object(Map::new()));
+                scene_obj["domain"] = json!({
+                    "x": info.domain_x,
+                    "y": info.domain_y
+                });
+                layout_json[scene_key] = scene_obj;
+            }
+            PlotType::Polar => {
+                let polar_key = info.subplot_ref.clone();
+                let mut polar_obj = info
+                    .layout_fragment
+                    .clone()
+                    .unwrap_or_else(|| Value::Object(Map::new()));
+                polar_obj["domain"] = json!({
+                    "x": info.domain_x,
+                    "y": info.domain_y
+                });
+                layout_json[polar_key] = polar_obj;
+            }
+            PlotType::Mapbox => {
+                let mapbox_key = info.subplot_ref.clone();
+                let mut mapbox_obj = info
+                    .layout_fragment
+                    .clone()
+                    .unwrap_or_else(|| Value::Object(Map::new()));
+                mapbox_obj["domain"] = json!({
+                    "x": info.domain_x,
+                    "y": info.domain_y
+                });
+                layout_json[mapbox_key] = mapbox_obj;
+            }
+            PlotType::Geo => {
+                let geo_key = info.subplot_ref.clone();
+                let mut geo_obj = info
+                    .layout_fragment
+                    .clone()
+                    .unwrap_or_else(|| Value::Object(Map::new()));
+                geo_obj["domain"] = json!({
+                    "x": info.domain_x,
+                    "y": info.domain_y
+                });
+                layout_json[geo_key] = geo_obj;
+            }
+            PlotType::Domain | PlotType::Cartesian2D => {}
+        }
     }
 }
 
@@ -54,10 +162,117 @@ impl JsonTrace {
         Self { data: value }
     }
 
+    pub(super) fn data(&self) -> &Value {
+        &self.data
+    }
+
     pub(super) fn set_axis_references(&mut self, x_axis: &str, y_axis: &str) {
         if let Some(obj) = self.data.as_object_mut() {
             obj.insert("xaxis".to_string(), json!(x_axis));
             obj.insert("yaxis".to_string(), json!(y_axis));
+        }
+    }
+
+    pub(super) fn set_domain(&mut self, domain_x: [f64; 2], domain_y: [f64; 2]) {
+        use serde_json::Map;
+
+        let mut domain_obj = self
+            .data
+            .get_mut("domain")
+            .and_then(|d| d.as_object_mut())
+            .cloned()
+            .unwrap_or_else(Map::new);
+
+        domain_obj.insert("x".to_string(), json!(domain_x));
+        domain_obj.insert("y".to_string(), json!(domain_y));
+
+        if let Some(obj) = self.data.as_object_mut() {
+            obj.insert("domain".to_string(), Value::Object(domain_obj));
+        }
+    }
+
+    pub(super) fn set_scene_reference(&mut self, scene: &str) {
+        if let Some(obj) = self.data.as_object_mut() {
+            obj.insert("scene".to_string(), json!(scene));
+        }
+    }
+
+    pub(super) fn set_subplot_reference(&mut self, subplot: &str) {
+        if let Some(obj) = self.data.as_object_mut() {
+            obj.insert("subplot".to_string(), json!(subplot));
+        }
+    }
+
+    pub(super) fn ensure_color(&mut self, global_index: usize) {
+        let trace_type = self
+            .data
+            .get("type")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+
+        let default_color = DEFAULT_COLORWAY[global_index % DEFAULT_COLORWAY.len()];
+        let color_str = format!("rgb({},{},{})", default_color.0, default_color.1, default_color.2);
+
+        match trace_type {
+            "scatter" | "scattergl" | "scatter3d" | "scatterpolar" | "scattergeo"
+            | "scattermapbox" => {
+                let mode = self
+                    .data
+                    .get("mode")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+
+                let has_marker_color = self
+                    .data
+                    .get("marker")
+                    .and_then(|m| m.get("color"))
+                    .is_some();
+
+                let has_line_color = self
+                    .data
+                    .get("line")
+                    .and_then(|l| l.get("color"))
+                    .is_some();
+
+                if mode.contains("markers") && !has_marker_color {
+                    if self.data.get("marker").is_none() {
+                        self.data["marker"] = Value::Object(Map::new());
+                    }
+                    if let Some(obj) = self.data.get_mut("marker").and_then(|m| m.as_object_mut()) {
+                        obj.insert("color".to_string(), json!(color_str));
+                    }
+                } else if mode.contains("lines") && !has_line_color {
+                    if self.data.get("line").is_none() {
+                        self.data["line"] = Value::Object(Map::new());
+                    }
+                    if let Some(obj) = self.data.get_mut("line").and_then(|l| l.as_object_mut()) {
+                        obj.insert("color".to_string(), json!(color_str));
+                    }
+                } else if !has_marker_color && !has_line_color {
+                    if self.data.get("marker").is_none() {
+                        self.data["marker"] = Value::Object(Map::new());
+                    }
+                    if let Some(obj) = self.data.get_mut("marker").and_then(|m| m.as_object_mut()) {
+                        obj.insert("color".to_string(), json!(color_str));
+                    }
+                }
+            }
+            "bar" | "box" | "histogram" | "barpolar" => {
+                let has_color = self
+                    .data
+                    .get("marker")
+                    .and_then(|m| m.get("color"))
+                    .is_some();
+                if !has_color {
+                    if self.data.get("marker").is_none() {
+                        self.data["marker"] = Value::Object(Map::new());
+                    }
+                    if let Some(obj) = self.data.get_mut("marker").and_then(|m| m.as_object_mut()) {
+                        obj.insert("color".to_string(), json!(color_str));
+                    }
+                }
+            }
+            _ => {}
         }
     }
 }
@@ -366,13 +581,21 @@ pub(super) fn validate_plot_types(plots: &[&dyn PlotHelper]) {
         let traces = plot.get_traces();
         if !traces.is_empty() {
             let plot_type = detect_plot_type(traces[0].as_ref());
-            if plot_type != PlotType::Cartesian2D {
+            let supported = matches!(
+                plot_type,
+                PlotType::Cartesian2D
+                    | PlotType::Cartesian3D
+                    | PlotType::Polar
+                    | PlotType::Domain
+                    | PlotType::Mapbox
+                    | PlotType::Geo
+            );
+            if !supported {
                 panic!(
                     "SubplotGrid validation error: unsupported plot type.\n\
-                    \n\
-                    Problem: Plot {} is not a 2D Cartesian plot. Irregular grids only support 2D Cartesian plots.\n\
-                    Solution: Use only ScatterPlot, LinePlot, BarPlot, HistogramPlot, etc. Not 3D or polar plots.",
-                    idx
+                    Problem: Plot {} uses an unsupported trace family ({:?}).\n\
+                    Solution: Use cartesian, polar, 3D scene, domain-based (pie/sankey/table), geo, or mapbox traces.",
+                    idx, plot_type
                 );
             }
         }

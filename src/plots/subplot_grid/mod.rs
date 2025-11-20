@@ -44,9 +44,6 @@ mod shared;
 /// - ScatterPlot
 /// - Table
 /// - TimeSeriesPlot
-///
-/// **Don't Work with SubplotGrid:**
-///
 /// - PieChart
 /// - SankeyDiagram
 /// - Mesh3D, Scatter3dPlot, SurfacePlot
@@ -66,7 +63,7 @@ impl Serialize for SubplotGrid {
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("SubplotGrid", 2)?;
-        state.serialize_field("data", &self.traces)?;
+        state.serialize_field("traces", &self.traces)?;
 
         if let Some(ref layout_json) = self.layout_json {
             state.serialize_field("layout", layout_json)?;
@@ -404,5 +401,9 @@ impl PlotHelper for SubplotGrid {
 
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>> {
         &self.traces
+    }
+
+    fn get_layout_override(&self) -> Option<&Value> {
+        self.layout_json.as_ref()
     }
 }

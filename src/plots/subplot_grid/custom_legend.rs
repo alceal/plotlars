@@ -153,7 +153,11 @@ impl Default for CustomLegend {
 }
 
 impl CustomLegend {
-    pub(crate) fn to_annotation(&self, subplot_idx: usize) -> Option<Annotation> {
+    pub(crate) fn to_annotation(
+        &self,
+        subplot_idx: usize,
+        domain: Option<([f64; 2], [f64; 2])>,
+    ) -> Option<Annotation> {
         if !self.visible || self.entries.is_empty() {
             return None;
         }
@@ -199,24 +203,33 @@ impl CustomLegend {
             entries_html.join(separator)
         };
 
-        let x_ref = if subplot_idx == 0 {
-            "x domain".to_string()
+        let (x_ref, y_ref, x_pos, y_pos) = if let Some((domain_x, domain_y)) = domain {
+            let width = domain_x[1] - domain_x[0];
+            let height = domain_y[1] - domain_y[0];
+            let x = domain_x[0] + self.x * width;
+            let y = domain_y[0] + self.y * height;
+            ("paper".to_string(), "paper".to_string(), x, y)
         } else {
-            format!("x{} domain", subplot_idx + 1)
-        };
+            let xr = if subplot_idx == 0 {
+                "x domain".to_string()
+            } else {
+                format!("x{} domain", subplot_idx + 1)
+            };
 
-        let y_ref = if subplot_idx == 0 {
-            "y domain".to_string()
-        } else {
-            format!("y{} domain", subplot_idx + 1)
+            let yr = if subplot_idx == 0 {
+                "y domain".to_string()
+            } else {
+                format!("y{} domain", subplot_idx + 1)
+            };
+            (xr, yr, self.x, self.y)
         };
 
         let mut annotation = Annotation::new()
             .text(&legend_text)
             .x_ref(&x_ref)
             .y_ref(&y_ref)
-            .x(self.x)
-            .y(self.y)
+            .x(x_pos)
+            .y(y_pos)
             .x_anchor(self.x_anchor.clone())
             .y_anchor(self.y_anchor.clone())
             .show_arrow(false)
@@ -364,10 +377,35 @@ impl CustomLegend {
         Some(legend)
     }
 
+    pub(crate) fn from_json_traces(
+        traces: &[crate::plots::subplot_grid::shared::JsonTrace],
+    ) -> Option<Self> {
+        let mut entries = Vec::new();
+
+        for (trace_index, trace) in traces.iter().enumerate() {
+            if let Some(entry) = extract_legend_entry_value(trace.data(), trace_index) {
+                entries.push(entry);
+            }
+        }
+
+        if entries.is_empty() {
+            return None;
+        }
+
+        Some(Self {
+            entries,
+            ..Default::default()
+        })
+    }
+
     fn extract_legend_entry(trace: &dyn Trace, trace_index: usize) -> Option<LegendEntry> {
         let json_str = trace.to_json();
         let trace_json: Value = serde_json::from_str(&json_str).ok()?;
+        extract_legend_entry_value(&trace_json, trace_index)
+    }
+}
 
+fn extract_legend_entry_value(trace_json: &Value, trace_index: usize) -> Option<LegendEntry> {
         let show_legend = trace_json
             .get("showlegend")
             .and_then(|v| v.as_bool())
@@ -386,14 +424,13 @@ impl CustomLegend {
             return None;
         }
 
-        let trace_type = trace_json.get("type").and_then(|v| v.as_str())?;
+    let trace_type = trace_json.get("type").and_then(|v| v.as_str())?;
 
-        let marker_type = map_trace_type_to_marker(trace_type, &trace_json);
+    let marker_type = map_trace_type_to_marker(trace_type, trace_json);
 
-        let marker_color = extract_trace_color(&trace_json, trace_type, trace_index);
+    let marker_color = extract_trace_color(trace_json, trace_type, trace_index);
 
-        Some(LegendEntry::new(marker_type, marker_color, name))
-    }
+    Some(LegendEntry::new(marker_type, marker_color, name))
 }
 
 fn map_trace_type_to_marker(trace_type: &str, trace_json: &Value) -> MarkerType {

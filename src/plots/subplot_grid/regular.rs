@@ -9,7 +9,8 @@ use crate::components::{Dimensions, Rgb, Text};
 
 use super::custom_legend::CustomLegend;
 use super::shared::{
-    detect_plot_type, determine_bar_mode, determine_box_mode, JsonTrace, PlotType,
+    adjust_domain_for_type, calculate_spanning_domain, detect_plot_type, determine_bar_mode,
+    determine_box_mode, inject_non_cartesian_domains, JsonTrace, NonCartesianLayout, PlotType,
 };
 use super::SubplotGrid;
 
@@ -230,20 +231,6 @@ fn validate_regular_grid(plots: &[&dyn PlotHelper], rows: usize, cols: usize) {
             ((n_plots + 1) as f64 / 2.0).ceil() as usize
         );
     }
-
-    for (idx, plot) in plots.iter().enumerate() {
-        let traces = plot.get_traces();
-        let plot_type = detect_plot_type(traces[0].as_ref());
-        if plot_type != PlotType::Cartesian2D {
-            panic!(
-                "SubplotGrid validation error: unsupported plot type.\n\
-                \n\
-                Problem: Plot at index {} is a {:?} plot, but SubplotGrid currently only supports 2D Cartesian plots.\n\
-                Solution: Use only 2D plot types (ScatterPlot, LinePlot, BarPlot, BoxPlot, Histogram, etc.).",
-                idx, plot_type
-            );
-        }
-    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -267,6 +254,12 @@ pub(super) fn build_regular(
     let mut all_traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
     let mut plot_titles: Vec<Option<Text>> = Vec::new();
     let mut axis_configs: Vec<(AxisConfig, AxisConfig)> = Vec::new();
+    let mut subplot_info: Vec<NonCartesianLayout> = Vec::new();
+    let mut legend_sources: Vec<Vec<JsonTrace>> = Vec::new();
+    let mut scene_count = 0;
+    let mut polar_count = 0;
+    let mut mapbox_count = 0;
+    let mut geo_count = 0;
 
     for (plot_idx, plot) in plots.iter().enumerate() {
         let traces = plot.get_traces();
@@ -274,9 +267,19 @@ pub(super) fn build_regular(
 
         plot_titles.push(plot.get_main_title_text());
 
-        let layout_json = serde_json::to_value(plot.get_layout()).unwrap_or(Value::Null);
+        let layout_json = plot
+            .get_layout_override()
+            .cloned()
+            .unwrap_or_else(|| serde_json::to_value(plot.get_layout()).unwrap_or(Value::Null));
         let x_axis_json = layout_json.get("xaxis").cloned().unwrap_or(Value::Null);
         let y_axis_json = layout_json.get("yaxis").cloned().unwrap_or(Value::Null);
+        let layout_fragment = match plot_type {
+            PlotType::Cartesian3D => layout_json.get("scene").cloned(),
+            PlotType::Polar => layout_json.get("polar").cloned(),
+            PlotType::Mapbox => layout_json.get("mapbox").cloned(),
+            PlotType::Geo => layout_json.get("geo").cloned(),
+            _ => None,
+        };
 
         let x_title = plot
             .get_x_title_text()
@@ -309,34 +312,95 @@ pub(super) fn build_regular(
             format!("y{}", plot_idx + 1)
         };
 
+        let (row, col) = (plot_idx / cols, plot_idx % cols);
+        let (x_start, x_end, y_start, y_end) =
+            calculate_spanning_domain(row, col, 1, 1, rows, cols, h_gap, v_gap);
+        let (domain_x, domain_y) = adjust_domain_for_type(plot_type.clone(), x_start, x_end, y_start, y_end);
+
+        let subplot_ref = match plot_type {
+            PlotType::Cartesian3D => {
+                let name = if scene_count == 0 {
+                    "scene".to_string()
+                } else {
+                    format!("scene{}", scene_count + 1)
+                };
+                scene_count += 1;
+                name
+            }
+            PlotType::Polar => {
+                // Slightly compress domain Y to leave headroom for titles overlapping polar
+                let name = if polar_count == 0 {
+                    "polar".to_string()
+                } else {
+                    format!("polar{}", polar_count + 1)
+                };
+                polar_count += 1;
+                name
+            }
+            PlotType::Mapbox => {
+                let name = if mapbox_count == 0 {
+                    "mapbox".to_string()
+                } else {
+                    format!("mapbox{}", mapbox_count + 1)
+                };
+                mapbox_count += 1;
+                name
+            }
+            PlotType::Geo => {
+                let name = if geo_count == 0 {
+                    "geo".to_string()
+                } else {
+                    format!("geo{}", geo_count + 1)
+                };
+                geo_count += 1;
+                name
+            }
+            PlotType::Cartesian2D | PlotType::Domain => String::new(),
+        };
+
+        subplot_info.push(NonCartesianLayout {
+            plot_type: plot_type.clone(),
+            domain_x,
+            domain_y,
+            layout_fragment,
+            subplot_ref: subplot_ref.clone(),
+        });
+
+        let mut legend_traces: Vec<JsonTrace> = Vec::new();
+
         if let Some(serialized_traces) = plot.get_serialized_traces() {
             for trace_value in serialized_traces {
-                let modified_trace = match plot_type {
-                    PlotType::Cartesian2D => {
-                        let mut json_trace = JsonTrace::from_value(trace_value);
-                        json_trace.set_axis_references(&x_axis, &y_axis);
-                        Box::new(json_trace)
-                    }
-                    _ => {
-                        let json_trace = JsonTrace::from_value(trace_value);
-                        Box::new(json_trace)
-                    }
-                };
-                all_traces.push(modified_trace);
+                let mut json_trace = JsonTrace::from_value(trace_value);
+                match plot_type {
+                    PlotType::Cartesian2D => json_trace.set_axis_references(&x_axis, &y_axis),
+                    PlotType::Cartesian3D => json_trace.set_scene_reference(&subplot_ref),
+                    PlotType::Polar => json_trace.set_subplot_reference(&subplot_ref),
+                    PlotType::Domain => json_trace.set_domain(domain_x, domain_y),
+                    PlotType::Mapbox => json_trace.set_subplot_reference(&subplot_ref),
+                    PlotType::Geo => json_trace.set_subplot_reference(&subplot_ref),
+                }
+                json_trace.ensure_color(all_traces.len());
+                legend_traces.push(json_trace.clone());
+                all_traces.push(Box::new(json_trace));
             }
         } else {
             for trace in traces {
-                let modified_trace = match plot_type {
-                    PlotType::Cartesian2D => {
-                        let mut json_trace = JsonTrace::new(trace.clone());
-                        json_trace.set_axis_references(&x_axis, &y_axis);
-                        Box::new(json_trace)
-                    }
-                    _ => trace.clone(),
-                };
-                all_traces.push(modified_trace);
+                let mut json_trace = JsonTrace::new(trace.clone());
+                match plot_type {
+                    PlotType::Cartesian2D => json_trace.set_axis_references(&x_axis, &y_axis),
+                    PlotType::Cartesian3D => json_trace.set_scene_reference(&subplot_ref),
+                    PlotType::Polar => json_trace.set_subplot_reference(&subplot_ref),
+                    PlotType::Domain => json_trace.set_domain(domain_x, domain_y),
+                    PlotType::Mapbox => json_trace.set_subplot_reference(&subplot_ref),
+                    PlotType::Geo => json_trace.set_subplot_reference(&subplot_ref),
+                }
+                json_trace.ensure_color(all_traces.len());
+                legend_traces.push(json_trace.clone());
+                all_traces.push(Box::new(json_trace));
             }
         }
+
+        legend_sources.push(legend_traces);
     }
 
     let grid_config = GridConfig {
@@ -346,13 +410,28 @@ pub(super) fn build_regular(
         v_gap,
     };
 
+    let owned_legends: Option<Vec<Option<CustomLegend>>> = legends.map(|vec| {
+        vec.iter()
+            .map(|opt| opt.cloned())
+            .collect()
+    });
+
+    let auto_legends_owned: Option<Vec<Option<CustomLegend>>> = owned_legends.clone().or_else(|| {
+        let generated: Vec<Option<CustomLegend>> = legend_sources
+            .iter()
+            .map(|traces| CustomLegend::from_json_traces(traces))
+            .collect();
+        Some(generated)
+    });
+
     let (layout, layout_json) = create_regular_layout(
         &grid_config,
         title,
         &plot_titles,
         &axis_configs,
-        legends,
+        auto_legends_owned,
         &plots,
+        &subplot_info,
         dimensions,
     );
 
@@ -365,13 +444,15 @@ pub(super) fn build_regular(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn create_regular_layout(
     grid_config: &GridConfig,
     plot_title: Option<Text>,
     subplot_titles: &[Option<Text>],
     axis_configs: &[(AxisConfig, AxisConfig)],
-    legends: Option<Vec<Option<&CustomLegend>>>,
+    legends: Option<Vec<Option<CustomLegend>>>,
     plots: &[&dyn PlotHelper],
+    subplot_info: &[NonCartesianLayout],
     dimensions: Option<&Dimensions>,
 ) -> (LayoutPlotly, Value) {
     let mut layout = LayoutPlotly::new().show_legend(false);
@@ -398,6 +479,15 @@ fn create_regular_layout(
     layout = layout.grid(grid);
 
     for (idx, (x_config, y_config)) in axis_configs.iter().enumerate() {
+        let is_cartesian = subplot_info
+            .get(idx)
+            .map(|info| matches!(info.plot_type, PlotType::Cartesian2D))
+            .unwrap_or(true);
+
+        if !is_cartesian {
+            continue;
+        }
+
         if let Some(x_axis) = build_axis_from_config(x_config) {
             layout = match idx {
                 0 => layout.x_axis(x_axis),
@@ -432,6 +522,15 @@ fn create_regular_layout(
     // Convert ALL axis titles to annotations for grid-aware positioning
     // This ensures titles work correctly regardless of how they were specified
     for (idx, (x_config, y_config)) in axis_configs.iter().enumerate() {
+        let is_cartesian = subplot_info
+            .get(idx)
+            .map(|info| matches!(info.plot_type, PlotType::Cartesian2D))
+            .unwrap_or(true);
+
+        if !is_cartesian {
+            continue;
+        }
+
         if let Some(ref x_title) = x_config.title {
             let axis_ref = if idx == 0 {
                 "x".to_string()
@@ -461,36 +560,71 @@ fn create_regular_layout(
 
     for (idx, title_opt) in subplot_titles.iter().enumerate() {
         if let Some(title_text) = title_opt {
-            let x_ref = if idx == 0 {
-                "x domain".to_string()
-            } else {
-                format!("x{} domain", idx + 1)
-            };
-            let y_ref = if idx == 0 {
-                "y domain".to_string()
-            } else {
-                format!("y{} domain", idx + 1)
-            };
-
             let title = title_text.clone().with_subplot_title_defaults();
+            if let Some(info) = subplot_info.get(idx) {
+                if matches!(info.plot_type, PlotType::Cartesian2D) {
+                    let x_ref = if idx == 0 {
+                        "x domain".to_string()
+                    } else {
+                        format!("x{} domain", idx + 1)
+                    };
+                    let y_ref = if idx == 0 {
+                        "y domain".to_string()
+                    } else {
+                        format!("y{} domain", idx + 1)
+                    };
 
-            let ann = Annotation::new()
-                .text(&title.content)
-                .font(title.to_font())
-                .x_ref(&x_ref)
-                .y_ref(&y_ref)
-                .x(title.x)
-                .y(title.y)
-                .show_arrow(false);
+                    let ann = Annotation::new()
+                        .text(&title.content)
+                        .font(title.to_font())
+                        .x_ref(&x_ref)
+                        .y_ref(&y_ref)
+                        .x(title.x)
+                        .y(title.y)
+                        .show_arrow(false);
 
-            annotations.push(ann);
+                    annotations.push(ann);
+                } else {
+                    let width = info.domain_x[1] - info.domain_x[0];
+                    let height = info.domain_y[1] - info.domain_y[0];
+                    let x_pos = info.domain_x[0] + width * title.x;
+                    let y_pos = if matches!(info.plot_type, PlotType::Polar) {
+                        info.domain_y[1] + height * 0.20
+                    } else {
+                        info.domain_y[0] + height * title.y
+                    };
+
+                    annotations.push(
+                        Annotation::new()
+                            .text(&title.content)
+                            .font(title.to_font())
+                            .x_ref("paper")
+                            .y_ref("paper")
+                            .x(x_pos)
+                            .y(y_pos)
+                            .show_arrow(false),
+                    );
+                }
+            }
         }
     }
+
+    let get_domain = |idx: usize| {
+        subplot_info.get(idx).and_then(|info| {
+            if matches!(info.plot_type, PlotType::Cartesian2D) {
+                None
+            } else {
+                Some((info.domain_x, info.domain_y))
+            }
+        })
+    };
 
     if let Some(legend_configs) = legends {
         for (subplot_idx, legend_opt) in legend_configs.iter().enumerate() {
             if let Some(legend) = legend_opt {
-                if let Some(legend_annotation) = legend.to_annotation(subplot_idx) {
+                if let Some(legend_annotation) =
+                    legend.to_annotation(subplot_idx, get_domain(subplot_idx))
+                {
                     annotations.push(legend_annotation);
                 }
             }
@@ -498,7 +632,9 @@ fn create_regular_layout(
     } else {
         for (subplot_idx, plot) in plots.iter().enumerate() {
             if let Some(auto_legend) = CustomLegend::from_plot(*plot) {
-                if let Some(legend_annotation) = auto_legend.to_annotation(subplot_idx) {
+                if let Some(legend_annotation) =
+                    auto_legend.to_annotation(subplot_idx, get_domain(subplot_idx))
+                {
                     annotations.push(legend_annotation);
                 }
             }
@@ -521,7 +657,9 @@ fn create_regular_layout(
         }
     }
 
-    let layout_json = serde_json::to_value(&layout).unwrap();
+    let mut layout_json = serde_json::to_value(&layout).unwrap();
+
+    inject_non_cartesian_domains(&mut layout_json, subplot_info);
 
     (layout, layout_json)
 }
