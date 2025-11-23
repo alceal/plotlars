@@ -21,6 +21,56 @@ pub trait Plot {
 
     fn to_inline_html(&self, plot_div_id: Option<&str>) -> String; // We need it?
 
+    /// Exports the plot to a static image file.
+    ///
+    /// This method requires one of the export features to be enabled:
+    /// - `export-chrome` (uses ChromeDriver)
+    /// - `export-firefox` (uses GeckoDriver)
+    /// - `export-default` (uses any available driver)
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Output file path including extension (`.png`, `.jpg`, `.jpeg`, `.webp`, or `.svg`)
+    /// * `width` - Image width in pixels
+    /// * `height` - Image height in pixels
+    /// * `scale` - Scaling factor for resolution (use `1.0` for standard displays, `2.0` for high-DPI)
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` on success, or an error if:
+    /// - The export feature is not enabled
+    /// - The WebDriver is not installed or accessible
+    /// - The file format is unsupported
+    /// - The file cannot be written
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use plotlars::{ScatterPlot, Plot};
+    /// use polars::prelude::*;
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let dataset = df! {
+    ///     "x" => &[1, 2, 3, 4, 5],
+    ///     "y" => &[2, 4, 6, 8, 10],
+    /// }?;
+    ///
+    /// let plot = ScatterPlot::builder()
+    ///     .data(&dataset)
+    ///     .x("x")
+    ///     .y("y")
+    ///     .build();
+    ///
+    /// // Export as high-resolution PNG
+    /// plot.write_image("scatter.png", 1920, 1080, 2.0)?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`write_html`](Plot::write_html) - Export as interactive HTML
+    /// - [`to_json`](Plot::to_json) - Export plot data as JSON
     #[cfg(any(
         feature = "export-chrome",
         feature = "export-firefox",

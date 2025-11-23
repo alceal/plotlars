@@ -196,6 +196,64 @@ Replace `barplot` with the file name (without the `.rs` extension) of the exampl
   plot types.
 - Customization: Modify plot appearance with an intuitive API.
 
+## Exporting Plots
+
+Plotlars supports exporting plots to static image files in various formats (PNG, JPG, WEBP, SVG) through the `write_image` method.
+
+### Prerequisites
+
+To use image export functionality, you need to enable one of the export features and have the corresponding WebDriver installed:
+
+- **Default** (recommended - uses any available driver):
+  ```bash
+  cargo add plotlars --features export-default
+  ```
+
+- **Chrome/Chromium**:
+  ```bash
+  cargo add plotlars --features export-chrome
+  ```
+  Install ChromeDriver: https://chromedriver.chromium.org/
+
+- **Firefox**:
+  ```bash
+  cargo add plotlars --features export-firefox
+  ```
+  Install GeckoDriver: https://github.com/mozilla/geckodriver/releases
+
+### Usage
+
+```rust
+use plotlars::{ScatterPlot, Plot};
+use polars::prelude::*;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+        .finish()?
+        .collect()?;
+
+    let plot = ScatterPlot::builder()
+        .data(&dataset)
+        .x("body_mass_g")
+        .y("flipper_length_mm")
+        .plot_title("Penguin Data")
+        .build();
+
+    // Export as PNG (1200x800 pixels, 2x scale for high DPI)
+    plot.write_image("output.png", 1200, 800, 2.0)?;
+
+    Ok(())
+}
+```
+
+**Parameters:**
+- `path`: Output file path with extension (determines format)
+- `width`: Image width in pixels
+- `height`: Image height in pixels
+- `scale`: Scaling factor (use 2.0 for high-DPI displays)
+
+**Supported formats:** `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`
+
 ## Plotlars in Jupyter Notebooks
 
 Plotlars seamlessly integrates with Jupyter Notebooks, allowing you to leverage
