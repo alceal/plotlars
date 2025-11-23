@@ -1,4 +1,3 @@
-use ndarray::Array;
 use plotlars::{
     Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram,
     Lighting, Line, LinePlot, Mesh3D, Mode, Palette, PieChart, Plot, Rgb, SankeyDiagram,
@@ -289,7 +288,12 @@ fn lineplot_example() {
 }
 
 fn create_lineplot_dataset() -> DataFrame {
-    let x_values = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 200).to_vec();
+    let x_values: Vec<f64> = (0..200)
+        .map(|i| {
+            let step = (2.0 * std::f64::consts::PI - 0.0) / 199.0;
+            0.0 + step * i as f64
+        })
+        .collect();
 
     let mut category = Vec::new();
     let mut amplitude = Vec::new();
@@ -608,10 +612,18 @@ fn timeseriesplot_example() {
 
 fn surfaceplot_example() {
     let n: usize = 50;
-    let (x_base, _): (Vec<f64>, Option<usize>) =
-        Array::linspace(-5., 5., n).into_raw_vec_and_offset();
-    let (y_base, _): (Vec<f64>, Option<usize>) =
-        Array::linspace(-5., 5., n).into_raw_vec_and_offset();
+    let x_base: Vec<f64> = (0..n)
+        .map(|i| {
+            let step = (5.0 - (-5.0)) / (n - 1) as f64;
+            -5.0 + step * i as f64
+        })
+        .collect();
+    let y_base: Vec<f64> = (0..n)
+        .map(|i| {
+            let step = (5.0 - (-5.0)) / (n - 1) as f64;
+            -5.0 + step * i as f64
+        })
+        .collect();
 
     let mut x_all = Vec::new();
     let mut y_all = Vec::new();

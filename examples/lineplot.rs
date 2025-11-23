@@ -1,9 +1,13 @@
-use ndarray::Array;
 use plotlars::{Axis, Line, LinePlot, Plot, Rgb, Text, TickDirection};
 use polars::prelude::*;
 
 fn main() {
-    let x_values = Array::linspace(0.0, 2.0 * std::f64::consts::PI, 1000).to_vec();
+    let x_values: Vec<f64> = (0..1000)
+        .map(|i| {
+            let step = (2.0 * std::f64::consts::PI - 0.0) / 999.0;
+            0.0 + step * i as f64
+        })
+        .collect();
     let sine_values = x_values
         .iter()
         .map(|arg0: &f64| f64::sin(*arg0))

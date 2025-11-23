@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2] - 2025-11-23
+
+### ⚠️ BREAKING CHANGES
+
+- Remove `ndarray` dependency
+  - No longer required as a direct dependency
+  - Users relying on ndarray integration should add it to their own Cargo.toml
+- Remove `plotly_static` dependency
+  - Export features now use plotly's built-in static export capabilities
+- Rename export features for consistency
+  - `static_export_chromedriver` → `export-chrome`
+  - `static_export_geckodriver` → `export-firefox`
+  - `static_export_wd_download` → `export-download`
+  - `static_export_default` → `export-default`
+
 ## [0.11.0] - 2025-11-15
 
 ### 🚀 Features

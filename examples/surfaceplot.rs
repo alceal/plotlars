@@ -1,14 +1,21 @@
-use ndarray::Array;
 use plotlars::{ColorBar, Palette, Plot, SurfacePlot, Text};
 use polars::prelude::*;
 use std::iter;
 
 fn main() {
     let n: usize = 100;
-    let (x_base, _): (Vec<f64>, Option<usize>) =
-        Array::linspace(-10.0, 10.0, n).into_raw_vec_and_offset();
-    let (y_base, _): (Vec<f64>, Option<usize>) =
-        Array::linspace(-10.0, 10.0, n).into_raw_vec_and_offset();
+    let x_base: Vec<f64> = (0..n)
+        .map(|i| {
+            let step = (10.0 - (-10.0)) / (n - 1) as f64;
+            -10.0 + step * i as f64
+        })
+        .collect();
+    let y_base: Vec<f64> = (0..n)
+        .map(|i| {
+            let step = (10.0 - (-10.0)) / (n - 1) as f64;
+            -10.0 + step * i as f64
+        })
+        .collect();
 
     let x = x_base
         .iter()

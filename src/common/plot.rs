@@ -7,13 +7,6 @@ use serde_json::Value;
 
 use crate::components::{Rgb, Text};
 
-#[cfg(any(
-    feature = "static_export_chromedriver",
-    feature = "static_export_geckodriver",
-    feature = "static_export_default"
-))]
-use plotly_static::ImageFormat;
-
 use serde::Serialize;
 
 /// A trait representing a generic plot that can be displayed or rendered.
@@ -29,9 +22,9 @@ pub trait Plot {
     fn to_inline_html(&self, plot_div_id: Option<&str>) -> String; // We need it?
 
     #[cfg(any(
-        feature = "static_export_chromedriver",
-        feature = "static_export_geckodriver",
-        feature = "static_export_default"
+        feature = "export-chrome",
+        feature = "export-firefox",
+        feature = "export-default"
     ))]
     fn write_image(
         &self,
@@ -39,7 +32,7 @@ pub trait Plot {
         width: usize,
         height: usize,
         scale: f64,
-    ) -> Result<(), std::boxed::Box<(dyn std::error::Error + 'static)>>;
+    ) -> Result<(), std::boxed::Box<dyn std::error::Error + 'static>>;
 }
 
 /// Helper trait for internal use by the `Plot` trait implementation.
@@ -227,20 +220,20 @@ pub trait PlotHelper {
 
     #[doc(hidden)]
     #[cfg(any(
-        feature = "static_export_chromedriver",
-        feature = "static_export_geckodriver",
-        feature = "static_export_default"
+        feature = "export-chrome",
+        feature = "export-firefox",
+        feature = "export-default"
     ))]
     fn get_image_format(
         &self,
         extension: &str,
-    ) -> Result<ImageFormat, std::boxed::Box<(dyn std::error::Error + 'static)>> {
+    ) -> Result<plotly::ImageFormat, std::boxed::Box<dyn std::error::Error + 'static>> {
         match extension {
-            "png" => Ok(ImageFormat::PNG),
-            "jpg" => Ok(ImageFormat::JPEG),
-            "jpeg" => Ok(ImageFormat::JPEG),
-            "webp" => Ok(ImageFormat::WEBP),
-            "svg" => Ok(ImageFormat::SVG),
+            "png" => Ok(plotly::ImageFormat::PNG),
+            "jpg" => Ok(plotly::ImageFormat::JPEG),
+            "jpeg" => Ok(plotly::ImageFormat::JPEG),
+            "webp" => Ok(plotly::ImageFormat::WEBP),
+            "svg" => Ok(plotly::ImageFormat::SVG),
             _ => Err(format!("Unsupported image format: {extension}").into()),
         }
     }
@@ -422,9 +415,9 @@ where
     }
 
     #[cfg(any(
-        feature = "static_export_chromedriver",
-        feature = "static_export_geckodriver",
-        feature = "static_export_default"
+        feature = "export-chrome",
+        feature = "export-firefox",
+        feature = "export-default"
     ))]
     fn write_image(
         &self,
@@ -432,50 +425,18 @@ where
         width: usize,
         height: usize,
         scale: f64,
-    ) -> Result<(), std::boxed::Box<(dyn std::error::Error + 'static)>> {
+    ) -> Result<(), std::boxed::Box<dyn std::error::Error + 'static>> {
         let path_string = path.into();
 
-        if self.get_layout_override().is_some() {
-            // For plots with layout overrides, generate HTML and convert to image
-            let html = self.to_html();
-            let temp_dir = env::temp_dir();
-            let timestamp = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos();
-            let temp_html = temp_dir.join(format!(
-                "plotlars_img_{}_{}.html",
-                std::process::id(),
-                timestamp
-            ));
-            fs::write(&temp_html, html)?;
+        let mut plot = Plotly::new();
+        plot.set_layout(self.get_layout().to_owned());
+        plot.add_traces(self.get_traces().to_owned());
 
-            if let Some((_, extension)) = path_string.rsplit_once('.') {
-                let format = self.get_image_format(extension)?;
-
-                // Use plotly_static to convert HTML to image
-                let temp_output = temp_html.with_extension(extension);
-                plotly_static::to_image(temp_html.to_str().unwrap(), format, width, height, scale)?;
-
-                // Move the generated image to the desired path
-                fs::rename(&temp_output, &path_string)?;
-
-                // Clean up temp HTML file
-                let _ = fs::remove_file(&temp_html);
-            } else {
-                return Err("No extension provided for image.".into());
-            }
+        if let Some((filename, extension)) = path_string.rsplit_once('.') {
+            let format = self.get_image_format(extension)?;
+            plot.write_image(filename, format, width, height, scale)?;
         } else {
-            let mut plot = Plotly::new();
-            plot.set_layout(self.get_layout().to_owned());
-            plot.add_traces(self.get_traces().to_owned());
-
-            if let Some((filename, extension)) = path_string.rsplit_once('.') {
-                let format = self.get_image_format(extension)?;
-                plot.write_image(filename, format, width, height, scale)?;
-            } else {
-                return Err("No extension provided for image.".into());
-            }
+            return Err("No extension provided for image.".into());
         }
 
         Ok(())
