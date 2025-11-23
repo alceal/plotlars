@@ -246,14 +246,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-**Parameters:**
-- `path`: Output file path with extension (determines format)
-- `width`: Image width in pixels
-- `height`: Image height in pixels
-- `scale`: Scaling factor (use 2.0 for high-DPI displays)
-
-**Supported formats:** `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`
-
 ## Plotlars in Jupyter Notebooks
 
 Plotlars seamlessly integrates with Jupyter Notebooks, allowing you to leverage
