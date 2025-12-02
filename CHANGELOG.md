@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.4] - 2025-12-02
+
+### 🚀 Features
+
+- Support mixed subplot grids combining different plot types (2D, 3D, polar, geo, mapbox, domain-based)
+- Auto-generate legends for subplot grids when not explicitly configured
+
 ## [0.11.3] - 2025-12-02
 
 ### 🐛 Bug Fixes
