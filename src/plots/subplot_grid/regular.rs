@@ -561,7 +561,7 @@ fn scale_colorbars_for_regular_grid(
     for (plot_idx, plot) in plots.iter().enumerate() {
         let col = plot_idx % grid_config.cols;
 
-        let (_, x_end, y_start, y_end) = calculate_subplot_domain(
+        let (x_start, x_end, y_start, y_end) = calculate_subplot_domain(
             plot_idx,
             grid_config.rows,
             grid_config.cols,
@@ -569,6 +569,7 @@ fn scale_colorbars_for_regular_grid(
             grid_config.v_gap,
         );
 
+        let domain_width = x_end - x_start;
         let domain_height = y_end - y_start;
         let traces = plot.get_traces();
         let num_traces = traces.len();
@@ -621,13 +622,17 @@ fn scale_colorbars_for_regular_grid(
                     let paper_y = y_start + user_y_domain * domain_height;
                     colorbar["y"] = serde_json::json!(paper_y);
 
-                    // Position colorbar in the gap to the right of its subplot
-                    // Only set position if user hasn't specified one
-                    if colorbar.get("x").is_none() {
-                        if colorbar.get("xref").is_none() {
-                            colorbar["xref"] = serde_json::json!("paper");
-                        }
+                    // Position colorbar - convert user's x value from subplot domain to paper coordinates
+                    if colorbar.get("xref").is_none() {
+                        colorbar["xref"] = serde_json::json!("paper");
+                    }
 
+                    if let Some(user_x) = colorbar.get("x").and_then(|v| v.as_f64()) {
+                        // User specified x value - interpret as subplot domain and convert to paper
+                        let paper_x = x_start + user_x * domain_width;
+                        colorbar["x"] = serde_json::json!(paper_x);
+                    } else {
+                        // No user x value - use automatic positioning in the gap
                         let is_rightmost_col = col == grid_config.cols - 1;
 
                         if is_rightmost_col {

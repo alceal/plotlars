@@ -164,13 +164,14 @@ fn scale_colorbars_for_subplots(
     for (((row, col, rowspan, colspan), _, _, _, _, _), (plot, _, _, _, _)) in
         plot_configs.iter().zip(plots.iter())
     {
-        let (_, x_end, y_start, y_end) =
+        let (x_start, x_end, y_start, y_end) =
             calculate_spanning_domain(*row, *col, *rowspan, *colspan, rows, cols, h_gap, v_gap);
 
         // Calculate the rightmost column this subplot occupies
         let end_col = *col + *colspan - 1;
         let is_rightmost_col = end_col == cols - 1;
 
+        let domain_width = x_end - x_start;
         let domain_height = y_end - y_start;
         let traces = plot.get_traces();
         let num_traces = traces.len();
@@ -222,13 +223,17 @@ fn scale_colorbars_for_subplots(
                     let paper_y = y_start + user_y_domain * (y_end - y_start);
                     colorbar["y"] = serde_json::json!(paper_y);
 
-                    // Position colorbar in the gap to the right of its subplot
-                    // Only set position if user hasn't specified one
-                    if colorbar.get("x").is_none() {
-                        if colorbar.get("xref").is_none() {
-                            colorbar["xref"] = serde_json::json!("paper");
-                        }
+                    // Position colorbar - convert user's x value from subplot domain to paper coordinates
+                    if colorbar.get("xref").is_none() {
+                        colorbar["xref"] = serde_json::json!("paper");
+                    }
 
+                    if let Some(user_x) = colorbar.get("x").and_then(|v| v.as_f64()) {
+                        // User specified x value - interpret as subplot domain and convert to paper
+                        let paper_x = x_start + user_x * domain_width;
+                        colorbar["x"] = serde_json::json!(paper_x);
+                    } else {
+                        // No user x value - use automatic positioning in the gap
                         if is_rightmost_col {
                             // Rightmost column: position just past the right edge
                             if colorbar.get("xanchor").is_none() {
