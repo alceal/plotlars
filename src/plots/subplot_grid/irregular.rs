@@ -164,8 +164,12 @@ fn scale_colorbars_for_subplots(
     for (((row, col, rowspan, colspan), _, _, _, _, _), (plot, _, _, _, _)) in
         plot_configs.iter().zip(plots.iter())
     {
-        let (_, _, y_start, y_end) =
+        let (_, x_end, y_start, y_end) =
             calculate_spanning_domain(*row, *col, *rowspan, *colspan, rows, cols, h_gap, v_gap);
+
+        // Calculate the rightmost column this subplot occupies
+        let end_col = *col + *colspan - 1;
+        let is_rightmost_col = end_col == cols - 1;
 
         let domain_height = y_end - y_start;
         let traces = plot.get_traces();
@@ -217,6 +221,31 @@ fn scale_colorbars_for_subplots(
 
                     let paper_y = y_start + user_y_domain * (y_end - y_start);
                     colorbar["y"] = serde_json::json!(paper_y);
+
+                    // Position colorbar in the gap to the right of its subplot
+                    // Only set position if user hasn't specified one
+                    if colorbar.get("x").is_none() {
+                        if colorbar.get("xref").is_none() {
+                            colorbar["xref"] = serde_json::json!("paper");
+                        }
+
+                        if is_rightmost_col {
+                            // Rightmost column: position just past the right edge
+                            if colorbar.get("xanchor").is_none() {
+                                colorbar["xanchor"] = serde_json::json!("left");
+                            }
+                            let paper_x = x_end + 0.01;
+                            colorbar["x"] = serde_json::json!(paper_x);
+                        } else {
+                            // Non-rightmost columns: center colorbar in the gap
+                            if colorbar.get("xanchor").is_none() {
+                                colorbar["xanchor"] = serde_json::json!("center");
+                            }
+                            // Position at center of the gap between this subplot and the next
+                            let gap_center = x_end + (h_gap / 2.0);
+                            colorbar["x"] = serde_json::json!(gap_center);
+                        }
+                    }
 
                     let scaled_trace = JsonTrace::from_value(trace_value);
                     all_traces[trace_idx] = Box::new(scaled_trace);

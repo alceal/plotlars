@@ -356,6 +356,8 @@ pub(super) fn build_regular(
         dimensions,
     );
 
+    scale_colorbars_for_regular_grid(&mut all_traces, &plots, &grid_config);
+
     SubplotGrid {
         traces: all_traces,
         layout,
@@ -522,4 +524,136 @@ fn create_regular_layout(
     let layout_json = serde_json::to_value(&layout).unwrap();
 
     (layout, layout_json)
+}
+
+fn calculate_subplot_domain(
+    plot_idx: usize,
+    rows: usize,
+    cols: usize,
+    h_gap: f64,
+    v_gap: f64,
+) -> (f64, f64, f64, f64) {
+    let row = plot_idx / cols;
+    let col = plot_idx % cols;
+
+    let col_width = (1.0 - h_gap * (cols - 1) as f64) / cols as f64;
+    let row_height = (1.0 - v_gap * (rows - 1) as f64) / rows as f64;
+
+    let x_start = col as f64 * (col_width + h_gap);
+    let x_end = x_start + col_width;
+
+    let y_from_top_start = row as f64 * (row_height + v_gap);
+    let y_from_top_end = y_from_top_start + row_height;
+
+    let y_start = 1.0 - y_from_top_end;
+    let y_end = 1.0 - y_from_top_start;
+
+    (x_start, x_end, y_start, y_end)
+}
+
+fn scale_colorbars_for_regular_grid(
+    all_traces: &mut [Box<dyn Trace + 'static>],
+    plots: &[&dyn PlotHelper],
+    grid_config: &GridConfig,
+) {
+    let mut trace_idx = 0;
+
+    for (plot_idx, plot) in plots.iter().enumerate() {
+        let col = plot_idx % grid_config.cols;
+
+        let (_, x_end, y_start, y_end) = calculate_subplot_domain(
+            plot_idx,
+            grid_config.rows,
+            grid_config.cols,
+            grid_config.h_gap,
+            grid_config.v_gap,
+        );
+
+        let domain_height = y_end - y_start;
+        let traces = plot.get_traces();
+        let num_traces = traces.len();
+
+        for _ in 0..num_traces {
+            if trace_idx >= all_traces.len() {
+                break;
+            }
+
+            let trace_json = serde_json::to_value(&all_traces[trace_idx]).ok();
+
+            if let Some(mut trace_value) = trace_json {
+                if let Some(colorbar) = trace_value.get_mut("colorbar") {
+                    let current_len = colorbar.get("len").and_then(|v| v.as_f64());
+
+                    match current_len {
+                        Some(len) => {
+                            if let Some(lenmode) = colorbar.get("lenmode").and_then(|v| v.as_str())
+                            {
+                                if lenmode == "fraction" && len > domain_height {
+                                    let scaled_len = len * domain_height;
+                                    colorbar["len"] = serde_json::json!(scaled_len);
+                                }
+                            }
+                        }
+                        None => {
+                            colorbar["len"] = serde_json::json!(domain_height);
+                            colorbar["lenmode"] = serde_json::json!("fraction");
+                        }
+                    }
+
+                    // Set colorbar y position based on subplot's vertical domain
+                    let user_y_domain = colorbar.get("y").and_then(|v| v.as_f64()).unwrap_or(0.5);
+
+                    if colorbar.get("yanchor").is_none() {
+                        let yanchor = if user_y_domain >= 0.8 {
+                            "top"
+                        } else if user_y_domain <= 0.2 {
+                            "bottom"
+                        } else {
+                            "middle"
+                        };
+                        colorbar["yanchor"] = serde_json::json!(yanchor);
+                    }
+
+                    if colorbar.get("yref").is_none() {
+                        colorbar["yref"] = serde_json::json!("paper");
+                    }
+
+                    let paper_y = y_start + user_y_domain * domain_height;
+                    colorbar["y"] = serde_json::json!(paper_y);
+
+                    // Position colorbar in the gap to the right of its subplot
+                    // Only set position if user hasn't specified one
+                    if colorbar.get("x").is_none() {
+                        if colorbar.get("xref").is_none() {
+                            colorbar["xref"] = serde_json::json!("paper");
+                        }
+
+                        let is_rightmost_col = col == grid_config.cols - 1;
+
+                        if is_rightmost_col {
+                            // Rightmost column: position just past the right edge
+                            if colorbar.get("xanchor").is_none() {
+                                colorbar["xanchor"] = serde_json::json!("left");
+                            }
+                            let paper_x = x_end + 0.01;
+                            colorbar["x"] = serde_json::json!(paper_x);
+                        } else {
+                            // Non-rightmost columns: center colorbar in the gap
+                            if colorbar.get("xanchor").is_none() {
+                                colorbar["xanchor"] = serde_json::json!("center");
+                            }
+                            // Position at center of the gap between this subplot and the next
+                            let gap_center = x_end + (grid_config.h_gap / 2.0);
+                            colorbar["x"] = serde_json::json!(gap_center);
+                        }
+                    }
+
+                    let scaled_trace = JsonTrace::from_value(trace_value);
+                    all_traces[trace_idx] = Box::new(scaled_trace);
+                }
+            }
+
+            trace_idx += 1;
+        }
+    }
 }
