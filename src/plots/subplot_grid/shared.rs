@@ -162,10 +162,6 @@ impl JsonTrace {
         Self { data: value }
     }
 
-    pub(super) fn data(&self) -> &Value {
-        &self.data
-    }
-
     pub(super) fn set_axis_references(&mut self, x_axis: &str, y_axis: &str) {
         if let Some(obj) = self.data.as_object_mut() {
             obj.insert("xaxis".to_string(), json!(x_axis));

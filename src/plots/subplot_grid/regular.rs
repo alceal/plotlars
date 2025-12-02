@@ -417,9 +417,9 @@ pub(super) fn build_regular(
     });
 
     let auto_legends_owned: Option<Vec<Option<CustomLegend>>> = owned_legends.clone().or_else(|| {
-        let generated: Vec<Option<CustomLegend>> = legend_sources
+        let generated: Vec<Option<CustomLegend>> = plots
             .iter()
-            .map(|traces| CustomLegend::from_json_traces(traces))
+            .map(|plot| CustomLegend::from_plot(*plot))
             .collect();
         Some(generated)
     });
@@ -588,7 +588,9 @@ fn create_regular_layout(
                     let width = info.domain_x[1] - info.domain_x[0];
                     let height = info.domain_y[1] - info.domain_y[0];
                     let x_pos = info.domain_x[0] + width * title.x;
-                    let y_pos = if matches!(info.plot_type, PlotType::Polar) {
+                    let y_pos = if matches!(info.plot_type, PlotType::Polar)
+                        && !title_text.has_custom_position()
+                    {
                         info.domain_y[1] + height * 0.20
                     } else {
                         info.domain_y[0] + height * title.y

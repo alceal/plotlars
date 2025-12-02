@@ -167,13 +167,13 @@ impl Text {
         (self.x - 0.5).abs() > EPSILON || (self.y - 0.9).abs() > EPSILON
     }
 
-    /// Apply default positioning for plot titles (x=0.5, y=1.0 - centered above)
+    /// Apply default positioning for plot titles (x=0.5, y=0.95 - centered above)
     pub(crate) fn with_plot_title_defaults(mut self) -> Self {
         const EPSILON: f64 = 1e-6;
         let y_is_default = (self.y - 0.9).abs() < EPSILON;
 
         if y_is_default {
-            self.y = 1.0;
+            self.y = 0.95;
         }
 
         self
@@ -183,9 +183,9 @@ impl Text {
     pub(crate) fn with_subplot_title_defaults(mut self) -> Self {
         const EPSILON: f64 = 1e-6;
         let y_is_default = (self.y - 0.9).abs() < EPSILON;
-        let y_is_plot_default = (self.y - 1.0).abs() < EPSILON;
+        let y_is_plot_default = (self.y - 0.95).abs() < EPSILON;
 
-        // Override both Text::default (0.9) and plot_title default (1.0)
+        // Override both Text::default (0.9) and plot_title default (0.95)
         if y_is_default || y_is_plot_default {
             self.y = 1.1;
         }

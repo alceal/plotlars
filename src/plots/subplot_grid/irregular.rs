@@ -590,11 +590,13 @@ fn collect_annotations(
                 let width = config.domain_x[1] - config.domain_x[0];
                 let height = config.domain_y[1] - config.domain_y[0];
                 let x_pos = config.domain_x[0] + width * title.x;
-                let y_pos = if matches!(config.plot_type, PlotType::Polar) {
-                    config.domain_y[1] + height * 0.20
-                } else {
-                    config.domain_y[0] + height * title.y
-                };
+                let y_pos =
+                    if matches!(config.plot_type, PlotType::Polar) && !title_text.has_custom_position()
+                    {
+                        config.domain_y[1] + height * 0.20
+                    } else {
+                        config.domain_y[0] + height * title.y
+                    };
 
                 annotations.push(
                     Annotation::new()

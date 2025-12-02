@@ -377,27 +377,6 @@ impl CustomLegend {
         Some(legend)
     }
 
-    pub(crate) fn from_json_traces(
-        traces: &[crate::plots::subplot_grid::shared::JsonTrace],
-    ) -> Option<Self> {
-        let mut entries = Vec::new();
-
-        for (trace_index, trace) in traces.iter().enumerate() {
-            if let Some(entry) = extract_legend_entry_value(trace.data(), trace_index) {
-                entries.push(entry);
-            }
-        }
-
-        if entries.is_empty() {
-            return None;
-        }
-
-        Some(Self {
-            entries,
-            ..Default::default()
-        })
-    }
-
     fn extract_legend_entry(trace: &dyn Trace, trace_index: usize) -> Option<LegendEntry> {
         let json_str = trace.to_json();
         let trace_json: Value = serde_json::from_str(&json_str).ok()?;
