@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.3] - 2025-12-02
+
+### 🐛 Bug Fixes
+
+- Fix colorbar positioning in subplot grids to avoid overlapping charts
+- Fix colorbar height scaling for traces without explicit colorbar configuration
+
 ## [0.11.2] - 2025-11-23
 
 ### ⚠️ BREAKING CHANGES
