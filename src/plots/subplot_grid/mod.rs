@@ -27,29 +27,6 @@ mod shared;
 /// - Overall figure title
 /// - Sparse grid support (fewer plots than grid capacity)
 ///
-/// # Plot Type Compatibility
-///
-/// **Work with SubplotGrid:**
-///
-/// - Array2DPlot
-/// - BarPlot
-/// - BoxPlot
-/// - CandlestickPlot
-/// - ContourPlot
-/// - HeatMap
-/// - Histogram
-/// - Image
-/// - LinePlot
-/// - OHLC
-/// - ScatterPlot
-/// - Table
-/// - TimeSeriesPlot
-/// - PieChart
-/// - SankeyDiagram
-/// - Mesh3D, Scatter3dPlot, SurfacePlot
-/// - ScatterPolar
-/// - DensityMapbox, ScatterGeo, ScatterMap
-///
 #[derive(Clone)]
 pub struct SubplotGrid {
     traces: Vec<Box<dyn Trace + 'static>>,
