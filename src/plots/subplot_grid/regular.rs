@@ -582,6 +582,22 @@ fn scale_colorbars_for_regular_grid(
             let trace_json = serde_json::to_value(&all_traces[trace_idx]).ok();
 
             if let Some(mut trace_value) = trace_json {
+                // Check if trace shows a colorbar (has colorbar object or showscale is not false)
+                let has_colorbar = trace_value.get("colorbar").is_some();
+                let shows_scale = trace_value
+                    .get("showscale")
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(true); // Default is true for heatmaps/contours
+
+                // Create colorbar object if trace shows scale but doesn't have explicit colorbar
+                if !has_colorbar && shows_scale {
+                    if let Some(trace_type) = trace_value.get("type").and_then(|v| v.as_str()) {
+                        if matches!(trace_type, "heatmap" | "contour" | "surface") {
+                            trace_value["colorbar"] = serde_json::json!({});
+                        }
+                    }
+                }
+
                 if let Some(colorbar) = trace_value.get_mut("colorbar") {
                     let current_len = colorbar.get("len").and_then(|v| v.as_f64());
 
