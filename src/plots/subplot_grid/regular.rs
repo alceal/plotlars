@@ -315,7 +315,8 @@ pub(super) fn build_regular(
         let (row, col) = (plot_idx / cols, plot_idx % cols);
         let (x_start, x_end, y_start, y_end) =
             calculate_spanning_domain(row, col, 1, 1, rows, cols, h_gap, v_gap);
-        let (domain_x, domain_y) = adjust_domain_for_type(plot_type.clone(), x_start, x_end, y_start, y_end);
+        let (domain_x, domain_y) =
+            adjust_domain_for_type(plot_type.clone(), x_start, x_end, y_start, y_end);
 
         let subplot_ref = match plot_type {
             PlotType::Cartesian3D => {
@@ -410,19 +411,17 @@ pub(super) fn build_regular(
         v_gap,
     };
 
-    let owned_legends: Option<Vec<Option<CustomLegend>>> = legends.map(|vec| {
-        vec.iter()
-            .map(|opt| opt.cloned())
-            .collect()
-    });
+    let owned_legends: Option<Vec<Option<CustomLegend>>> =
+        legends.map(|vec| vec.iter().map(|opt| opt.cloned()).collect());
 
-    let auto_legends_owned: Option<Vec<Option<CustomLegend>>> = owned_legends.clone().or_else(|| {
-        let generated: Vec<Option<CustomLegend>> = plots
-            .iter()
-            .map(|plot| CustomLegend::from_plot(*plot))
-            .collect();
-        Some(generated)
-    });
+    let auto_legends_owned: Option<Vec<Option<CustomLegend>>> =
+        owned_legends.clone().or_else(|| {
+            let generated: Vec<Option<CustomLegend>> = plots
+                .iter()
+                .map(|plot| CustomLegend::from_plot(*plot))
+                .collect();
+            Some(generated)
+        });
 
     let (layout, layout_json) = create_regular_layout(
         &grid_config,

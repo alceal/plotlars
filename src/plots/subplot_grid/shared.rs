@@ -200,23 +200,18 @@ impl JsonTrace {
     }
 
     pub(super) fn ensure_color(&mut self, global_index: usize) {
-        let trace_type = self
-            .data
-            .get("type")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let trace_type = self.data.get("type").and_then(|v| v.as_str()).unwrap_or("");
 
         let default_color = DEFAULT_COLORWAY[global_index % DEFAULT_COLORWAY.len()];
-        let color_str = format!("rgb({},{},{})", default_color.0, default_color.1, default_color.2);
+        let color_str = format!(
+            "rgb({},{},{})",
+            default_color.0, default_color.1, default_color.2
+        );
 
         match trace_type {
             "scatter" | "scattergl" | "scatter3d" | "scatterpolar" | "scattergeo"
             | "scattermapbox" => {
-                let mode = self
-                    .data
-                    .get("mode")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("");
+                let mode = self.data.get("mode").and_then(|v| v.as_str()).unwrap_or("");
 
                 let has_marker_color = self
                     .data
@@ -224,11 +219,7 @@ impl JsonTrace {
                     .and_then(|m| m.get("color"))
                     .is_some();
 
-                let has_line_color = self
-                    .data
-                    .get("line")
-                    .and_then(|l| l.get("color"))
-                    .is_some();
+                let has_line_color = self.data.get("line").and_then(|l| l.get("color")).is_some();
 
                 if mode.contains("markers") && !has_marker_color {
                     if self.data.get("marker").is_none() {

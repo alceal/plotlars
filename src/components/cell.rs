@@ -1,4 +1,4 @@
-use plotly::common::Font;
+use plotly::traces::table::Align;
 use plotly::traces::table::Cells as CellsPlotly;
 
 use crate::components::Rgb;
@@ -6,7 +6,7 @@ use crate::components::Rgb;
 /// A structure representing cell formatting for tables.
 ///
 /// The `Cell` struct allows customization of table cells including height,
-/// alignment, font, and fill color.
+/// alignment, and fill color.
 ///
 /// # Example
 ///
@@ -24,7 +24,6 @@ use crate::components::Rgb;
 /// let cell = Cell::new()
 ///     .height(30.0)
 ///     .align("left")
-///     .font("Arial")
 ///     .fill(Rgb(240, 240, 240));
 ///
 /// Table::builder()
@@ -41,7 +40,6 @@ use crate::components::Rgb;
 pub struct Cell {
     pub(crate) height: Option<f64>,
     pub(crate) align: Option<String>,
-    pub(crate) font: Option<String>,
     pub(crate) fill: Option<Rgb>,
 }
 
@@ -71,16 +69,6 @@ impl Cell {
         self
     }
 
-    /// Sets the font family of the cell text.
-    ///
-    /// # Argument
-    ///
-    /// * `font` - A string slice specifying the font family name.
-    pub fn font(mut self, font: &str) -> Self {
-        self.font = Some(font.to_string());
-        self
-    }
-
     /// Sets the fill color of the cells.
     ///
     /// # Argument
@@ -102,11 +90,12 @@ impl Cell {
         }
 
         if let Some(align) = &self.align {
-            cells = cells.align(align.as_str());
-        }
-
-        if let Some(font) = &self.font {
-            cells = cells.font(Font::new().family(font.as_str()));
+            let align_enum = match align.to_lowercase().as_str() {
+                "left" => Align::Left,
+                "right" => Align::Right,
+                _ => Align::Center,
+            };
+            cells = cells.align(align_enum);
         }
 
         if let Some(fill) = &self.fill {

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.5] - 2026-01-12
+
+### ⚠️ BREAKING CHANGES
+
+- Remove `Cell::font()` method
+  - The font customization for table cells is no longer supported in plotly 0.14.0
+  - `Header::font()` remains available for header styling
+
+### 📦 Dependencies
+
+- Update `bon` to 3.8.2
+- Update `indexmap` to 2.13.0
+- Update `plotly` to 0.14.0
+- Update `serde_json` to 1.0.149
+
 ## [0.11.4] - 2025-12-02
 
 ### 🚀 Features
