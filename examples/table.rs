@@ -22,7 +22,6 @@ fn main() {
     let cell = Cell::new()
         .align("center")
         .height(25.0)
-        .font("Arial")
         .fill(Rgb(240, 248, 255));
 
     Table::builder()

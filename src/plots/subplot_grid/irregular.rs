@@ -175,11 +175,7 @@ pub(super) fn build_irregular(
         legend_sources.push(legend_traces);
     }
 
-    assign_axis_references(
-        &mut all_traces,
-        &plots,
-        &plot_configs,
-    );
+    assign_axis_references(&mut all_traces, &plots, &plot_configs);
 
     let (layout, layout_json) = create_irregular_layout(
         rows,
@@ -207,7 +203,8 @@ fn assign_axis_references(
     plot_configs: &[PlotConfig],
 ) {
     let mut trace_idx = 0;
-    for (plot_idx, ((plot, _, _, _, _), config)) in plots.iter().zip(plot_configs.iter()).enumerate()
+    for (plot_idx, ((plot, _, _, _, _), config)) in
+        plots.iter().zip(plot_configs.iter()).enumerate()
     {
         let x_axis = if plot_idx == 0 {
             "x".to_string()
@@ -590,13 +587,13 @@ fn collect_annotations(
                 let width = config.domain_x[1] - config.domain_x[0];
                 let height = config.domain_y[1] - config.domain_y[0];
                 let x_pos = config.domain_x[0] + width * title.x;
-                let y_pos =
-                    if matches!(config.plot_type, PlotType::Polar) && !title_text.has_custom_position()
-                    {
-                        config.domain_y[1] + height * 0.20
-                    } else {
-                        config.domain_y[0] + height * title.y
-                    };
+                let y_pos = if matches!(config.plot_type, PlotType::Polar)
+                    && !title_text.has_custom_position()
+                {
+                    config.domain_y[1] + height * 0.20
+                } else {
+                    config.domain_y[0] + height * title.y
+                };
 
                 annotations.push(
                     Annotation::new()

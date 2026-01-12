@@ -1,4 +1,5 @@
-use plotly::common::Font;
+use plotly::traces::table::Align;
+use plotly::traces::table::Font;
 use plotly::traces::table::Header as HeaderPlotly;
 
 use crate::components::Rgb;
@@ -114,7 +115,12 @@ impl Header {
         }
 
         if let Some(align) = &self.align {
-            header = header.align(align.as_str());
+            let align_enum = match align.to_lowercase().as_str() {
+                "left" => Align::Left,
+                "right" => Align::Right,
+                _ => Align::Center,
+            };
+            header = header.align(align_enum);
         }
 
         if let Some(font) = &self.font {

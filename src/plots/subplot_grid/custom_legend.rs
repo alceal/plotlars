@@ -385,23 +385,23 @@ impl CustomLegend {
 }
 
 fn extract_legend_entry_value(trace_json: &Value, trace_index: usize) -> Option<LegendEntry> {
-        let show_legend = trace_json
-            .get("showlegend")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(true);
+    let show_legend = trace_json
+        .get("showlegend")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
 
-        if !show_legend {
-            return None;
-        }
+    if !show_legend {
+        return None;
+    }
 
-        let name = trace_json
-            .get("name")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+    let name = trace_json
+        .get("name")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
 
-        if name.is_empty() {
-            return None;
-        }
+    if name.is_empty() {
+        return None;
+    }
 
     let trace_type = trace_json.get("type").and_then(|v| v.as_str())?;
 
