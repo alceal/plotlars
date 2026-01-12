@@ -1,5 +1,8 @@
 ## General
 
+# Claude Code
+.claude/
+
 # Visual Studio Code
 .vscode/
 
