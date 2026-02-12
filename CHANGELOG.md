@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.6] - 2026-02-12
+
+### ⚠️ BREAKING CHANGES
+
+- Migrate from `PlPath` to `PlRefPath` for file path handling (polars 0.53.0)
+- `DataFrame::new()` now requires a `height: usize` parameter as its first argument (polars 0.53.0)
+
+### 📦 Dependencies
+
+- Update `polars` to 0.53.0
+
 ## [0.11.5] - 2026-01-12
 
 ### ⚠️ BREAKING CHANGES

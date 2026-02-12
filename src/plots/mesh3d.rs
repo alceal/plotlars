@@ -71,7 +71,7 @@ use crate::{
 ///     }
 /// }
 ///
-/// let dataset = DataFrame::new(vec![
+/// let dataset = DataFrame::new(x.len(), vec![
 ///     Column::new("x".into(), x),
 ///     Column::new("y".into(), y),
 ///     Column::new("z".into(), z),

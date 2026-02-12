@@ -15,7 +15,7 @@ use plotly::common::Mode as PlotlyMode;
 /// let categories = vec![0., 72., 144., 216., 288., 360.];
 /// let performance = vec![8.0, 6.5, 7.0, 9.0, 5.5, 8.0];
 ///
-/// let dataset = DataFrame::new(vec![
+/// let dataset = DataFrame::new(categories.len(), vec![
 ///     Column::new("category".into(), categories),
 ///     Column::new("performance".into(), performance),
 /// ])

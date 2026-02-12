@@ -17,7 +17,7 @@ use plotly::traces::mesh3d::IntensityMode as PlotlyIntensityMode;
 /// let z = vec![0.0, 2.0, 0.0, 1.0];
 /// let intensity = vec![0.0, 0.5, 0.8, 1.0];
 ///
-/// let dataset = DataFrame::new(vec![
+/// let dataset = DataFrame::new(x.len(), vec![
 ///     Column::new("x".into(), x),
 ///     Column::new("y".into(), y),
 ///     Column::new("z".into(), z),

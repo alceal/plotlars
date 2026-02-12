@@ -38,7 +38,7 @@ use crate::{
 /// use plotlars::{Axis, OhlcPlot, Plot};
 /// use polars::prelude::*;
 ///
-/// let stock_data = LazyCsvReader::new(PlPath::new("data/stock_prices.csv"))
+/// let stock_data = LazyCsvReader::new(PlRefPath::new("data/stock_prices.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

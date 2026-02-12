@@ -13,7 +13,7 @@ use crate::components::{Rgb, Text, TickDirection, ValueExponent};
 /// use polars::prelude::*;
 /// use plotlars::{Axis, Plot, Rgb, ScatterPlot, Text, TickDirection};
 ///
-/// let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([
@@ -476,7 +476,7 @@ impl Axis {
 /// use polars::prelude::*;
 /// use plotlars::{Axis, AxisSide, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 ///
-/// let dataset = LazyCsvReader::new(PlPath::new("data/revenue_and_cost.csv"))
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/revenue_and_cost.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([
@@ -558,7 +558,7 @@ impl AxisSide {
 ///     2.7782, 2.8451, 2.9031, 2.9542, 3.0000
 /// ];
 ///
-/// let dataset = DataFrame::new(vec![
+/// let dataset = DataFrame::new(linear_values.len(), vec![
 ///     Column::new("linear_values".into(), linear_values),
 ///     Column::new("logarithms".into(), logarithms),
 /// ]).unwrap();

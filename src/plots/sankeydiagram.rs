@@ -55,7 +55,7 @@ use crate::{
 /// use plotlars::{Arrangement, SankeyDiagram, Orientation, Plot, Rgb, Text};
 /// use polars::prelude::*;
 ///
-/// let dataset = LazyCsvReader::new(PlPath::new("data/sankey_flow.csv"))
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/sankey_flow.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

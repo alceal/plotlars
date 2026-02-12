@@ -24,7 +24,7 @@ use polars::prelude::*;
 ))]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load penguins dataset
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()?
         .select([
             col("species"),

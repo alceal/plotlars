@@ -13,11 +13,14 @@ fn example_basic_mesh() {
     let y = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
     let z = vec![0.0, 0.5, 0.0, 0.0, 0.8, 0.0];
 
-    let dataset = DataFrame::new(vec![
-        Column::new("x".into(), x),
-        Column::new("y".into(), y),
-        Column::new("z".into(), z),
-    ])
+    let dataset = DataFrame::new(
+        x.len(),
+        vec![
+            Column::new("x".into(), x),
+            Column::new("y".into(), y),
+            Column::new("z".into(), z),
+        ],
+    )
     .unwrap();
 
     Mesh3D::builder()
@@ -40,14 +43,17 @@ fn example_with_indices() {
     let j = vec![1, 2, 3, 2];
     let k = vec![2, 3, 1, 3];
 
-    let dataset = DataFrame::new(vec![
-        Column::new("x".into(), x),
-        Column::new("y".into(), y),
-        Column::new("z".into(), z),
-        Column::new("i".into(), i),
-        Column::new("j".into(), j),
-        Column::new("k".into(), k),
-    ])
+    let dataset = DataFrame::new(
+        x.len(),
+        vec![
+            Column::new("x".into(), x),
+            Column::new("y".into(), y),
+            Column::new("z".into(), z),
+            Column::new("i".into(), i),
+            Column::new("j".into(), j),
+            Column::new("k".into(), k),
+        ],
+    )
     .unwrap();
 
     Mesh3D::builder()
@@ -87,12 +93,15 @@ fn example_with_intensity() {
         }
     }
 
-    let dataset = DataFrame::new(vec![
-        Column::new("x".into(), x),
-        Column::new("y".into(), y),
-        Column::new("z".into(), z),
-        Column::new("intensity".into(), intensity),
-    ])
+    let dataset = DataFrame::new(
+        x.len(),
+        vec![
+            Column::new("x".into(), x),
+            Column::new("y".into(), y),
+            Column::new("z".into(), z),
+            Column::new("intensity".into(), intensity),
+        ],
+    )
     .unwrap();
 
     Mesh3D::builder()
@@ -135,11 +144,14 @@ fn example_with_lighting() {
         }
     }
 
-    let dataset = DataFrame::new(vec![
-        Column::new("x".into(), x),
-        Column::new("y".into(), y),
-        Column::new("z".into(), z),
-    ])
+    let dataset = DataFrame::new(
+        x.len(),
+        vec![
+            Column::new("x".into(), x),
+            Column::new("y".into(), y),
+            Column::new("z".into(), z),
+        ],
+    )
     .unwrap();
 
     Mesh3D::builder()

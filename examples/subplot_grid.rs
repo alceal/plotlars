@@ -13,7 +13,7 @@ fn main() {
 }
 
 fn regular_grid_example() {
-    let dataset1 = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+    let dataset1 = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -39,7 +39,7 @@ fn regular_grid_example() {
         )
         .build();
 
-    let dataset2 = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset2 = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([
@@ -81,7 +81,7 @@ fn regular_grid_example() {
         .legend(&Legend::new().x(0.98).y(0.95))
         .build();
 
-    let dataset3 = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
+    let dataset3 = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
         .with_has_header(true)
         .with_try_parse_dates(true)
         .finish()
@@ -141,7 +141,7 @@ fn regular_grid_example() {
 }
 
 fn irregular_grid_example() {
-    let dataset1 = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset1 = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([
@@ -174,7 +174,7 @@ fn irregular_grid_example() {
         .legend(&Legend::new().x(0.87).y(1.2))
         .build();
 
-    let dataset2 = LazyCsvReader::new(PlPath::new("data/stock_prices.csv"))
+    let dataset2 = LazyCsvReader::new(PlRefPath::new("data/stock_prices.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -203,7 +203,7 @@ fn irregular_grid_example() {
         .y_axis(&Axis::new().show_axis(true).show_grid(true))
         .build();
 
-    let dataset3 = LazyCsvReader::new(PlPath::new("data/heatmap.csv"))
+    let dataset3 = LazyCsvReader::new(PlRefPath::new("data/heatmap.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -247,7 +247,7 @@ fn irregular_grid_example() {
 
 fn mixed_grid_example() {
     // 2D cartesian scatter (baseline)
-    let penguins = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let penguins = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -285,7 +285,7 @@ fn mixed_grid_example() {
         .build();
 
     // Polar subplot
-    let polar_df = LazyCsvReader::new(PlPath::new("data/product_comparison_polar.csv"))
+    let polar_df = LazyCsvReader::new(PlRefPath::new("data/product_comparison_polar.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -303,7 +303,7 @@ fn mixed_grid_example() {
         .build();
 
     // Domain-based subplot (Sankey)
-    let sankey_df = LazyCsvReader::new(PlPath::new("data/energy_transition.csv"))
+    let sankey_df = LazyCsvReader::new(PlRefPath::new("data/energy_transition.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -320,7 +320,7 @@ fn mixed_grid_example() {
         .build();
 
     // Mapbox subplot
-    let map_df = LazyCsvReader::new(PlPath::new("data/cities.csv"))
+    let map_df = LazyCsvReader::new(PlRefPath::new("data/cities.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -338,7 +338,7 @@ fn mixed_grid_example() {
         .build();
 
     // Geo subplot
-    let geo_df = LazyCsvReader::new(PlPath::new("data/world_cities.csv"))
+    let geo_df = LazyCsvReader::new(PlRefPath::new("data/world_cities.csv"))
         .finish()
         .unwrap()
         .collect()

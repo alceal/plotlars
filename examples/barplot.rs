@@ -2,7 +2,7 @@ use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
         .finish()
         .unwrap()
         .collect()

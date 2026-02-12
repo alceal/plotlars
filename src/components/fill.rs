@@ -16,7 +16,7 @@ use plotly::common::Fill as PlotlyFill;
 ///     .map(|&angle| 5.0 + 3.0 * (angle * std::f64::consts::PI / 180.0).sin())
 ///     .collect();
 ///
-/// let dataset = DataFrame::new(vec![
+/// let dataset = DataFrame::new(angles.len(), vec![
 ///     Column::new("angle".into(), angles),
 ///     Column::new("radius".into(), radii),
 /// ])
