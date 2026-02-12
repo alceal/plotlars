@@ -11,7 +11,7 @@ use plotly::{common::Ticks, layout::TicksDirection};
 /// let x = vec![1];
 /// let y  = vec![1];
 ///
-/// let dataset = DataFrame::new(vec![
+/// let dataset = DataFrame::new(x.len(), vec![
 ///     Column::new("x".into(), x),
 ///     Column::new("y".into(), y),
 /// ]).unwrap();

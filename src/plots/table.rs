@@ -33,7 +33,7 @@ use crate::{
 /// use polars::prelude::*;
 /// use plotlars::{Table, Header, Cell, Plot, Text, Rgb};
 ///
-/// let dataset = LazyCsvReader::new(PlPath::new("data/employee_data.csv"))
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/employee_data.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

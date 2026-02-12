@@ -53,7 +53,7 @@ use crate::{
 /// use plotlars::{Legend, Line, Mode, Plot, Rgb, ScatterPolar, Shape, Text};
 /// use polars::prelude::*;
 ///
-/// let dataset = LazyCsvReader::new(PlPath::new("data/product_comparison_polar.csv"))
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/product_comparison_polar.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

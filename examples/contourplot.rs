@@ -2,7 +2,7 @@ use plotlars::{Coloring, ContourPlot, Palette, Plot, Text};
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/contour_surface.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/contour_surface.csv"))
         .finish()
         .unwrap()
         .collect()

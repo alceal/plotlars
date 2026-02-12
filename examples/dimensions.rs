@@ -5,7 +5,7 @@ use plotlars::{
 use polars::prelude::*;
 
 fn main() {
-    let penguins_dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let penguins_dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([
@@ -17,7 +17,7 @@ fn main() {
         .collect()
         .unwrap();
 
-    let temperature_dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
+    let temperature_dataset = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
         .with_has_header(true)
         .with_try_parse_dates(true)
         .finish()
@@ -30,7 +30,7 @@ fn main() {
         .collect()
         .unwrap();
 
-    let animals_dataset = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+    let animals_dataset = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
         .finish()
         .unwrap()
         .collect()

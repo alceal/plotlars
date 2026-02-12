@@ -1,6 +1,6 @@
 [package]
 name = "plotlars"
-version = "0.11.5"
+version = "0.11.6"
 authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
 edition = "2021"
 rust-version = "1.86.0"
@@ -22,7 +22,7 @@ image = "0.25.9"
 indexmap = "2.13.0"
 ordered-float = "5.1.0"
 plotly = "0.14.0"
-polars = { version = "0.52.0", features = ["lazy", "dtype-categorical", "timezones"] }
+polars = { version = "0.53.0", features = ["lazy", "dtype-categorical", "timezones"] }
 serde = "1.0.228"
 serde_json = "1.0.149"
 

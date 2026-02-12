@@ -54,7 +54,7 @@ use plotly::{
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish().unwrap()
         .select([
             col("species"),
@@ -131,7 +131,7 @@ use plotlars::{
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish().unwrap()
         .select([
             col("species"),
@@ -228,7 +228,7 @@ use plotlars::{ScatterPlot, Plot};
 use polars::prelude::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()?
         .collect()?;
 

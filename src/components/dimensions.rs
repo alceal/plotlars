@@ -13,7 +13,7 @@
 /// };
 /// use polars::prelude::*;
 ///
-/// let penguins_dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+/// let penguins_dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .select([
@@ -25,7 +25,7 @@
 ///     .collect()
 ///     .unwrap();
 ///
-/// let temperature_dataset = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
+/// let temperature_dataset = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
 ///     .with_has_header(true)
 ///     .with_try_parse_dates(true)
 ///     .finish()
@@ -38,7 +38,7 @@
 ///     .collect()
 ///     .unwrap();
 ///
-/// let animals_dataset = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+/// let animals_dataset = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

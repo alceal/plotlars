@@ -48,7 +48,7 @@ use crate::{
 /// use plotlars::{Plot, ScatterMap, Text};
 /// use polars::prelude::*;
 ///
-/// let dataset = LazyCsvReader::new(PlPath::new("data/cities.csv"))
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/cities.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

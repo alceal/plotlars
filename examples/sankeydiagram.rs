@@ -2,7 +2,7 @@ use plotlars::{Arrangement, Orientation, Plot, Rgb, SankeyDiagram, Text};
 use polars::prelude::*;
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/sankey_flow.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/sankey_flow.csv"))
         .finish()
         .unwrap()
         .collect()

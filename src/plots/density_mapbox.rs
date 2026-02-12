@@ -43,7 +43,7 @@ use crate::{
 /// use plotlars::{DensityMapbox, Plot, Text};
 /// use polars::prelude::*;
 ///
-/// let data = LazyCsvReader::new(PlPath::new("data/us_city_density.csv"))
+/// let data = LazyCsvReader::new(PlRefPath::new("data/us_city_density.csv"))
 ///     .finish()
 ///     .unwrap()
 ///     .collect()

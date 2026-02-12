@@ -47,7 +47,7 @@ fn barplot_example() {
 }
 
 fn boxplot_example() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([
@@ -359,12 +359,15 @@ fn mesh3d_example() {
         }
     }
 
-    let dataset = DataFrame::new(vec![
-        Column::new("x".into(), x_vals),
-        Column::new("y".into(), y_vals),
-        Column::new("z".into(), z_vals),
-        Column::new("surface_type".into(), surface_type),
-    ])
+    let dataset = DataFrame::new(
+        x_vals.len(),
+        vec![
+            Column::new("x".into(), x_vals),
+            Column::new("y".into(), y_vals),
+            Column::new("z".into(), z_vals),
+            Column::new("surface_type".into(), surface_type),
+        ],
+    )
     .unwrap();
 
     let config = FacetConfig::new().cols(3).rows(1);
@@ -477,7 +480,7 @@ fn sankeydiagram_example() {
 }
 
 fn scatterplot_example() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([
@@ -513,7 +516,7 @@ fn scatterplot_example() {
 }
 
 fn scatter3d_example() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
         .finish()
         .unwrap()
         .select([

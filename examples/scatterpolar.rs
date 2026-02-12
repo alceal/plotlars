@@ -20,10 +20,13 @@ fn basic_scatter_polar() {
     let directions = vec![0., 45., 90., 135., 180., 225., 270., 315., 360.];
     let speeds = vec![5.0, 7.5, 10.0, 8.5, 6.0, 4.5, 3.0, 2.5, 5.0];
 
-    let dataset = DataFrame::new(vec![
-        Column::new("direction".into(), directions),
-        Column::new("speed".into(), speeds),
-    ])
+    let dataset = DataFrame::new(
+        directions.len(),
+        vec![
+            Column::new("direction".into(), directions),
+            Column::new("speed".into(), speeds),
+        ],
+    )
     .unwrap();
 
     ScatterPolar::builder()
@@ -44,10 +47,13 @@ fn styled_scatter_polar() {
     let categories = vec![0., 72., 144., 216., 288., 360.];
     let performance = vec![8.0, 6.5, 7.0, 9.0, 5.5, 8.0];
 
-    let dataset = DataFrame::new(vec![
-        Column::new("category".into(), categories),
-        Column::new("performance".into(), performance),
-    ])
+    let dataset = DataFrame::new(
+        categories.len(),
+        vec![
+            Column::new("category".into(), categories),
+            Column::new("performance".into(), performance),
+        ],
+    )
     .unwrap();
 
     ScatterPolar::builder()
@@ -72,7 +78,7 @@ fn styled_scatter_polar() {
 }
 
 fn grouped_scatter_polar() {
-    let dataset = LazyCsvReader::new(PlPath::new("data/product_comparison_polar.csv"))
+    let dataset = LazyCsvReader::new(PlRefPath::new("data/product_comparison_polar.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -104,10 +110,13 @@ fn filled_scatter_polar() {
         .map(|&angle| 5.0 + 3.0 * (angle * std::f64::consts::PI / 180.0).sin())
         .collect();
 
-    let dataset = DataFrame::new(vec![
-        Column::new("angle".into(), angles),
-        Column::new("radius".into(), radii),
-    ])
+    let dataset = DataFrame::new(
+        angles.len(),
+        vec![
+            Column::new("angle".into(), angles),
+            Column::new("radius".into(), radii),
+        ],
+    )
     .unwrap();
 
     ScatterPolar::builder()

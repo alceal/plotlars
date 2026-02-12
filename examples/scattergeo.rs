@@ -2,7 +2,7 @@ use plotlars::{Mode, Plot, Rgb, ScatterGeo, Shape, Text};
 use polars::prelude::*;
 
 fn main() {
-    let cities = LazyCsvReader::new(PlPath::new("data/us_cities_regions.csv"))
+    let cities = LazyCsvReader::new(PlRefPath::new("data/us_cities_regions.csv"))
         .finish()
         .unwrap()
         .select([col("city"), col("lat"), col("lon")])
@@ -19,7 +19,7 @@ fn main() {
         .build()
         .plot();
 
-    let cities_with_regions = LazyCsvReader::new(PlPath::new("data/us_cities_regions.csv"))
+    let cities_with_regions = LazyCsvReader::new(PlRefPath::new("data/us_cities_regions.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -56,7 +56,7 @@ fn main() {
         .plot();
 
     // Example 3: ScatterGeo with lines connecting cities (flight paths)
-    let flight_path = LazyCsvReader::new(PlPath::new("data/flight_path.csv"))
+    let flight_path = LazyCsvReader::new(PlRefPath::new("data/flight_path.csv"))
         .finish()
         .unwrap()
         .collect()
@@ -78,7 +78,7 @@ fn main() {
         .plot();
 
     // Example 4: World cities with custom styling
-    let world_cities = LazyCsvReader::new(PlPath::new("data/world_cities.csv"))
+    let world_cities = LazyCsvReader::new(PlRefPath::new("data/world_cities.csv"))
         .finish()
         .unwrap()
         .collect()

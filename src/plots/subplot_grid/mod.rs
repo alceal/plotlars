@@ -78,7 +78,7 @@ impl SubplotGrid {
     /// };
     /// use polars::prelude::*;
     ///
-    /// let dataset1 = LazyCsvReader::new(PlPath::new("data/animal_statistics.csv"))
+    /// let dataset1 = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
     ///     .finish()
     ///     .unwrap()
     ///     .collect()
@@ -104,7 +104,7 @@ impl SubplotGrid {
     ///     )
     ///     .build();
     ///
-    /// let dataset2 = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    /// let dataset2 = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
     ///     .finish()
     ///     .unwrap()
     ///     .select([
@@ -146,7 +146,7 @@ impl SubplotGrid {
     ///     .legend(&Legend::new().x(0.98).y(0.95))
     ///     .build();
     ///
-    /// let dataset3 = LazyCsvReader::new(PlPath::new("data/debilt_2023_temps.csv"))
+    /// let dataset3 = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
     ///     .with_has_header(true)
     ///     .with_try_parse_dates(true)
     ///     .finish()
@@ -248,7 +248,7 @@ impl SubplotGrid {
     /// };
     /// use polars::prelude::*;
     ///
-    /// let dataset1 = LazyCsvReader::new(PlPath::new("data/penguins.csv"))
+    /// let dataset1 = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
     ///     .finish()
     ///     .unwrap()
     ///     .select([
@@ -281,7 +281,7 @@ impl SubplotGrid {
     ///     .legend(&Legend::new().x(0.87).y(1.2))
     ///     .build();
     ///
-    /// let dataset2 = LazyCsvReader::new(PlPath::new("data/stock_prices.csv"))
+    /// let dataset2 = LazyCsvReader::new(PlRefPath::new("data/stock_prices.csv"))
     ///     .finish()
     ///     .unwrap()
     ///     .collect()
@@ -310,7 +310,7 @@ impl SubplotGrid {
     ///     .y_axis(&Axis::new().show_axis(true).show_grid(true))
     ///     .build();
     ///
-    /// let dataset3 = LazyCsvReader::new(PlPath::new("data/heatmap.csv"))
+    /// let dataset3 = LazyCsvReader::new(PlRefPath::new("data/heatmap.csv"))
     ///     .finish()
     ///     .unwrap()
     ///     .collect()
