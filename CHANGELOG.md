@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.7] - 2026-02-21
+
+### 📦 Dependencies
+
+- Update `bon` to 3.9.0
+- Update `plotly` to 0.14.1
+
 ## [0.11.6] - 2026-02-12
 
 ### ⚠️ BREAKING CHANGES
