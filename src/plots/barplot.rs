@@ -127,6 +127,7 @@ impl BarPlot {
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
+        mode: Option<BarMode>,
     ) -> Self {
         let y2_title = None;
         let z_title = None;
@@ -148,6 +149,7 @@ impl BarPlot {
                     x_axis,
                     y_axis,
                     legend,
+                    mode,
                 );
 
                 let traces = Self::create_faceted_traces(
@@ -167,7 +169,7 @@ impl BarPlot {
                 (layout, traces)
             }
             None => {
-                let mut layout = Self::create_layout(
+                let layout = Self::create_layout(
                     plot_title,
                     x_title,
                     y_title,
@@ -180,9 +182,8 @@ impl BarPlot {
                     z_axis,
                     legend,
                     None,
-                );
-
-                layout = layout.bar_mode(BarMode::Group);
+                )
+                .bar_mode(mode.unwrap_or(BarMode::Group));
 
                 let traces = Self::create_traces(
                     data,
@@ -609,6 +610,7 @@ impl BarPlot {
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
+        mode: Option<BarMode>,
     ) -> LayoutPlotly {
         let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
         let n_facets = facet_categories.len();
@@ -627,7 +629,9 @@ impl BarPlot {
             grid = grid.y_gap(y_gap);
         }
 
-        let mut layout = LayoutPlotly::new().grid(grid).bar_mode(BarMode::Group);
+        let mut layout = LayoutPlotly::new()
+            .grid(grid)
+            .bar_mode(mode.unwrap_or(BarMode::Group));
 
         if let Some(title) = plot_title {
             layout = layout.title(title.to_plotly());
