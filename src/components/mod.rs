@@ -1,5 +1,6 @@
 pub(crate) mod arrangement;
 pub(crate) mod axis;
+pub(crate) mod bar_mode;
 pub(crate) mod cell;
 pub(crate) mod color;
 pub(crate) mod colorbar;
@@ -23,6 +24,7 @@ pub(crate) mod tick;
 
 pub(crate) use arrangement::Arrangement;
 pub(crate) use axis::Axis;
+pub(crate) use bar_mode::BarMode;
 pub(crate) use cell::Cell;
 pub(crate) use color::{Rgb, DEFAULT_PLOTLY_COLORS};
 pub(crate) use colorbar::ColorBar;
