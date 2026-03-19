@@ -2,7 +2,7 @@ use bon::bon;
 
 use plotly::{
     common::{ErrorData, ErrorType, Marker as MarkerPlotly},
-    layout::{BarMode, GridPattern, LayoutGrid},
+    layout::{GridPattern, LayoutGrid},
     Bar, Layout as LayoutPlotly, Trace,
 };
 
@@ -12,7 +12,8 @@ use serde::Serialize;
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
     components::{
-        Axis, FacetConfig, FacetScales, Legend, Orientation, Rgb, Text, DEFAULT_PLOTLY_COLORS,
+        Axis, BarMode, FacetConfig, FacetScales, Legend, Orientation, Rgb, Text,
+        DEFAULT_PLOTLY_COLORS,
     },
 };
 
@@ -43,6 +44,7 @@ use crate::{
 /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
 /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
 /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
+/// * `mode` - An optional `BarMode` enum specifying how bars are displayed (e.g., grouped, stacked, overlaid). Defaults to `BarMode::Group`.
 ///
 /// # Example
 ///
@@ -127,6 +129,7 @@ impl BarPlot {
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
+        mode: Option<BarMode>,
     ) -> Self {
         let y2_title = None;
         let z_title = None;
@@ -148,6 +151,7 @@ impl BarPlot {
                     x_axis,
                     y_axis,
                     legend,
+                    mode,
                 );
 
                 let traces = Self::create_faceted_traces(
@@ -167,7 +171,7 @@ impl BarPlot {
                 (layout, traces)
             }
             None => {
-                let mut layout = Self::create_layout(
+                let layout = Self::create_layout(
                     plot_title,
                     x_title,
                     y_title,
@@ -180,9 +184,8 @@ impl BarPlot {
                     z_axis,
                     legend,
                     None,
-                );
-
-                layout = layout.bar_mode(BarMode::Group);
+                )
+                .bar_mode(mode.unwrap_or(BarMode::Group).to_plotly());
 
                 let traces = Self::create_traces(
                     data,
@@ -609,6 +612,7 @@ impl BarPlot {
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
+        mode: Option<BarMode>,
     ) -> LayoutPlotly {
         let facet_categories = Self::get_unique_groups(data, facet_column, config.sorter);
         let n_facets = facet_categories.len();
@@ -627,7 +631,9 @@ impl BarPlot {
             grid = grid.y_gap(y_gap);
         }
 
-        let mut layout = LayoutPlotly::new().grid(grid).bar_mode(BarMode::Group);
+        let mut layout = LayoutPlotly::new()
+            .grid(grid)
+            .bar_mode(mode.unwrap_or(BarMode::Group).to_plotly());
 
         if let Some(title) = plot_title {
             layout = layout.title(title.to_plotly());
