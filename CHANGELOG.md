@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.8] - 2026-03-19
+
+### 🚀 Features
+
+- Add optional `mode` parameter to `BarPlot` for configuring bar display mode (grouped, stacked, overlaid, relative) (thanks @jvdwrf, [#72](https://github.com/alceal/plotlars/pull/72))
+- Add `BarMode` enum as a public component type
+
+### 📦 Dependencies
+
+- Update `bon` to 3.9.1
+- Update `image` to 0.25.10
+
 ## [0.11.7] - 2026-02-21
 
 ### 📦 Dependencies
