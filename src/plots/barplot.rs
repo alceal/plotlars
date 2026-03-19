@@ -37,6 +37,7 @@ use crate::{
 /// * `error` - An optional string slice specifying the column name containing error values for the y-axis data.
 /// * `color` - An optional `Rgb` value specifying the color of the markers to be used for the plot. This is used when `group` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors to be used for the plot. This is used when `group` is specified to differentiate between groups.
+/// * `mode` - An optional `BarMode` enum specifying how bars are displayed (e.g., grouped, stacked, overlaid). Defaults to `BarMode::Group`.
 /// * `plot_title` - An optional `Text` struct specifying the title of the plot.
 /// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
 /// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
@@ -44,7 +45,6 @@ use crate::{
 /// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
 /// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
 /// * `legend` - An optional reference to a `Legend` struct for customizing the legend of the plot (e.g., positioning, font, etc.).
-/// * `mode` - An optional `BarMode` enum specifying how bars are displayed (e.g., grouped, stacked, overlaid). Defaults to `BarMode::Group`.
 ///
 /// # Example
 ///
@@ -122,6 +122,7 @@ impl BarPlot {
         error: Option<&str>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
+        mode: Option<BarMode>,
         plot_title: Option<Text>,
         x_title: Option<Text>,
         y_title: Option<Text>,
@@ -129,7 +130,6 @@ impl BarPlot {
         x_axis: Option<&Axis>,
         y_axis: Option<&Axis>,
         legend: Option<&Legend>,
-        mode: Option<BarMode>,
     ) -> Self {
         let y2_title = None;
         let z_title = None;
