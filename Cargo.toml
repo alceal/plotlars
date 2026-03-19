@@ -17,8 +17,8 @@ categories = ["visualization"]
 doctest = false
 
 [dependencies]
-bon = "3.9.0"
-image = "0.25.9"
+bon = "3.9.1"
+image = "0.25.10"
 indexmap = "2.13.0"
 ordered-float = "5.1.0"
 plotly = "0.14.1"
