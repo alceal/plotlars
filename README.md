@@ -6,6 +6,9 @@
     <a href="https://docs.rs/plotlars">
     <img alt="docs.rs" src="https://img.shields.io/docsrs/plotlars">
     </a>
+    <a href="https://crates.io/crates/plotlars">
+    <img alt="Downloads" src="https://img.shields.io/crates/d/plotlars">
+    </a>
     <a href="https://github.com/your-repo/plotlars/blob/main/LICENSE">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg">
     </a>
@@ -19,16 +22,144 @@ plot creation.
 
 ## Implemented Plots Overview
 
-| Plot | Example | Plot | Example | Plot | Example |
-|------|:---------:|------|:---------:|------|:---------:|
-| [Array 2D](https://docs.rs/plotlars/latest/plotlars/struct.Array2dPlot.html) | <img src="https://imgur.com/LMrqAaT.png" width="100" height="100"> | [Bar Plot](https://docs.rs/plotlars/latest/plotlars/struct.BarPlot.html) | <img src="https://imgur.com/HQQvQey.png" width="100" height="100"> | [Box Plot](https://docs.rs/plotlars/latest/plotlars/struct.BoxPlot.html) | <img src="https://imgur.com/jdA3g9r.png" width="100" height="100"> |
-| [Candlestick](https://docs.rs/plotlars/latest/plotlars/struct.CandlestickPlot.html) | <img src="https://imgur.com/91y2Kis.png" width="100" height="100"> | [Contour Plot](https://docs.rs/plotlars/latest/plotlars/struct.ContourPlot.html) | <img src="https://imgur.com/VWgxHC8.png" width="100" height="100"> | [Density Mapbox](https://docs.rs/plotlars/latest/plotlars/struct.DensityMapbox.html) | <img src="https://imgur.com/82eLyBm.png" width="100" height="100"> |
-| [Heat Map](https://docs.rs/plotlars/latest/plotlars/struct.HeatMap.html) | <img src="https://imgur.com/5uFih4M.png" width="100" height="100"> | [Histogram](https://docs.rs/plotlars/latest/plotlars/struct.Histogram.html) | <img src="https://imgur.com/w2oiuIo.png" width="100" height="100"> | [Image](https://docs.rs/plotlars/latest/plotlars/struct.Image.html) | <img src="https://imgur.com/PAtdaHj.png" width="100" height="100"> |
-| [Line Plot](https://docs.rs/plotlars/latest/plotlars/struct.LinePlot.html) | <img src="https://imgur.com/PaXG300.png" width="100" height="100"> | [Mesh3D](https://docs.rs/plotlars/latest/plotlars/struct.Mesh3D.html) | <img src="https://imgur.com/bljzmw5.png" width="100" height="100"> | [OHLC](https://docs.rs/plotlars/latest/plotlars/struct.OhlcPlot.html) | <img src="https://imgur.com/Sv8r9VN.png" width="100" height="100"> |
-| [Pie Chart](https://docs.rs/plotlars/latest/plotlars/struct.PieChart.html) | <img src="https://imgur.com/q44HDwT.png" width="100" height="100"> | [Sankey Diagram](https://docs.rs/plotlars/latest/plotlars/struct.SankeyDiagram.html) | <img src="https://imgur.com/jvAew8u.png" width="100" height="100"> | [Scatter 3D Plot](https://docs.rs/plotlars/latest/plotlars/struct.Scatter3dPlot.html) | <img src="https://imgur.com/WYTQxHA.png" width="100" height="100"> |
-| [Scatter Geo](https://docs.rs/plotlars/latest/plotlars/struct.ScatterGeo.html) | <img src="https://imgur.com/8PCEbhN.png" width="100" height="100"> | [Scatter Map](https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html) | <img src="https://imgur.com/8MCjVOd.png" width="100" height="100"> | [Scatter Plot](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html) | <img src="https://imgur.com/9jfO8RU.png" width="100" height="100"> |
-| [Scatter Polar](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPolar.html) | <img src="https://imgur.com/kl1pY9c.png" width="100" height="100"> | [Subplot Grid Irregular](https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html) | <img src="https://imgur.com/RvZwv3O.png" width="100" height="100"> | [Subplot Grid Regular](https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html) | <img src="https://imgur.com/q0K7cyP.png" width="100" height="100"> |
-| [Surface Plot](https://docs.rs/plotlars/latest/plotlars/struct.SurfacePlot.html) | <img src="https://imgur.com/tdVte4l.png" width="100" height="100"> | [Table](https://docs.rs/plotlars/latest/plotlars/struct.Table.html) | <img src="https://imgur.com/QDKTeFX.png" width="100" height="100"> | [Time Series](https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html) | <img src="https://imgur.com/hL27Xcn.png" width="100" height="100"> |
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://imgur.com/LMrqAaT.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.Array2dPlot.html">Array 2D</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/HQQvQey.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.BarPlot.html">Bar Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/jdA3g9r.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.BoxPlot.html">Box Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/91y2Kis.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.CandlestickPlot.html">Candlestick</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://imgur.com/VWgxHC8.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.ContourPlot.html">Contour Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/82eLyBm.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.DensityMapbox.html">Density Mapbox</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/5uFih4M.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.HeatMap.html">Heat Map</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/w2oiuIo.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.Histogram.html">Histogram</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://imgur.com/PAtdaHj.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.Image.html">Image</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/PaXG300.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.LinePlot.html">Line Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/bljzmw5.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.Mesh3D.html">Mesh3D</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/Sv8r9VN.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.OhlcPlot.html">OHLC</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://imgur.com/q44HDwT.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.PieChart.html">Pie Chart</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/jvAew8u.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.SankeyDiagram.html">Sankey Diagram</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/WYTQxHA.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.Scatter3dPlot.html">Scatter 3D Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/8PCEbhN.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.ScatterGeo.html">Scatter Geo</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://imgur.com/8MCjVOd.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html">Scatter Map</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/9jfO8RU.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html">Scatter Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/kl1pY9c.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.ScatterPolar.html">Scatter Polar</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/RvZwv3O.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html">Subplot Grid Irregular</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://imgur.com/q0K7cyP.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html">Subplot Grid Regular</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/tdVte4l.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.SurfacePlot.html">Surface Plot</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/QDKTeFX.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.Table.html">Table</a>
+    </td>
+    <td align="center">
+      <img src="https://imgur.com/hL27Xcn.png" width="120" height="120"><br>
+      <a href="https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html">Time Series</a>
+    </td>
+  </tr>
+</table>
+
+### Plot Types Reference
+
+| Plot Type | Required Params | Facet | Group |
+|---|---|---|---|
+| [Array2dPlot](https://docs.rs/plotlars/latest/plotlars/struct.Array2dPlot.html) | data | -- | -- |
+| [BarPlot](https://docs.rs/plotlars/latest/plotlars/struct.BarPlot.html) | data, labels, values | Yes | Yes |
+| [BoxPlot](https://docs.rs/plotlars/latest/plotlars/struct.BoxPlot.html) | data, labels, values | Yes | Yes |
+| [CandlestickPlot](https://docs.rs/plotlars/latest/plotlars/struct.CandlestickPlot.html) | data, dates, open, high, low, close | -- | -- |
+| [ContourPlot](https://docs.rs/plotlars/latest/plotlars/struct.ContourPlot.html) | data, x, y, z | Yes | -- |
+| [DensityMapbox](https://docs.rs/plotlars/latest/plotlars/struct.DensityMapbox.html) | data, lat, lon, z | -- | -- |
+| [HeatMap](https://docs.rs/plotlars/latest/plotlars/struct.HeatMap.html) | data, x, y, z | Yes | -- |
+| [Histogram](https://docs.rs/plotlars/latest/plotlars/struct.Histogram.html) | data, x | Yes | Yes |
+| [Image](https://docs.rs/plotlars/latest/plotlars/struct.Image.html) | path | -- | -- |
+| [LinePlot](https://docs.rs/plotlars/latest/plotlars/struct.LinePlot.html) | data, x, y | Yes | -- |
+| [Mesh3D](https://docs.rs/plotlars/latest/plotlars/struct.Mesh3D.html) | data, x, y, z | Yes | -- |
+| [OhlcPlot](https://docs.rs/plotlars/latest/plotlars/struct.OhlcPlot.html) | data, dates, open, high, low, close | -- | -- |
+| [PieChart](https://docs.rs/plotlars/latest/plotlars/struct.PieChart.html) | data, labels | Yes | -- |
+| [SankeyDiagram](https://docs.rs/plotlars/latest/plotlars/struct.SankeyDiagram.html) | data, sources, targets, values | Yes | -- |
+| [Scatter3dPlot](https://docs.rs/plotlars/latest/plotlars/struct.Scatter3dPlot.html) | data, x, y, z | Yes | Yes |
+| [ScatterGeo](https://docs.rs/plotlars/latest/plotlars/struct.ScatterGeo.html) | data, lat, lon | -- | Yes |
+| [ScatterMap](https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html) | data, latitude, longitude | -- | Yes |
+| [ScatterPlot](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html) | data, x, y | Yes | Yes |
+| [ScatterPolar](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPolar.html) | data, theta, r | Yes | Yes |
+| [SubplotGrid](https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html) | plots | -- | -- |
+| [SurfacePlot](https://docs.rs/plotlars/latest/plotlars/struct.SurfacePlot.html) | data, x, y, z | Yes | -- |
+| [Table](https://docs.rs/plotlars/latest/plotlars/struct.Table.html) | data, columns | -- | -- |
+| [TimeSeriesPlot](https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html) | data, x, y | Yes | -- |
 
 ## Motivation
 
