@@ -199,4 +199,14 @@ impl PlotHelper for Table {
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>> {
         &self.traces
     }
+
+    #[allow(private_interfaces)]
+    fn get_ir_layout(&self) -> Option<&LayoutIR> {
+        Some(&self.ir_layout)
+    }
+
+    #[allow(private_interfaces)]
+    fn get_ir_traces(&self) -> Option<&[TraceIR]> {
+        Some(&self.ir_traces)
+    }
 }

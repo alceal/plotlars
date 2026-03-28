@@ -7,6 +7,8 @@ use serde_json::Value;
 
 use crate::components::color::parse_color;
 use crate::components::Text;
+use crate::ir::layout::LayoutIR;
+use crate::ir::trace::TraceIR;
 
 use serde::Serialize;
 
@@ -95,6 +97,18 @@ pub trait PlotHelper {
     fn get_traces(&self) -> &Vec<Box<dyn Trace + 'static>>;
 
     #[doc(hidden)]
+    #[allow(private_interfaces)]
+    fn get_ir_layout(&self) -> Option<&LayoutIR> {
+        None
+    }
+
+    #[doc(hidden)]
+    #[allow(private_interfaces)]
+    fn get_ir_traces(&self) -> Option<&[TraceIR]> {
+        None
+    }
+
+    #[doc(hidden)]
     fn get_layout_override(&self) -> Option<&Value> {
         None
     }
@@ -106,6 +120,9 @@ pub trait PlotHelper {
 
     #[doc(hidden)]
     fn get_main_title(&self) -> Option<String> {
+        if let Some(ir) = self.get_ir_layout() {
+            return ir.title.as_ref().map(|t| t.content.clone());
+        }
         let layout_json = serde_json::to_value(self.get_layout()).ok()?;
         layout_json
             .get("title")
@@ -116,6 +133,9 @@ pub trait PlotHelper {
 
     #[doc(hidden)]
     fn get_x_title(&self) -> Option<String> {
+        if let Some(ir) = self.get_ir_layout() {
+            return ir.x_title.as_ref().map(|t| t.content.clone());
+        }
         let layout_json = serde_json::to_value(self.get_layout()).ok()?;
         layout_json
             .get("xaxis")
@@ -127,6 +147,9 @@ pub trait PlotHelper {
 
     #[doc(hidden)]
     fn get_y_title(&self) -> Option<String> {
+        if let Some(ir) = self.get_ir_layout() {
+            return ir.y_title.as_ref().map(|t| t.content.clone());
+        }
         let layout_json = serde_json::to_value(self.get_layout()).ok()?;
         layout_json
             .get("yaxis")
@@ -138,6 +161,9 @@ pub trait PlotHelper {
 
     #[doc(hidden)]
     fn get_main_title_text(&self) -> Option<Text> {
+        if let Some(ir) = self.get_ir_layout() {
+            return ir.title.clone();
+        }
         let layout_json = serde_json::to_value(self.get_layout()).ok()?;
         let title_obj = layout_json.get("title")?;
 
