@@ -1,4 +1,3 @@
-use plotly::common::Anchor;
 use plotly::layout::Annotation;
 use plotly::Layout as LayoutPlotly;
 
@@ -20,103 +19,20 @@ pub(crate) trait Layout {
         legend: Option<&Legend>,
         dimensions: Option<&Dimensions>,
     ) -> LayoutPlotly {
-        let mut layout = LayoutPlotly::new();
-        let mut annotations = Vec::new();
-
-        if let Some(title) = plot_title {
-            layout = layout.title(title.to_plotly());
-        }
-
-        let (x_title_for_axis, x_annotation) = if let Some(text) = x_title {
-            if text.has_custom_position() {
-                let text_with_defaults = text.with_x_title_defaults_for_annotation();
-                let ann = text_with_defaults.to_axis_annotation(true, "x", false);
-                (None, Some(ann))
-            } else {
-                (Some(text.with_x_title_defaults()), None)
-            }
-        } else {
-            (None, None)
-        };
-
-        match (x_axis, x_title_for_axis) {
-            (Some(axis), title) => {
-                layout = layout.x_axis(Axis::set_axis(title, axis, None));
-            }
-            (None, Some(title)) => {
-                let default_axis = Axis::default();
-                layout = layout.x_axis(Axis::set_axis(Some(title), &default_axis, None));
-            }
-            _ => {}
-        }
-
-        if let Some(ann) = x_annotation {
-            annotations.push(ann);
-        }
-
-        let (y_title_for_axis, y_annotation) = if let Some(text) = y_title {
-            if text.has_custom_position() {
-                let text_with_defaults = text.with_y_title_defaults_for_annotation();
-                let ann = text_with_defaults.to_axis_annotation(false, "y", false);
-                (None, Some(ann))
-            } else {
-                (Some(text.with_y_title_defaults()), None)
-            }
-        } else {
-            (None, None)
-        };
-
-        match (y_axis, y_title_for_axis) {
-            (Some(axis), title) => {
-                layout = layout.y_axis(Axis::set_axis(title, axis, None));
-            }
-            (None, Some(title)) => {
-                let default_axis = Axis::default();
-                layout = layout.y_axis(Axis::set_axis(Some(title), &default_axis, None));
-            }
-            _ => {}
-        }
-
-        if let Some(ann) = y_annotation {
-            annotations.push(ann);
-        }
-
-        // Handle y2-axis
-        if let Some(y2_axis) = y2_axis {
-            layout = layout.y_axis2(Axis::set_axis(y2_title, y2_axis, Some("y")));
-        }
-
-        // Handle z-axis: use provided axis or create default with title if only title exists
-        match (z_axis, z_title) {
-            (Some(axis), title) => {
-                layout = layout.z_axis(Axis::set_axis(title, axis, None));
-            }
-            (None, Some(title)) => {
-                let default_axis = Axis::default();
-                layout = layout.z_axis(Axis::set_axis(Some(title), &default_axis, None));
-            }
-            _ => {}
-        }
-
-        layout = layout.legend(Legend::set_legend(legend_title, legend));
-
-        if !annotations.is_empty() {
-            layout = layout.annotations(annotations);
-        }
-
-        if let Some(dims) = dimensions {
-            if let Some(width) = dims.width {
-                layout = layout.width(width);
-            }
-            if let Some(height) = dims.height {
-                layout = layout.height(height);
-            }
-            if let Some(auto_size) = dims.auto_size {
-                layout = layout.auto_size(auto_size);
-            }
-        }
-
-        layout
+        crate::plotly_conversions::layout::create_layout(
+            plot_title,
+            x_title,
+            y_title,
+            y2_title,
+            z_title,
+            legend_title,
+            x_axis,
+            y_axis,
+            y2_axis,
+            z_axis,
+            legend,
+            dimensions,
+        )
     }
 
     fn calculate_grid_dimensions(
@@ -151,38 +67,7 @@ pub(crate) trait Layout {
         categories: &[String],
         title_style: Option<&Text>,
     ) -> Vec<Annotation> {
-        categories
-            .iter()
-            .enumerate()
-            .map(|(i, cat)| {
-                let x_ref = if i == 0 {
-                    "x domain".to_string()
-                } else {
-                    format!("x{} domain", i + 1)
-                };
-                let y_ref = if i == 0 {
-                    "y domain".to_string()
-                } else {
-                    format!("y{} domain", i + 1)
-                };
-
-                let mut ann = Annotation::new()
-                    .text(cat.as_str())
-                    .x_ref(&x_ref)
-                    .y_ref(&y_ref)
-                    .x_anchor(Anchor::Center)
-                    .y_anchor(Anchor::Bottom)
-                    .x(0.5)
-                    .y(1.0)
-                    .show_arrow(false);
-
-                if let Some(style) = title_style {
-                    ann = ann.font(style.to_font());
-                }
-
-                ann
-            })
-            .collect()
+        crate::plotly_conversions::layout::create_facet_annotations(categories, title_style)
     }
 
     fn get_axis_reference(subplot_index: usize, axis_type: &str) -> String {

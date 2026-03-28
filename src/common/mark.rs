@@ -2,6 +2,7 @@ use plotly::common::Marker as MarkerPlotly;
 
 use crate::components::{Rgb, Shape};
 
+#[allow(dead_code)]
 pub(crate) trait Marker {
     fn create_marker(
         index: usize,
@@ -12,69 +13,34 @@ pub(crate) trait Marker {
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
     ) -> MarkerPlotly {
-        let mut marker = MarkerPlotly::new();
-        marker = Self::set_opacity(marker, opacity);
-        marker = Self::set_size(marker, size);
-        marker = Self::set_color(marker, color, colors, index);
-        marker = Self::set_shape(marker, shape, shapes, index);
-        marker
+        crate::plotly_conversions::marker::create_marker(
+            index, opacity, size, color, colors, shape, shapes,
+        )
     }
 
-    fn set_opacity(mut marker: MarkerPlotly, opacity: Option<f64>) -> MarkerPlotly {
-        if let Some(opacity) = opacity {
-            marker = marker.opacity(opacity);
-        }
-
-        marker
+    fn set_opacity(marker: MarkerPlotly, opacity: Option<f64>) -> MarkerPlotly {
+        crate::plotly_conversions::marker::set_opacity(marker, opacity)
     }
 
-    fn set_size(mut marker: MarkerPlotly, size: Option<usize>) -> MarkerPlotly {
-        if let Some(size) = size {
-            marker = marker.size(size);
-        }
-
-        marker
+    fn set_size(marker: MarkerPlotly, size: Option<usize>) -> MarkerPlotly {
+        crate::plotly_conversions::marker::set_size(marker, size)
     }
 
     fn set_color(
-        mut marker: MarkerPlotly,
+        marker: MarkerPlotly,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
         index: usize,
     ) -> MarkerPlotly {
-        if let Some(rgb) = color {
-            let color = plotly::color::Rgb::new(rgb.0, rgb.1, rgb.2);
-
-            marker = marker.color(color);
-            return marker;
-        }
-
-        if let Some(colors) = colors {
-            if let Some(rgb) = colors.get(index) {
-                let group_color = plotly::color::Rgb::new(rgb.0, rgb.1, rgb.2);
-                marker = marker.color(group_color);
-            }
-        }
-        marker
+        crate::plotly_conversions::marker::set_color(marker, color, colors, index)
     }
 
     fn set_shape(
-        mut marker: MarkerPlotly,
+        marker: MarkerPlotly,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         index: usize,
     ) -> MarkerPlotly {
-        if let Some(shape) = shape {
-            marker = marker.symbol(shape.to_plotly());
-            return marker;
-        }
-
-        if let Some(shapes) = shapes {
-            if let Some(shape) = shapes.get(index) {
-                marker = marker.symbol(shape.to_plotly());
-            }
-        }
-
-        marker
+        crate::plotly_conversions::marker::set_shape(marker, shape, shapes, index)
     }
 }
