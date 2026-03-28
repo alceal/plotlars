@@ -295,7 +295,7 @@ pub(crate) struct TableIR {
 
 #[derive(Clone)]
 pub(crate) struct ImageIR {
-    pub pixels: Vec<Vec<Vec<u8>>>,
+    pub pixels: Vec<Vec<[u8; 3]>>,
 }
 
 #[derive(Clone)]

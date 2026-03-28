@@ -1,14 +1,14 @@
 use bon::bon;
 
-use plotly::{
-    color::Rgb as RgbPlotly, image::ColorModel, Image as ImagePlotly, Layout as LayoutPlotly, Trace,
-};
+use plotly::{Layout as LayoutPlotly, Trace};
 
 use serde::Serialize;
 
 use crate::{
     common::{Layout, PlotHelper},
-    components::{Axis, Rgb, Text},
+    components::{Axis, Text},
+    ir::layout::LayoutIR,
+    ir::trace::{ImageIR, TraceIR},
 };
 
 /// A structure representing an image plot.
@@ -45,7 +45,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/PAtdaHj.png)
 #[derive(Clone, Serialize)]
+#[allow(dead_code)]
 pub struct Image {
+    #[serde(skip)]
+    ir_traces: Vec<TraceIR>,
+    #[serde(skip)]
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
@@ -68,43 +73,62 @@ impl Image {
         let y2_title = None;
         let y2_axis = None;
 
+        // Build IR
+        let ir_trace = Self::create_ir_trace(path);
+        let ir_traces = vec![ir_trace];
+        let ir_layout = LayoutIR {
+            title: plot_title.clone(),
+            x_title: x_title.clone(),
+            y_title: y_title.clone(),
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: Some(crate::ir::layout::Axes2dIR {
+                x_axis: x_axis.cloned(),
+                y_axis: y_axis.cloned(),
+                y2_axis: None,
+            }),
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
+        // Build plotly types from IR for backward compatibility
+        let plotly_traces: Vec<Box<dyn Trace + 'static>> = ir_traces
+            .iter()
+            .map(crate::plotly_conversions::trace::convert)
+            .collect();
+
         let layout = Self::create_layout(
-            plot_title,
-            x_title,
-            y_title,
-            y2_title,
-            z_title,
-            legend_title,
-            x_axis,
-            y_axis,
-            y2_axis,
-            z_axis,
-            legend,
-            None,
+            plot_title, x_title, y_title, y2_title, z_title, legend_title, x_axis, y_axis,
+            y2_axis, z_axis, legend, None,
         );
 
-        let mut traces = vec![];
-
-        let trace = Self::create_trace(path);
-
-        traces.push(trace);
-
-        Self { traces, layout }
+        Self {
+            ir_traces,
+            ir_layout,
+            traces: plotly_traces,
+            layout,
+        }
     }
 
-    fn create_trace(path: &str) -> Box<dyn Trace + 'static> {
+    fn create_ir_trace(path: &str) -> TraceIR {
         let im: image::ImageBuffer<image::Rgb<u8>, Vec<u8>> =
             image::open(path).unwrap().into_rgb8();
 
         let (width, height) = im.dimensions();
-        let mut pixels = vec![vec![RgbPlotly::new(0, 0, 0); width as usize]; height as usize];
+        let mut pixels = vec![vec![[0u8; 3]; width as usize]; height as usize];
 
         for (x, y, pixel) in im.enumerate_pixels() {
-            let rgb = Rgb(pixel[0], pixel[1], pixel[2]);
-            pixels[y as usize][x as usize] = rgb.to_plotly();
+            pixels[y as usize][x as usize] = [pixel[0], pixel[1], pixel[2]];
         }
 
-        ImagePlotly::new(pixels).color_model(ColorModel::RGB)
+        TraceIR::Image(ImageIR { pixels })
     }
 }
 
