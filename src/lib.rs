@@ -3,6 +3,7 @@
 
 mod common;
 mod components;
+mod plotly_conversions;
 mod plots;
 
 pub use crate::common::plot::Plot;
