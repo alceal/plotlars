@@ -5,7 +5,8 @@ use std::process::Command;
 use plotly::{Layout, Plot as Plotly, Trace};
 use serde_json::Value;
 
-use crate::components::{Rgb, Text};
+use crate::components::color::parse_color;
+use crate::components::Text;
 
 use serde::Serialize;
 
@@ -289,58 +290,6 @@ pub trait PlotHelper {
     }
 }
 
-fn parse_color(color_str: &str) -> Option<Rgb> {
-    if color_str.starts_with("rgb(") || color_str.starts_with("rgba(") {
-        let start = color_str.find('(')?;
-        let end = color_str.find(')')?;
-        let values = &color_str[start + 1..end];
-        let parts: Vec<&str> = values.split(',').map(|s| s.trim()).collect();
-
-        if parts.len() >= 3 {
-            let r = parts[0].parse::<u8>().ok()?;
-            let g = parts[1].parse::<u8>().ok()?;
-            let b = parts[2].parse::<u8>().ok()?;
-            return Some(Rgb(r, g, b));
-        }
-    }
-
-    if let Some(hex) = color_str.strip_prefix('#') {
-        if hex.len() == 6 {
-            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-            return Some(Rgb(r, g, b));
-        } else if hex.len() == 3 {
-            let r = u8::from_str_radix(&hex[0..1], 16).ok()? * 17;
-            let g = u8::from_str_radix(&hex[1..2], 16).ok()? * 17;
-            let b = u8::from_str_radix(&hex[2..3], 16).ok()? * 17;
-            return Some(Rgb(r, g, b));
-        }
-    }
-
-    match color_str.to_lowercase().as_str() {
-        "black" => Some(Rgb(0, 0, 0)),
-        "white" => Some(Rgb(255, 255, 255)),
-        "red" => Some(Rgb(255, 0, 0)),
-        "green" => Some(Rgb(0, 128, 0)),
-        "blue" => Some(Rgb(0, 0, 255)),
-        "yellow" => Some(Rgb(255, 255, 0)),
-        "cyan" => Some(Rgb(0, 255, 255)),
-        "magenta" => Some(Rgb(255, 0, 255)),
-        "gray" | "grey" => Some(Rgb(128, 128, 128)),
-        "orange" => Some(Rgb(255, 165, 0)),
-        "purple" => Some(Rgb(128, 0, 128)),
-        "pink" => Some(Rgb(255, 192, 203)),
-        "brown" => Some(Rgb(165, 42, 42)),
-        "lime" => Some(Rgb(0, 255, 0)),
-        "navy" => Some(Rgb(0, 0, 128)),
-        "teal" => Some(Rgb(0, 128, 128)),
-        "silver" => Some(Rgb(192, 192, 192)),
-        "maroon" => Some(Rgb(128, 0, 0)),
-        "olive" => Some(Rgb(128, 128, 0)),
-        _ => None,
-    }
-}
 
 // Implement the public trait `Plot` for any type that implements `PlotHelper`.
 impl<T> Plot for T

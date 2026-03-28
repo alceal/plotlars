@@ -4,7 +4,8 @@ use serde_json::{json, Map, Value};
 use std::collections::HashMap;
 
 use crate::common::PlotHelper;
-use crate::components::{Rgb, Text};
+use crate::components::color::parse_color;
+use crate::components::Text;
 
 pub(super) const DEFAULT_COLORWAY: &[(u8, u8, u8)] = &[
     (31, 119, 180),
@@ -335,23 +336,6 @@ pub(super) fn extract_axis_title_from_annotations(
     None
 }
 
-pub(super) fn parse_color(color_str: &str) -> Option<Rgb> {
-    if color_str.starts_with("rgb(") || color_str.starts_with("rgba(") {
-        let start = color_str.find('(')?;
-        let end = color_str.find(')')?;
-        let values = &color_str[start + 1..end];
-        let parts: Vec<&str> = values.split(',').map(|s| s.trim()).collect();
-
-        if parts.len() >= 3 {
-            let r = parts[0].parse::<u8>().ok()?;
-            let g = parts[1].parse::<u8>().ok()?;
-            let b = parts[2].parse::<u8>().ok()?;
-            return Some(Rgb(r, g, b));
-        }
-    }
-
-    None
-}
 
 pub(super) fn build_axis_from_config(config: &AxisConfig) -> AxisPlotly {
     let mut axis = AxisPlotly::new();

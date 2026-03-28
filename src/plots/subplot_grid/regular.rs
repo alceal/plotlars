@@ -5,7 +5,8 @@ use plotly::{
 use serde_json::Value;
 
 use crate::common::PlotHelper;
-use crate::components::{Dimensions, Rgb, Text};
+use crate::components::color::parse_color;
+use crate::components::{Dimensions, Text};
 
 use super::custom_legend::CustomLegend;
 use super::shared::{
@@ -82,23 +83,6 @@ fn extract_axis_title_from_annotations(layout_json: &Value, is_x_axis: bool) -> 
     None
 }
 
-fn parse_color(color_str: &str) -> Option<Rgb> {
-    if color_str.starts_with("rgb(") || color_str.starts_with("rgba(") {
-        let start = color_str.find('(')?;
-        let end = color_str.find(')')?;
-        let values = &color_str[start + 1..end];
-        let parts: Vec<&str> = values.split(',').map(|s| s.trim()).collect();
-
-        if parts.len() >= 3 {
-            let r = parts[0].parse::<u8>().ok()?;
-            let g = parts[1].parse::<u8>().ok()?;
-            let b = parts[2].parse::<u8>().ok()?;
-            return Some(Rgb(r, g, b));
-        }
-    }
-
-    None
-}
 
 struct GridConfig {
     rows: usize,
