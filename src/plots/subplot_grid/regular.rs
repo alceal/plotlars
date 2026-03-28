@@ -5,84 +5,15 @@ use plotly::{
 use serde_json::Value;
 
 use crate::common::PlotHelper;
-use crate::components::color::parse_color;
 use crate::components::{Dimensions, Text};
 
 use super::custom_legend::CustomLegend;
 use super::shared::{
     adjust_domain_for_type, calculate_spanning_domain, detect_plot_type, determine_bar_mode,
-    determine_box_mode, inject_non_cartesian_domains, JsonTrace, NonCartesianLayout, PlotType,
+    determine_box_mode, extract_axis_title_from_annotations, inject_non_cartesian_domains,
+    AxisConfig, JsonTrace, NonCartesianLayout, PlotType,
 };
 use super::SubplotGrid;
-
-#[derive(Clone)]
-struct AxisConfig {
-    title: Option<Text>,
-    axis_json: Value,
-}
-
-fn extract_axis_title_from_annotations(layout_json: &Value, is_x_axis: bool) -> Option<Text> {
-    let annotations = layout_json.get("annotations")?.as_array()?;
-
-    for ann in annotations {
-        let xref = ann.get("xref")?.as_str()?;
-        let yref = ann.get("yref")?.as_str()?;
-        let yanchor = ann.get("yanchor").and_then(|v| v.as_str());
-        let xanchor = ann.get("xanchor").and_then(|v| v.as_str());
-
-        let is_axis_annotation = if is_x_axis {
-            (xref == "paper" || xref.ends_with(" domain"))
-                && (yref == "paper" || yref.ends_with(" domain"))
-                && yanchor == Some("middle")
-                && xanchor == Some("center")
-        } else {
-            (xref == "paper" || xref.ends_with(" domain"))
-                && (yref == "paper" || yref.ends_with(" domain"))
-                && yanchor == Some("middle")
-                && xanchor == Some("left")
-        };
-
-        if !is_axis_annotation {
-            continue;
-        }
-
-        let text_content = ann.get("text")?.as_str()?.to_string();
-        let mut text = Text::from(text_content);
-
-        if let Some(x) = ann.get("x").and_then(|v| v.as_f64()) {
-            text = text.x(x);
-        }
-
-        if let Some(y) = ann.get("y").and_then(|v| v.as_f64()) {
-            text = text.y(y);
-        }
-
-        if let Some(font_obj) = ann.get("font") {
-            if let Some(size) = font_obj.get("size").and_then(|s| s.as_u64()) {
-                if size > 0 {
-                    text = text.size(size as usize);
-                }
-            }
-
-            if let Some(family) = font_obj.get("family").and_then(|f| f.as_str()) {
-                if !family.is_empty() {
-                    text = text.font(family);
-                }
-            }
-
-            if let Some(color_str) = font_obj.get("color").and_then(|c| c.as_str()) {
-                if let Some(rgb) = parse_color(color_str) {
-                    text = text.color(rgb);
-                }
-            }
-        }
-
-        return Some(text);
-    }
-
-    None
-}
-
 
 struct GridConfig {
     rows: usize,
