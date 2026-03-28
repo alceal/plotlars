@@ -1,9 +1,6 @@
 use bon::bon;
 
-use plotly::{
-    common::{Line as LinePlotly, Marker as MarkerPlotly},
-    Layout as LayoutPlotly, ScatterGeo as ScatterGeoPlotly, Trace,
-};
+use plotly::{Layout as LayoutPlotly, Trace};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -11,6 +8,11 @@ use serde::Serialize;
 use crate::{
     common::{Layout, Line, Marker, PlotHelper, Polar},
     components::{Legend, Mode, Rgb, Shape, Text},
+    ir::data::ColumnData,
+    ir::layout::LayoutIR,
+    ir::line::LineIR,
+    ir::marker::MarkerIR,
+    ir::trace::{ScatterGeoIR, TraceIR},
 };
 
 /// A structure representing a geographic scatter plot.
@@ -83,7 +85,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/8PCEbhN.png)
 #[derive(Clone, Serialize)]
+#[allow(dead_code)]
 pub struct ScatterGeo {
+    #[serde(skip)]
+    ir_traces: Vec<TraceIR>,
+    #[serde(skip)]
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
@@ -120,22 +127,8 @@ impl ScatterGeo {
         let y2_title = None;
         let y2_axis = None;
 
-        let layout = Self::create_layout(
-            plot_title,
-            x_title,
-            y_title,
-            y2_title,
-            z_title,
-            legend_title,
-            x_axis,
-            y_axis,
-            y2_axis,
-            z_axis,
-            legend,
-            None,
-        );
-
-        let traces = Self::create_traces(
+        // Build IR traces
+        let ir_traces = Self::create_ir_traces(
             data,
             lat,
             lon,
@@ -153,11 +146,55 @@ impl ScatterGeo {
             line_color,
         );
 
-        Self { traces, layout }
+        let ir_layout = LayoutIR {
+            title: plot_title.clone(),
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: legend_title.clone(),
+            legend: legend.cloned(),
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
+        // Build plotly types from IR
+        let plotly_traces: Vec<Box<dyn Trace + 'static>> = ir_traces
+            .iter()
+            .map(crate::plotly_conversions::trace::convert)
+            .collect();
+
+        let layout = Self::create_layout(
+            plot_title,
+            x_title,
+            y_title,
+            y2_title,
+            z_title,
+            legend_title,
+            x_axis,
+            y_axis,
+            y2_axis,
+            z_axis,
+            legend,
+            None,
+        );
+
+        Self {
+            ir_traces,
+            ir_layout,
+            traces: plotly_traces,
+            layout,
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn create_traces(
+    fn create_ir_traces(
         data: &DataFrame,
         lat: &str,
         lon: &str,
@@ -173,120 +210,116 @@ impl ScatterGeo {
         shapes: Option<Vec<Shape>>,
         line_width: Option<f64>,
         line_color: Option<Rgb>,
-    ) -> Vec<Box<dyn Trace + 'static>> {
-        let mut traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
+    ) -> Vec<TraceIR> {
+        let mut ir_traces = Vec::new();
+
+        let line_ir = if line_width.is_some() || line_color.is_some() {
+            Some(LineIR {
+                width: line_width,
+                style: None,
+                color: line_color,
+            })
+        } else {
+            None
+        };
 
         match group {
             Some(group_col) => {
                 let groups = Self::get_unique_groups(data, group_col, sort_groups_by);
                 let groups = groups.iter().map(|s| s.as_str());
 
-                for (i, group) in groups.enumerate() {
-                    let marker = Self::create_marker(
-                        i,
+                for (i, group_name) in groups.enumerate() {
+                    let subset = Self::filter_data_by_group(data, group_col, group_name);
+
+                    let resolved_color = Self::resolve_color(i, color, colors.clone());
+                    let resolved_shape = Self::resolve_shape(i, shape, shapes.clone());
+
+                    let marker_ir = MarkerIR {
                         opacity,
                         size,
-                        color,
-                        colors.clone(),
-                        shape,
-                        shapes.clone(),
-                    );
+                        color: resolved_color,
+                        shape: resolved_shape,
+                    };
 
-                    let line = Self::create_line(line_width, line_color);
+                    let lat_data =
+                        ColumnData::Numeric(Self::get_numeric_column(&subset, lat));
+                    let lon_data =
+                        ColumnData::Numeric(Self::get_numeric_column(&subset, lon));
 
-                    let subset = Self::filter_data_by_group(data, group_col, group);
+                    let text_data = text.map(|text_col| {
+                        ColumnData::String(Self::get_string_column(&subset, text_col))
+                    });
 
-                    let trace = Self::create_trace(
-                        &subset,
-                        lat,
-                        lon,
+                    ir_traces.push(TraceIR::ScatterGeo(ScatterGeoIR {
+                        lat: lat_data,
+                        lon: lon_data,
+                        name: Some(group_name.to_string()),
+                        text: text_data,
                         mode,
-                        text,
-                        Some(group),
-                        marker,
-                        line,
-                    );
-
-                    traces.push(trace);
+                        marker: Some(marker_ir),
+                        line: line_ir.clone(),
+                        show_legend: None,
+                    }));
                 }
             }
             None => {
-                let group = None;
+                let resolved_color = Self::resolve_color(0, color, colors.clone());
+                let resolved_shape = Self::resolve_shape(0, shape, shapes.clone());
 
-                let marker = Self::create_marker(
-                    0,
+                let marker_ir = MarkerIR {
                     opacity,
                     size,
-                    color,
-                    colors.clone(),
-                    shape,
-                    shapes.clone(),
-                );
+                    color: resolved_color,
+                    shape: resolved_shape,
+                };
 
-                let line = Self::create_line(line_width, line_color);
+                let lat_data =
+                    ColumnData::Numeric(Self::get_numeric_column(data, lat));
+                let lon_data =
+                    ColumnData::Numeric(Self::get_numeric_column(data, lon));
 
-                let trace = Self::create_trace(data, lat, lon, mode, text, group, marker, line);
+                let text_data = text.map(|text_col| {
+                    ColumnData::String(Self::get_string_column(data, text_col))
+                });
 
-                traces.push(trace);
+                ir_traces.push(TraceIR::ScatterGeo(ScatterGeoIR {
+                    lat: lat_data,
+                    lon: lon_data,
+                    name: None,
+                    text: text_data,
+                    mode,
+                    marker: Some(marker_ir),
+                    line: line_ir,
+                    show_legend: None,
+                }));
             }
         }
 
-        traces
+        ir_traces
     }
 
-    #[allow(clippy::too_many_arguments)]
-    fn create_trace(
-        data: &DataFrame,
-        lat: &str,
-        lon: &str,
-        mode: Option<Mode>,
-        text: Option<&str>,
-        group_name: Option<&str>,
-        marker: MarkerPlotly,
-        line: LinePlotly,
-    ) -> Box<dyn Trace + 'static> {
-        let lat_data = Self::get_numeric_column(data, lat);
-        let lon_data = Self::get_numeric_column(data, lon);
-
-        let mut trace = ScatterGeoPlotly::new(lat_data, lon_data);
-
-        if let Some(mode) = mode {
-            trace = trace.mode(mode.to_plotly());
-        } else {
-            trace = trace.mode(plotly::common::Mode::Markers);
+    fn resolve_color(index: usize, color: Option<Rgb>, colors: Option<Vec<Rgb>>) -> Option<Rgb> {
+        if let Some(c) = color {
+            return Some(c);
         }
-
-        trace = trace.marker(marker);
-        trace = trace.line(line);
-
-        if let Some(text_col) = text {
-            let text_data = Self::get_string_column(data, text_col);
-            let text_strings: Vec<String> = text_data
-                .iter()
-                .map(|opt| opt.clone().unwrap_or_default())
-                .collect();
-            trace = trace.text_array(text_strings);
+        if let Some(ref cs) = colors {
+            return cs.get(index).copied();
         }
-
-        if let Some(name) = group_name {
-            trace = trace.name(name);
-        }
-
-        trace
+        None
     }
 
-    fn create_line(line_width: Option<f64>, line_color: Option<Rgb>) -> LinePlotly {
-        let mut line = LinePlotly::new();
-
-        if let Some(width) = line_width {
-            line = line.width(width);
+    fn resolve_shape(
+        index: usize,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+    ) -> Option<Shape> {
+        if let Some(s) = shape {
+            return Some(s);
         }
-
-        if let Some(color) = line_color {
-            line = line.color(color.to_plotly());
+        if let Some(ref ss) = shapes {
+            return ss.get(index).copied();
         }
-
-        line
+        None
     }
 }
 

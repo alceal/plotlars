@@ -11,6 +11,8 @@ use serde::Serialize;
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
     components::{Axis, FacetConfig, Legend, Rgb, Shape, Text, DEFAULT_PLOTLY_COLORS},
+    ir::layout::LayoutIR,
+    ir::trace::TraceIR,
 };
 
 /// A structure representing a scatter plot.
@@ -118,7 +120,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/9jfO8RU.png)
 #[derive(Clone, Serialize)]
+#[allow(dead_code)]
 pub struct ScatterPlot {
+    #[serde(skip)]
+    ir_traces: Vec<TraceIR>,
+    #[serde(skip)]
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
@@ -152,6 +159,29 @@ impl ScatterPlot {
         let z_axis = None;
         let y2_title = None;
         let y2_axis = None;
+
+        let ir_traces: Vec<TraceIR> = vec![];
+        let ir_layout = LayoutIR {
+            title: plot_title.clone(),
+            x_title: x_title.clone(),
+            y_title: y_title.clone(),
+            y2_title: None,
+            z_title: None,
+            legend_title: legend_title.clone(),
+            legend: legend.cloned(),
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: Some(crate::ir::layout::Axes2dIR {
+                x_axis: x_axis.cloned(),
+                y_axis: y_axis.cloned(),
+                y2_axis: None,
+            }),
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
 
         let (layout, traces) = match facet {
             Some(facet_column) => {
@@ -222,7 +252,12 @@ impl ScatterPlot {
             }
         };
 
-        Self { traces, layout }
+        Self {
+            ir_traces,
+            ir_layout,
+            traces,
+            layout,
+        }
     }
 
     #[allow(clippy::too_many_arguments)]

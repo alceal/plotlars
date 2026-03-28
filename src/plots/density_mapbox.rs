@@ -2,7 +2,7 @@ use bon::bon;
 
 use plotly::{
     layout::{Center, Layout as LayoutPlotly, Mapbox, MapboxStyle, Margin},
-    DensityMapbox as DensityMapboxPlotly, Trace,
+    Trace,
 };
 
 use polars::frame::DataFrame;
@@ -11,6 +11,9 @@ use serde::Serialize;
 use crate::{
     common::{Layout, PlotHelper, Polar},
     components::{Legend, Text},
+    ir::data::ColumnData,
+    ir::layout::LayoutIR,
+    ir::trace::{DensityMapboxIR, TraceIR},
 };
 
 /// A structure representing a density mapbox visualization.
@@ -67,7 +70,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/82eLyBm.png)
 #[derive(Clone, Serialize)]
+#[allow(dead_code)]
 pub struct DensityMapbox {
+    #[serde(skip)]
+    ir_traces: Vec<TraceIR>,
+    #[serde(skip)]
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
@@ -100,6 +108,9 @@ impl DensityMapbox {
         let y2_title = None;
         let y2_axis = None;
 
+        let ir_title = plot_title.clone();
+        let ir_legend_title = legend_title.clone();
+
         let mut layout = Self::create_layout(
             plot_title,
             x_title,
@@ -130,70 +141,53 @@ impl DensityMapbox {
 
         layout = layout.mapbox(map_box);
 
-        let traces = Self::create_traces(data, lat, lon, z, radius, opacity, z_min, z_max, z_mid);
+        // Build IR
+        let lat_data = ColumnData::Numeric(Self::get_numeric_column(data, lat));
+        let lon_data = ColumnData::Numeric(Self::get_numeric_column(data, lon));
+        let z_data = ColumnData::Numeric(Self::get_numeric_column(data, z));
 
-        Self { traces, layout }
-    }
+        let ir_trace = TraceIR::DensityMapbox(DensityMapboxIR {
+            lat: lat_data,
+            lon: lon_data,
+            z: z_data,
+            radius,
+            opacity,
+            z_min,
+            z_max,
+            z_mid,
+        });
+        let ir_traces = vec![ir_trace];
 
-    #[allow(clippy::too_many_arguments)]
-    fn create_traces(
-        data: &DataFrame,
-        lat: &str,
-        lon: &str,
-        z: &str,
-        radius: Option<u8>,
-        opacity: Option<f64>,
-        z_min: Option<f64>,
-        z_max: Option<f64>,
-        z_mid: Option<f64>,
-    ) -> Vec<Box<dyn Trace + 'static>> {
-        let mut traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
+        let ir_layout = LayoutIR {
+            title: ir_title,
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: ir_legend_title,
+            legend: legend.cloned(),
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
 
-        let trace = Self::create_trace(data, lat, lon, z, radius, opacity, z_min, z_max, z_mid);
+        // Build plotly types from IR
+        let plotly_traces: Vec<Box<dyn Trace + 'static>> = ir_traces
+            .iter()
+            .map(crate::plotly_conversions::trace::convert)
+            .collect();
 
-        traces.push(trace);
-        traces
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn create_trace(
-        data: &DataFrame,
-        lat: &str,
-        lon: &str,
-        z: &str,
-        radius: Option<u8>,
-        opacity: Option<f64>,
-        z_min: Option<f64>,
-        z_max: Option<f64>,
-        z_mid: Option<f64>,
-    ) -> Box<dyn Trace + 'static> {
-        let lat_data = Self::get_numeric_column(data, lat);
-        let lon_data = Self::get_numeric_column(data, lon);
-        let z_data = Self::get_numeric_column(data, z);
-
-        let mut trace = DensityMapboxPlotly::new(lat_data, lon_data, z_data);
-
-        if let Some(radius) = radius {
-            trace = trace.radius(radius);
+        Self {
+            ir_traces,
+            ir_layout,
+            traces: plotly_traces,
+            layout,
         }
-
-        if let Some(opacity) = opacity {
-            trace = trace.opacity(opacity);
-        }
-
-        if let Some(z_min) = z_min {
-            trace = trace.zmin(Some(z_min as f32));
-        }
-
-        if let Some(z_max) = z_max {
-            trace = trace.zmax(Some(z_max as f32));
-        }
-
-        if let Some(z_mid) = z_mid {
-            trace = trace.zmid(Some(z_mid as f32));
-        }
-
-        trace
     }
 }
 

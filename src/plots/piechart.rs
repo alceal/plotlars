@@ -13,6 +13,8 @@ use std::collections::HashMap;
 use crate::{
     common::{Layout, PlotHelper, Polar},
     components::{FacetConfig, Legend, Rgb, Text},
+    ir::layout::LayoutIR,
+    ir::trace::TraceIR,
 };
 
 /// A structure representing a pie chart.
@@ -69,7 +71,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/q44HDwT.png)
 #[derive(Clone, Serialize)]
+#[allow(dead_code)]
 pub struct PieChart {
+    #[serde(skip)]
+    ir_traces: Vec<TraceIR>,
+    #[serde(skip)]
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
@@ -98,6 +105,8 @@ impl PieChart {
         let z_axis = None;
         let y2_title = None;
         let y2_axis = None;
+
+        let ir_title = plot_title.clone();
 
         let (layout, traces) = match facet {
             Some(facet_column) => {
@@ -147,7 +156,31 @@ impl PieChart {
             }
         };
 
-        Self { traces, layout }
+        let ir_traces: Vec<TraceIR> = vec![];
+        let ir_layout = LayoutIR {
+            title: ir_title,
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
+        Self {
+            ir_traces,
+            ir_layout,
+            traces,
+            layout,
+        }
     }
 
     fn create_traces(

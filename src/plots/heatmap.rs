@@ -8,6 +8,8 @@ use serde::Serialize;
 use crate::{
     common::{Layout, Marker, PlotHelper, Polar},
     components::{Axis, ColorBar, FacetConfig, Legend, Palette, Text},
+    ir::layout::LayoutIR,
+    ir::trace::TraceIR,
 };
 
 /// A structure representing a heat map.
@@ -73,10 +75,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/5uFih4M.png)
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct HeatMap {
+    ir_traces: Vec<TraceIR>,
+    ir_layout: LayoutIR,
     pub traces: Vec<Box<dyn Trace + 'static>>,
     pub layout: LayoutPlotly,
-    #[allow(dead_code)]
     colorbar_fractions: Option<(Option<f64>, Option<f64>)>,
     layout_json: Option<serde_json::Value>,
 }
@@ -140,6 +144,29 @@ impl HeatMap {
         let z_axis = None;
         let y2_title = None;
         let y2_axis = None;
+
+        let ir_traces: Vec<TraceIR> = vec![];
+        let ir_layout = LayoutIR {
+            title: plot_title.clone(),
+            x_title: x_title.clone(),
+            y_title: y_title.clone(),
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: Some(crate::ir::layout::Axes2dIR {
+                x_axis: x_axis.cloned(),
+                y_axis: y_axis.cloned(),
+                y2_axis: None,
+            }),
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
 
         let colorbar_fractions = color_bar.map(|cb| cb.get_fraction_values());
 
@@ -211,6 +238,8 @@ impl HeatMap {
         // Create a temporary instance to serialize and extract the layout JSON
         // This triggers the custom Serialize implementation which patches colorbar values
         let temp_heatmap = Self {
+            ir_traces: ir_traces.clone(),
+            ir_layout: ir_layout.clone(),
             traces: traces.clone(),
             layout: layout.clone(),
             colorbar_fractions,
@@ -225,6 +254,8 @@ impl HeatMap {
         let layout_json = plot_json.get("layout").cloned();
 
         Self {
+            ir_traces,
+            ir_layout,
             traces,
             layout,
             colorbar_fractions,

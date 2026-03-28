@@ -14,6 +14,8 @@ use crate::{
     components::{
         FacetConfig, Fill, Legend, Line as LineStyle, Mode, Rgb, Shape, Text, DEFAULT_PLOTLY_COLORS,
     },
+    ir::layout::LayoutIR,
+    ir::trace::TraceIR,
 };
 
 /// A structure representing a scatter polar plot.
@@ -100,7 +102,10 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/kl1pY9c.png)
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct ScatterPolar {
+    ir_traces: Vec<TraceIR>,
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
     layout_json: Option<serde_json::Value>,
@@ -169,6 +174,8 @@ impl ScatterPolar {
         let y_axis = None;
         let y2_axis = None;
         let z_axis = None;
+
+        let ir_title = plot_title.clone();
 
         let (layout, traces, layout_json) = match facet {
             Some(facet_column) => {
@@ -255,7 +262,28 @@ impl ScatterPolar {
             }
         };
 
+        let ir_traces: Vec<TraceIR> = vec![];
+        let ir_layout = LayoutIR {
+            title: ir_title,
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
         Self {
+            ir_traces,
+            ir_layout,
             traces,
             layout,
             layout_json,

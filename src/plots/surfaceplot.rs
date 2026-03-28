@@ -10,6 +10,8 @@ use serde::Serialize;
 use crate::{
     common::{Layout, PlotHelper, Polar},
     components::{ColorBar, FacetConfig, FacetScales, Legend, Lighting, Palette, Text},
+    ir::layout::LayoutIR,
+    ir::trace::TraceIR,
 };
 
 /// A structure representing a 3-D surface plot.
@@ -117,7 +119,10 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/tdVte4l.png)
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct SurfacePlot {
+    ir_traces: Vec<TraceIR>,
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
     layout_json: Option<serde_json::Value>,
@@ -179,6 +184,8 @@ impl SurfacePlot {
         let z_axis = None;
         let y2_title = None;
         let y2_axis = None;
+
+        let ir_title = plot_title.clone();
 
         let (layout, traces, layout_json) = match facet {
             Some(facet_column) => {
@@ -253,7 +260,28 @@ impl SurfacePlot {
             }
         };
 
+        let ir_traces: Vec<TraceIR> = vec![];
+        let ir_layout = LayoutIR {
+            title: ir_title,
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
         Self {
+            ir_traces,
+            ir_layout,
             traces,
             layout,
             layout_json,

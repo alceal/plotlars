@@ -291,6 +291,7 @@ pub(crate) struct TableIR {
     pub cell: Option<Cell>,
     pub column_names: Vec<String>,
     pub column_data: Vec<Vec<String>>,
+    pub column_width: Option<f64>,
 }
 
 #[derive(Clone)]

@@ -1,9 +1,6 @@
 use bon::bon;
 
-use plotly::{
-    traces::table::{Cells as CellsPlotly, Header as HeaderPlotly},
-    Layout as LayoutPlotly, Table as TablePlotly, Trace,
-};
+use plotly::{Layout as LayoutPlotly, Trace};
 
 use polars::frame::DataFrame;
 use serde::Serialize;
@@ -11,6 +8,8 @@ use serde::Serialize;
 use crate::{
     common::{Layout, PlotHelper, Polar},
     components::{Cell, Header, Text},
+    ir::layout::LayoutIR,
+    ir::trace::{TableIR, TraceIR},
 };
 
 /// A structure representing a table plot.
@@ -78,7 +77,12 @@ use crate::{
 ///
 /// ![Example](https://imgur.com/QDKTeFX.png)
 #[derive(Clone, Serialize)]
+#[allow(dead_code)]
 pub struct Table {
+    #[serde(skip)]
+    ir_traces: Vec<TraceIR>,
+    #[serde(skip)]
+    ir_layout: LayoutIR,
     traces: Vec<Box<dyn Trace + 'static>>,
     layout: LayoutPlotly,
 }
@@ -105,6 +109,61 @@ impl Table {
         let z_axis = None;
         let legend = None;
 
+        // Determine column names
+        let column_names: Vec<String> = if let Some(h) = header {
+            if let Some(custom_values) = &h.values {
+                custom_values.clone()
+            } else {
+                columns.iter().map(|&c| c.to_string()).collect()
+            }
+        } else {
+            columns.iter().map(|&c| c.to_string()).collect()
+        };
+
+        // Extract cell values from DataFrame
+        let mut column_data: Vec<Vec<String>> = Vec::new();
+        for column_name in &columns {
+            let col_data = Self::get_string_column(data, column_name);
+            let col_strings: Vec<String> = col_data
+                .iter()
+                .map(|opt| opt.clone().unwrap_or_default())
+                .collect();
+            column_data.push(col_strings);
+        }
+
+        // Build IR
+        let ir_trace = TraceIR::Table(TableIR {
+            header: header.cloned(),
+            cell: cell.cloned(),
+            column_names,
+            column_data,
+            column_width,
+        });
+        let ir_traces = vec![ir_trace];
+        let ir_layout = LayoutIR {
+            title: plot_title.clone(),
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
+        // Build plotly types from IR
+        let plotly_traces: Vec<Box<dyn Trace + 'static>> = ir_traces
+            .iter()
+            .map(crate::plotly_conversions::trace::convert)
+            .collect();
+
         let layout = Self::create_layout(
             plot_title,
             x_title,
@@ -120,79 +179,12 @@ impl Table {
             None,
         );
 
-        let traces = Self::create_traces(data, &columns, header, cell, column_width);
-
-        Self { traces, layout }
-    }
-
-    fn create_traces(
-        data: &DataFrame,
-        columns: &[&str],
-        header: Option<&Header>,
-        cell: Option<&Cell>,
-        column_width: Option<f64>,
-    ) -> Vec<Box<dyn Trace + 'static>> {
-        let mut traces: Vec<Box<dyn Trace + 'static>> = Vec::new();
-
-        let trace = Self::create_trace(data, columns, header, cell, column_width);
-
-        traces.push(trace);
-        traces
-    }
-
-    fn create_trace(
-        data: &DataFrame,
-        columns: &[&str],
-        header: Option<&Header>,
-        cell: Option<&Cell>,
-        column_width: Option<f64>,
-    ) -> Box<dyn Trace + 'static> {
-        // Determine header values
-        let header_values = if let Some(h) = header {
-            if let Some(custom_values) = &h.values {
-                custom_values.clone()
-            } else {
-                columns.iter().map(|&c| c.to_string()).collect()
-            }
-        } else {
-            columns.iter().map(|&c| c.to_string()).collect()
-        };
-
-        // Extract cell values from DataFrame
-        let mut cell_values: Vec<Vec<String>> = Vec::new();
-
-        for column_name in columns {
-            let column_data = Self::get_string_column(data, column_name);
-            let column_strings: Vec<String> = column_data
-                .iter()
-                .map(|opt| opt.clone().unwrap_or_default())
-                .collect();
-            cell_values.push(column_strings);
+        Self {
+            ir_traces,
+            ir_layout,
+            traces: plotly_traces,
+            layout,
         }
-
-        // Create header
-        let plotly_header = if let Some(h) = header {
-            h.to_plotly(header_values)
-        } else {
-            HeaderPlotly::new(header_values)
-        };
-
-        // Create cells
-        let plotly_cells = if let Some(c) = cell {
-            c.to_plotly(cell_values)
-        } else {
-            CellsPlotly::new(cell_values)
-        };
-
-        // Create table
-        let mut table = TablePlotly::new(plotly_header, plotly_cells);
-
-        // Set column width if provided
-        if let Some(width) = column_width {
-            table = table.column_width(width);
-        }
-
-        table
     }
 }
 
