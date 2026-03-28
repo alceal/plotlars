@@ -16,6 +16,10 @@ categories = ["visualization"]
 [lib]
 doctest = false
 
+[[bin]]
+name = "snapshot"
+path = "src/bin/snapshot.rs"
+
 [dependencies]
 bon = "3.9.1"
 image = "0.25.10"

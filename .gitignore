@@ -83,3 +83,7 @@ notebook
 **/main*.rs
 project_docs/
 docs/
+
+# Snapshot tooling (regenerated from source)
+snapshots/
+snapshots-baseline/
