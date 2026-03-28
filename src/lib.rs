@@ -3,6 +3,7 @@
 
 mod common;
 mod components;
+mod faceting;
 mod ir;
 mod plotly_conversions;
 mod plots;
