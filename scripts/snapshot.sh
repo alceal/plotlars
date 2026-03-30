@@ -7,10 +7,10 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_DIR"
 
 echo "Building snapshot binary..."
-cargo build --bin snapshot 2>&1
+cargo build -p plotlars --bin snapshot 2>&1
 
 echo "Running snapshot binary..."
-cargo run --bin snapshot 2>&1
+cargo run -p plotlars --bin snapshot 2>&1
 
 echo "Snapshots written to snapshots/"
 

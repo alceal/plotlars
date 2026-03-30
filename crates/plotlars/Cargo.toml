@@ -1,0 +1,34 @@
+[package]
+name = "plotlars"
+version = "0.12.0"
+authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
+edition = "2021"
+rust-version = "1.86.0"
+publish = false
+description = "Plotlars is a Rust library designed to facilitate the integration between the Polars data analysis library and visualization libraries."
+documentation = "https://docs.rs/plotlars/latest/plotlars/"
+readme = "../../README.md"
+homepage = "https://github.com/alceal/plotlars"
+repository = "https://github.com/alceal/plotlars"
+license = "MIT"
+keywords = ["chart", "plot", "plotly", "polars", "visualization"]
+categories = ["visualization"]
+
+[lib]
+doctest = false
+
+[[bin]]
+name = "snapshot"
+path = "src/bin/snapshot.rs"
+
+[dependencies]
+plotlars-core = { path = "../plotlars-core" }
+plotlars-plotly = { path = "../plotlars-plotly" }
+polars = { version = "0.53.0", features = ["lazy", "dtype-categorical", "timezones"] }
+serde_json = "1.0.149"
+
+[features]
+export-chrome = ["plotlars-plotly/export-chrome"]
+export-firefox = ["plotlars-plotly/export-firefox"]
+export-download = ["plotlars-plotly/export-download"]
+export-default = ["plotlars-plotly/export-default"]
