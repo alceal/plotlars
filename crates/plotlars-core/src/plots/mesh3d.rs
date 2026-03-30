@@ -493,3 +493,53 @@ impl crate::Plot for Mesh3D {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn sample_df() -> DataFrame {
+        df![
+            "x" => [0.0, 1.0, 0.5, 0.5],
+            "y" => [0.0, 0.0, 1.0, 0.5],
+            "z" => [0.0, 0.0, 0.0, 1.0]
+        ]
+        .unwrap()
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = sample_df();
+        let plot = Mesh3D::builder().data(&df).x("x").y("y").z("z").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let df = sample_df();
+        let plot = Mesh3D::builder().data(&df).x("x").y("y").z("z").build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Mesh3D(_)));
+    }
+
+    #[test]
+    fn test_layout_no_cartesian_axes() {
+        let df = sample_df();
+        let plot = Mesh3D::builder().data(&df).x("x").y("y").z("z").build();
+        assert!(plot.ir_layout().axes_2d.is_none());
+    }
+
+    #[test]
+    fn test_layout_title() {
+        let df = sample_df();
+        let plot = Mesh3D::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .plot_title("Mesh")
+            .build();
+        assert!(plot.ir_layout().title.is_some());
+    }
+}

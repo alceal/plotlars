@@ -289,3 +289,72 @@ impl crate::Plot for ScatterGeo {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "lat" => [40.7, 34.0, 41.8],
+            "lon" => [-74.0, -118.2, -87.6]
+        ]
+        .unwrap();
+        let plot = ScatterGeo::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let df = df![
+            "lat" => [40.7],
+            "lon" => [-74.0]
+        ]
+        .unwrap();
+        let plot = ScatterGeo::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::ScatterGeo(_)));
+    }
+
+    #[test]
+    fn test_with_group() {
+        let df = df![
+            "lat" => [40.7, 34.0, 41.8, 29.7],
+            "lon" => [-74.0, -118.2, -87.6, -95.3],
+            "region" => ["east", "west", "east", "south"]
+        ]
+        .unwrap();
+        let plot = ScatterGeo::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .group("region")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 3);
+    }
+
+    #[test]
+    fn test_layout_no_cartesian_axes() {
+        let df = df![
+            "lat" => [40.7],
+            "lon" => [-74.0]
+        ]
+        .unwrap();
+        let plot = ScatterGeo::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .build();
+        assert!(plot.ir_layout().axes_2d.is_none());
+    }
+}

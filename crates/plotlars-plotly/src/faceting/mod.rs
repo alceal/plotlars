@@ -707,3 +707,133 @@ fn create_domain_facet_annotations(
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // -----------------------------------------------------------------------
+    // is_bottom_row
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_is_bottom_row_last() {
+        // 3x3 grid (9 facets), index 6 is row 2 (last row)
+        assert!(is_bottom_row(6, 3, 3, 9));
+    }
+
+    #[test]
+    fn test_is_bottom_row_not_last() {
+        assert!(!is_bottom_row(0, 3, 3, 9));
+    }
+
+    #[test]
+    fn test_is_bottom_row_partial() {
+        // 2x3 grid with 5 facets, index 3 (row 1, col 1)
+        // subplot below would be at index 5 which == n_facets, so true
+        assert!(is_bottom_row(3, 2, 3, 5));
+    }
+
+    // -----------------------------------------------------------------------
+    // is_left_column
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_is_left_column_true() {
+        assert!(is_left_column(0, 3));
+    }
+
+    #[test]
+    fn test_is_left_column_false() {
+        assert!(!is_left_column(1, 3));
+    }
+
+    #[test]
+    fn test_is_left_column_second_row() {
+        assert!(is_left_column(3, 3));
+    }
+
+    // -----------------------------------------------------------------------
+    // calculate_scene_facet_cell
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_scene_cell_first_in_2x2() {
+        let cell = calculate_scene_facet_cell(0, 2, 2, Some(0.05), Some(0.05));
+        assert!(cell.domain_x[0] >= 0.0);
+        assert!(cell.domain_x[1] <= 1.0);
+        assert!(cell.domain_y[0] >= 0.0);
+        assert!(cell.domain_y[1] <= 1.0);
+        assert!(cell.domain_x[0] < cell.domain_x[1]);
+        assert!(cell.domain_y[0] < cell.domain_y[1]);
+    }
+
+    #[test]
+    fn test_scene_cell_all_in_range() {
+        for i in 0..4 {
+            let cell = calculate_scene_facet_cell(i, 2, 2, Some(0.05), Some(0.05));
+            assert!(cell.domain_x[0] >= 0.0 && cell.domain_x[0] <= 1.0);
+            assert!(cell.domain_x[1] >= 0.0 && cell.domain_x[1] <= 1.0);
+            assert!(cell.domain_y[0] >= 0.0 && cell.domain_y[0] <= 1.0);
+            assert!(cell.domain_y[1] >= 0.0 && cell.domain_y[1] <= 1.0);
+        }
+    }
+
+    #[test]
+    fn test_scene_cell_different_gaps() {
+        let cell_small = calculate_scene_facet_cell(1, 2, 2, Some(0.02), Some(0.02));
+        let cell_large = calculate_scene_facet_cell(1, 2, 2, Some(0.10), Some(0.10));
+        // Larger gap means narrower cells
+        let width_small = cell_small.domain_x[1] - cell_small.domain_x[0];
+        let width_large = cell_large.domain_x[1] - cell_large.domain_x[0];
+        assert!(width_small > width_large);
+    }
+
+    // -----------------------------------------------------------------------
+    // calculate_polar_facet_cell
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_polar_cell_first_in_2x2() {
+        let cell = calculate_polar_facet_cell(0, 2, 2, Some(0.05), Some(0.05));
+        assert!(cell.domain_x[0] >= 0.0);
+        assert!(cell.domain_x[1] <= 1.0);
+        assert!(cell.domain_y[0] >= 0.0);
+        assert!(cell.domain_y[1] <= 1.0);
+        assert!(cell.domain_x[0] < cell.domain_x[1]);
+        assert!(cell.domain_y[0] < cell.domain_y[1]);
+    }
+
+    // -----------------------------------------------------------------------
+    // apply_axis_matching
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_axis_matching_fixed() {
+        let layout = LayoutPlotly::new();
+        let result = apply_axis_matching(layout, 3, &FacetScales::Fixed);
+        let json = serde_json::to_string(&result).unwrap();
+        // Fixed: both xaxis2/yaxis2 and xaxis3/yaxis3 should have matches
+        assert!(json.contains(r#""matches":"x""#));
+        assert!(json.contains(r#""matches":"y""#));
+    }
+
+    #[test]
+    fn test_axis_matching_free_x() {
+        let layout = LayoutPlotly::new();
+        let result = apply_axis_matching(layout, 3, &FacetScales::FreeX);
+        let json = serde_json::to_string(&result).unwrap();
+        // FreeX: only y-axes match
+        assert!(!json.contains(r#""matches":"x""#));
+        assert!(json.contains(r#""matches":"y""#));
+    }
+
+    #[test]
+    fn test_axis_matching_free() {
+        let layout = LayoutPlotly::new();
+        let result = apply_axis_matching(layout, 3, &FacetScales::Free);
+        let json = serde_json::to_string(&result).unwrap();
+        // Free: no matching at all
+        assert!(!json.contains("matches"));
+    }
+}

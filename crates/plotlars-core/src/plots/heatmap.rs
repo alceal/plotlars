@@ -311,3 +311,53 @@ impl crate::Plot for HeatMap {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "x" => ["a", "b", "c"],
+            "y" => ["d", "e", "f"],
+            "z" => [1.0, 2.0, 3.0]
+        ]
+        .unwrap();
+        let plot = HeatMap::builder().data(&df).x("x").y("y").z("z").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::HeatMap(_)));
+    }
+
+    #[test]
+    fn test_layout_has_axes() {
+        let df = df![
+            "x" => ["a", "b"],
+            "y" => ["c", "d"],
+            "z" => [1.0, 2.0]
+        ]
+        .unwrap();
+        let plot = HeatMap::builder().data(&df).x("x").y("y").z("z").build();
+        assert!(plot.ir_layout().axes_2d.is_some());
+    }
+
+    #[test]
+    fn test_layout_title() {
+        let df = df![
+            "x" => ["a"],
+            "y" => ["b"],
+            "z" => [1.0]
+        ]
+        .unwrap();
+        let plot = HeatMap::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .plot_title("Heat")
+            .build();
+        assert!(plot.ir_layout().title.is_some());
+    }
+}

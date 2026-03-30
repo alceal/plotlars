@@ -151,3 +151,55 @@ impl Lighting {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let light = Lighting::new();
+        assert!(light.position.is_none());
+        assert!(light.ambient.is_none());
+        assert!(light.diffuse.is_none());
+        assert!(light.fresnel.is_none());
+        assert!(light.roughness.is_none());
+        assert!(light.specular.is_none());
+    }
+
+    #[test]
+    fn test_ambient() {
+        let light = Lighting::new().ambient(0.5);
+        assert!((light.ambient.unwrap() - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_diffuse() {
+        let light = Lighting::new().diffuse(0.8);
+        assert!((light.diffuse.unwrap() - 0.8).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_specular() {
+        let light = Lighting::new().specular(0.3);
+        assert!((light.specular.unwrap() - 0.3).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_builder_chaining() {
+        let light = Lighting::new()
+            .position(1, 2, 3)
+            .ambient(0.4)
+            .diffuse(0.6)
+            .fresnel(0.2)
+            .roughness(0.9)
+            .specular(0.7);
+
+        assert_eq!(light.position, Some([1, 2, 3]));
+        assert!((light.ambient.unwrap() - 0.4).abs() < 1e-6);
+        assert!((light.diffuse.unwrap() - 0.6).abs() < 1e-6);
+        assert!((light.fresnel.unwrap() - 0.2).abs() < 1e-6);
+        assert!((light.roughness.unwrap() - 0.9).abs() < 1e-6);
+        assert!((light.specular.unwrap() - 0.7).abs() < 1e-6);
+    }
+}

@@ -256,3 +256,154 @@ impl From<&String> for Text {
         Self::from(content)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::components::Rgb;
+
+    fn assert_float_eq(a: f64, b: f64) {
+        assert!(
+            (a - b).abs() < 1e-6,
+            "expected {b}, got {a} (diff {})",
+            (a - b).abs()
+        );
+    }
+
+    #[test]
+    fn test_from_str() {
+        let t = Text::from("hello");
+        assert_eq!(t.content, "hello");
+        assert_eq!(t.font, "");
+        assert_eq!(t.size, 12);
+        assert_eq!(t.color.0, 0);
+        assert_eq!(t.color.1, 0);
+        assert_eq!(t.color.2, 0);
+        assert_float_eq(t.x, 0.5);
+        assert_float_eq(t.y, 0.9);
+    }
+
+    #[test]
+    fn test_from_string() {
+        let t: Text = String::from("world").into();
+        assert_eq!(t.content, "world");
+    }
+
+    #[test]
+    fn test_from_ref_string() {
+        let s = String::from("ref");
+        let t: Text = (&s).into();
+        assert_eq!(t.content, "ref");
+    }
+
+    #[test]
+    fn test_default_values() {
+        let t = Text::default();
+        assert_eq!(t.content, "");
+        assert_eq!(t.font, "");
+        assert_eq!(t.size, 12);
+        assert_eq!(t.color.0, 0);
+        assert_eq!(t.color.1, 0);
+        assert_eq!(t.color.2, 0);
+        assert_float_eq(t.x, 0.5);
+        assert_float_eq(t.y, 0.9);
+    }
+
+    #[test]
+    fn test_font() {
+        let t = Text::from("x").font("Arial");
+        assert_eq!(t.font, "Arial");
+        assert_eq!(t.size, 12);
+    }
+
+    #[test]
+    fn test_size() {
+        let t = Text::from("x").size(20);
+        assert_eq!(t.size, 20);
+        assert_eq!(t.font, "");
+    }
+
+    #[test]
+    fn test_color() {
+        let t = Text::from("x").color(Rgb(1, 2, 3));
+        assert_eq!(t.color.0, 1);
+        assert_eq!(t.color.1, 2);
+        assert_eq!(t.color.2, 3);
+    }
+
+    #[test]
+    fn test_x() {
+        let t = Text::from("x").x(0.1);
+        assert_float_eq(t.x, 0.1);
+        assert_float_eq(t.y, 0.9);
+    }
+
+    #[test]
+    fn test_y() {
+        let t = Text::from("x").y(0.2);
+        assert_float_eq(t.y, 0.2);
+        assert_float_eq(t.x, 0.5);
+    }
+
+    #[test]
+    fn test_builder_chaining() {
+        let t = Text::from("chained")
+            .font("Courier")
+            .size(24)
+            .color(Rgb(10, 20, 30))
+            .x(0.3)
+            .y(0.7);
+        assert_eq!(t.content, "chained");
+        assert_eq!(t.font, "Courier");
+        assert_eq!(t.size, 24);
+        assert_eq!(t.color.0, 10);
+        assert_eq!(t.color.1, 20);
+        assert_eq!(t.color.2, 30);
+        assert_float_eq(t.x, 0.3);
+        assert_float_eq(t.y, 0.7);
+    }
+
+    #[test]
+    fn test_has_custom_position_default() {
+        let t = Text::default();
+        assert!(!t.has_custom_position());
+    }
+
+    #[test]
+    fn test_has_custom_position_x_changed() {
+        let t = Text::from("x").x(0.3);
+        assert!(t.has_custom_position());
+    }
+
+    #[test]
+    fn test_has_custom_position_epsilon() {
+        let t = Text::from("x").x(0.5 + 1e-7);
+        assert!(!t.has_custom_position());
+    }
+
+    #[test]
+    fn test_with_plot_title_defaults() {
+        let t = Text::from("title").with_plot_title_defaults();
+        assert_float_eq(t.y, 0.95);
+
+        let t2 = Text::from("title").y(0.7).with_plot_title_defaults();
+        assert_float_eq(t2.y, 0.7);
+    }
+
+    #[test]
+    fn test_with_x_title_defaults() {
+        let t = Text::from("x").with_x_title_defaults();
+        assert_float_eq(t.y, -0.15);
+    }
+
+    #[test]
+    fn test_with_y_title_defaults() {
+        let t = Text::from("y").with_y_title_defaults();
+        assert_float_eq(t.x, -0.08);
+        assert_float_eq(t.y, 0.5);
+
+        let t2 = Text::from("y").x(0.2).y(0.3).with_y_title_defaults();
+        assert_float_eq(t2.x, 0.2);
+        assert_float_eq(t2.y, 0.3);
+    }
+}

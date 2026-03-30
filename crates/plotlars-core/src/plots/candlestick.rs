@@ -150,3 +150,78 @@ impl crate::Plot for CandlestickPlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn sample_df() -> DataFrame {
+        df![
+            "date" => ["2024-01-01", "2024-01-02", "2024-01-03"],
+            "open" => [100.0, 102.0, 101.0],
+            "high" => [105.0, 106.0, 104.0],
+            "low" => [98.0, 100.0, 99.0],
+            "close" => [103.0, 101.0, 102.0]
+        ]
+        .unwrap()
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = sample_df();
+        let plot = CandlestickPlot::builder()
+            .data(&df)
+            .dates("date")
+            .open("open")
+            .high("high")
+            .low("low")
+            .close("close")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let df = sample_df();
+        let plot = CandlestickPlot::builder()
+            .data(&df)
+            .dates("date")
+            .open("open")
+            .high("high")
+            .low("low")
+            .close("close")
+            .build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::CandlestickPlot(_)));
+    }
+
+    #[test]
+    fn test_layout_has_axes() {
+        let df = sample_df();
+        let plot = CandlestickPlot::builder()
+            .data(&df)
+            .dates("date")
+            .open("open")
+            .high("high")
+            .low("low")
+            .close("close")
+            .build();
+        assert!(plot.ir_layout().axes_2d.is_some());
+    }
+
+    #[test]
+    fn test_layout_title() {
+        let df = sample_df();
+        let plot = CandlestickPlot::builder()
+            .data(&df)
+            .dates("date")
+            .open("open")
+            .high("high")
+            .low("low")
+            .close("close")
+            .plot_title("Candlestick")
+            .build();
+        assert!(plot.ir_layout().title.is_some());
+    }
+}

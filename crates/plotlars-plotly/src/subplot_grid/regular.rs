@@ -329,9 +329,7 @@ pub(super) fn build_regular(
         owned_legends.clone().or_else(|| {
             let generated: Vec<Option<CustomLegend>> = plots
                 .iter()
-                .map(|plot| {
-                    CustomLegend::from_ir(plot.ir_traces(), plot.ir_layout())
-                })
+                .map(|plot| CustomLegend::from_ir(plot.ir_traces(), plot.ir_layout()))
                 .collect();
             Some(generated)
         });

@@ -107,3 +107,39 @@ impl crate::Plot for Array2dPlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+
+    fn pixel_data() -> Vec<Vec<[u8; 3]>> {
+        vec![
+            vec![[255, 0, 0], [0, 255, 0]],
+            vec![[0, 0, 255], [255, 255, 0]],
+        ]
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let data = pixel_data();
+        let plot = Array2dPlot::builder().data(&data).build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let data = pixel_data();
+        let plot = Array2dPlot::builder().data(&data).build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Array2dPlot(_)));
+    }
+
+    #[test]
+    fn test_layout_no_axes_by_default() {
+        let data = pixel_data();
+        let plot = Array2dPlot::builder().data(&data).build();
+        let axes = plot.ir_layout().axes_2d.as_ref().unwrap();
+        assert!(axes.x_axis.is_none());
+        assert!(axes.y_axis.is_none());
+    }
+}

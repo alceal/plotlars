@@ -671,3 +671,61 @@ impl crate::Plot for ScatterPolar {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn assert_rgb(actual: Option<Rgb>, r: u8, g: u8, b: u8) {
+        let c = actual.expect("expected Some(Rgb)");
+        assert_eq!((c.0, c.1, c.2), (r, g, b));
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "theta" => [0.0, 90.0, 180.0],
+            "r" => [1.0, 2.0, 3.0]
+        ]
+        .unwrap();
+        let plot = ScatterPolar::builder()
+            .data(&df)
+            .theta("theta")
+            .r("r")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::ScatterPolar(_)));
+    }
+
+    #[test]
+    fn test_with_group() {
+        let df = df![
+            "theta" => [0.0, 90.0, 180.0, 270.0],
+            "r" => [1.0, 2.0, 3.0, 4.0],
+            "g" => ["a", "b", "a", "b"]
+        ]
+        .unwrap();
+        let plot = ScatterPolar::builder()
+            .data(&df)
+            .theta("theta")
+            .r("r")
+            .group("g")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_resolve_color_singular_priority() {
+        let result =
+            ScatterPolar::resolve_color(0, Some(Rgb(255, 0, 0)), Some(vec![Rgb(0, 0, 255)]));
+        assert_rgb(result, 255, 0, 0);
+    }
+
+    #[test]
+    fn test_resolve_shape_both_none() {
+        let result = ScatterPolar::resolve_shape(0, None, None);
+        assert!(result.is_none());
+    }
+}

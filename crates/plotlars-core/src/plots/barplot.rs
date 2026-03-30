@@ -484,3 +484,108 @@ impl crate::Plot for BarPlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn assert_rgb(actual: Option<Rgb>, r: u8, g: u8, b: u8) {
+        let c = actual.expect("expected Some(Rgb)");
+        assert_eq!((c.0, c.1, c.2), (r, g, b));
+    }
+
+    #[test]
+    fn test_resolve_color_singular_priority() {
+        let result = BarPlot::resolve_color(0, Some(Rgb(255, 0, 0)), Some(vec![Rgb(0, 0, 255)]));
+        assert_rgb(result, 255, 0, 0);
+    }
+
+    #[test]
+    fn test_resolve_color_both_none() {
+        let result = BarPlot::resolve_color(0, None, None);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_no_group_one_trace() {
+        let df = df!["labels" => ["a", "b", "c"], "values" => [1.0, 2.0, 3.0]].unwrap();
+        let plot = BarPlot::builder()
+            .data(&df)
+            .labels("labels")
+            .values("values")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_with_group() {
+        let df = df![
+            "labels" => ["a", "b", "a", "b"],
+            "values" => [1.0, 2.0, 3.0, 4.0],
+            "g" => ["x", "x", "y", "y"]
+        ]
+        .unwrap();
+        let plot = BarPlot::builder()
+            .data(&df)
+            .labels("labels")
+            .values("values")
+            .group("g")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_faceted_trace_count() {
+        let df = df![
+            "labels" => ["a", "b", "c", "a", "b", "c"],
+            "values" => [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            "f" => ["f1", "f2", "f1", "f2", "f1", "f2"]
+        ]
+        .unwrap();
+        let plot = BarPlot::builder()
+            .data(&df)
+            .labels("labels")
+            .values("values")
+            .facet("f")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    #[should_panic(expected = "maximum")]
+    fn test_max_facets_panics() {
+        let facet_values: Vec<&str> = (0..9)
+            .map(|i| match i {
+                0 => "a",
+                1 => "b",
+                2 => "c",
+                3 => "d",
+                4 => "e",
+                5 => "f",
+                6 => "g",
+                7 => "h",
+                _ => "i",
+            })
+            .collect();
+        let n = facet_values.len();
+        let labels: Vec<&str> = (0..n).map(|_| "label").collect();
+        let values: Vec<f64> = (0..n).map(|i| i as f64).collect();
+        let df = DataFrame::new(
+            n,
+            vec![
+                Column::new("labels".into(), &labels),
+                Column::new("values".into(), &values),
+                Column::new("f".into(), &facet_values),
+            ],
+        )
+        .unwrap();
+        BarPlot::builder()
+            .data(&df)
+            .labels("labels")
+            .values("values")
+            .facet("f")
+            .build();
+    }
+}

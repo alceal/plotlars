@@ -146,3 +146,75 @@ impl Legend {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let legend = Legend::new();
+        let bg = legend.background_color.unwrap();
+        assert_eq!(bg.0, 255);
+        assert_eq!(bg.1, 255);
+        assert_eq!(bg.2, 255);
+        assert!(legend.border_color.is_none());
+        assert!(legend.border_width.is_none());
+        assert!(legend.font.is_none());
+        assert!(legend.orientation.is_none());
+        assert!(legend.x.is_none());
+        assert!(legend.y.is_none());
+    }
+
+    #[test]
+    fn test_background_color() {
+        let legend = Legend::new().background_color(Rgb(200, 200, 200));
+        let bg = legend.background_color.unwrap();
+        assert_eq!(bg.0, 200);
+        assert_eq!(bg.1, 200);
+        assert_eq!(bg.2, 200);
+    }
+
+    #[test]
+    fn test_border_color() {
+        let legend = Legend::new().border_color(Rgb(0, 0, 0));
+        let bc = legend.border_color.unwrap();
+        assert_eq!(bc.0, 0);
+        assert_eq!(bc.1, 0);
+        assert_eq!(bc.2, 0);
+    }
+
+    #[test]
+    fn test_border_width() {
+        let legend = Legend::new().border_width(2);
+        assert_eq!(legend.border_width, Some(2));
+    }
+
+    #[test]
+    fn test_orientation() {
+        let legend = Legend::new().orientation(Orientation::Horizontal);
+        assert!(legend.orientation.is_some());
+    }
+
+    #[test]
+    fn test_builder_chaining() {
+        let legend = Legend::new()
+            .background_color(Rgb(100, 100, 100))
+            .border_color(Rgb(50, 50, 50))
+            .border_width(3)
+            .font("Arial")
+            .orientation(Orientation::Vertical)
+            .x(0.5)
+            .y(0.8);
+
+        let bg = legend.background_color.unwrap();
+        assert_eq!(bg.0, 100);
+        let bc = legend.border_color.unwrap();
+        assert_eq!(bc.0, 50);
+        assert_eq!(legend.border_width, Some(3));
+        assert_eq!(legend.font, Some("Arial".to_string()));
+        assert!(legend.orientation.is_some());
+        assert!((legend.x.unwrap() - 0.5).abs() < 1e-6);
+        assert!((legend.y.unwrap() - 0.8).abs() < 1e-6);
+    }
+}

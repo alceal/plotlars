@@ -75,3 +75,68 @@ pub(crate) fn set_shape(
     }
     marker
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_singular_color_priority() {
+        let marker = create_marker(
+            0,
+            None,
+            None,
+            Some(Rgb(255, 0, 0)),
+            Some(vec![Rgb(0, 0, 255)]),
+            None,
+            None,
+        );
+        let json = serde_json::to_value(&marker).unwrap();
+        assert_eq!(json["color"], "rgb(255, 0, 0)");
+    }
+
+    #[test]
+    fn test_color_from_vec() {
+        let marker = create_marker(
+            1,
+            None,
+            None,
+            None,
+            Some(vec![Rgb(255, 0, 0), Rgb(0, 255, 0), Rgb(0, 0, 255)]),
+            None,
+            None,
+        );
+        let json = serde_json::to_value(&marker).unwrap();
+        assert_eq!(json["color"], "rgb(0, 255, 0)");
+    }
+
+    #[test]
+    fn test_color_out_of_bounds() {
+        let marker = create_marker(5, None, None, None, Some(vec![Rgb(255, 0, 0)]), None, None);
+        let json = serde_json::to_value(&marker).unwrap();
+        assert!(json.get("color").is_none());
+    }
+
+    #[test]
+    fn test_singular_shape_priority() {
+        let marker = create_marker(
+            0,
+            None,
+            None,
+            None,
+            None,
+            Some(Shape::Circle),
+            Some(vec![Shape::Square]),
+        );
+        let json = serde_json::to_value(&marker).unwrap();
+        assert_eq!(json["symbol"], "circle");
+    }
+
+    #[test]
+    fn test_opacity_and_size() {
+        let marker = create_marker(0, Some(0.7), Some(12), None, None, None, None);
+        let json = serde_json::to_value(&marker).unwrap();
+        assert_eq!(json["opacity"], 0.7);
+        assert_eq!(json["size"], 12);
+    }
+}

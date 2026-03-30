@@ -605,3 +605,248 @@ impl crate::Plot for ScatterPlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn assert_rgb(actual: Option<Rgb>, r: u8, g: u8, b: u8) {
+        let c = actual.expect("expected Some(Rgb)");
+        assert_eq!((c.0, c.1, c.2), (r, g, b));
+    }
+
+    #[test]
+    fn test_resolve_color_singular_priority() {
+        let result =
+            ScatterPlot::resolve_color(0, Some(Rgb(255, 0, 0)), Some(vec![Rgb(0, 0, 255)]));
+        assert_rgb(result, 255, 0, 0);
+    }
+
+    #[test]
+    fn test_resolve_color_from_vec() {
+        let result = ScatterPlot::resolve_color(
+            1,
+            None,
+            Some(vec![Rgb(1, 0, 0), Rgb(0, 1, 0), Rgb(0, 0, 1)]),
+        );
+        assert_rgb(result, 0, 1, 0);
+    }
+
+    #[test]
+    fn test_resolve_color_out_of_bounds() {
+        let result = ScatterPlot::resolve_color(5, None, Some(vec![Rgb(1, 0, 0)]));
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_resolve_color_both_none() {
+        let result = ScatterPlot::resolve_color(0, None, None);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_resolve_shape_singular_priority() {
+        let result = ScatterPlot::resolve_shape(0, Some(Shape::Circle), Some(vec![Shape::Square]));
+        assert!(matches!(result, Some(Shape::Circle)));
+    }
+
+    #[test]
+    fn test_resolve_shape_from_vec() {
+        let result = ScatterPlot::resolve_shape(
+            1,
+            None,
+            Some(vec![Shape::Circle, Shape::Diamond, Shape::Square]),
+        );
+        assert!(matches!(result, Some(Shape::Diamond)));
+    }
+
+    #[test]
+    fn test_resolve_shape_out_of_bounds() {
+        let result = ScatterPlot::resolve_shape(5, None, Some(vec![Shape::Circle]));
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_resolve_shape_both_none() {
+        let result = ScatterPlot::resolve_shape(0, None, None);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_no_group_one_trace() {
+        let df = df!["x" => [1.0, 2.0, 3.0], "y" => [4.0, 5.0, 6.0]].unwrap();
+        let plot = ScatterPlot::builder().data(&df).x("x").y("y").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_with_group_multiple_traces() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0],
+            "y" => [4.0, 5.0, 6.0, 7.0],
+            "g" => ["a", "b", "a", "b"]
+        ]
+        .unwrap();
+        let plot = ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .group("g")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_faceted_trace_count() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            "y" => [10.0, 20.0, 30.0, 40.0, 50.0, 60.0],
+            "f" => ["a", "b", "c", "a", "b", "c"]
+        ]
+        .unwrap();
+        let plot = ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("f")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 3);
+    }
+
+    #[test]
+    fn test_faceted_with_group_trace_count() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            "y" => [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0],
+            "f" => ["f1", "f1", "f1", "f1", "f2", "f2", "f2", "f2"],
+            "g" => ["g1", "g2", "g1", "g2", "g1", "g2", "g1", "g2"]
+        ]
+        .unwrap();
+        let plot = ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("f")
+            .group("g")
+            .build();
+        // 2 facets * 2 groups = 4 traces
+        assert_eq!(plot.ir_traces().len(), 4);
+    }
+
+    #[test]
+    fn test_faceted_show_legend_first_only() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            "y" => [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0],
+            "f" => ["f1", "f1", "f1", "f1", "f2", "f2", "f2", "f2"],
+            "g" => ["g1", "g2", "g1", "g2", "g1", "g2", "g1", "g2"]
+        ]
+        .unwrap();
+        let plot = ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("f")
+            .group("g")
+            .build();
+
+        for trace in plot.ir_traces() {
+            match trace {
+                TraceIR::ScatterPlot(ir) => {
+                    let subplot = ir.subplot_ref.as_deref().unwrap();
+                    if subplot == "xy" {
+                        // First facet -> show legend
+                        assert_eq!(ir.show_legend, Some(true));
+                    } else {
+                        // Later facets -> hide legend
+                        assert_eq!(ir.show_legend, Some(false));
+                    }
+                }
+                _ => panic!("expected ScatterPlot trace"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_faceted_subplot_ref() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0],
+            "y" => [10.0, 20.0, 30.0, 40.0],
+            "f" => ["a", "b", "a", "b"]
+        ]
+        .unwrap();
+        let plot = ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("f")
+            .build();
+
+        let refs: Vec<&str> = plot
+            .ir_traces()
+            .iter()
+            .map(|t| match t {
+                TraceIR::ScatterPlot(ir) => ir.subplot_ref.as_deref().unwrap(),
+                _ => panic!("expected ScatterPlot trace"),
+            })
+            .collect();
+        assert_eq!(refs[0], "xy");
+        assert_eq!(refs[1], "x2y2");
+    }
+
+    #[test]
+    #[should_panic(expected = "maximum")]
+    fn test_max_facets_panics() {
+        let facet_values: Vec<&str> = (0..9)
+            .map(|i| match i {
+                0 => "a",
+                1 => "b",
+                2 => "c",
+                3 => "d",
+                4 => "e",
+                5 => "f",
+                6 => "g",
+                7 => "h",
+                _ => "i",
+            })
+            .collect();
+        let n = facet_values.len();
+        let x_vals: Vec<f64> = (0..n).map(|i| i as f64).collect();
+        let y_vals: Vec<f64> = (0..n).map(|i| i as f64 * 10.0).collect();
+        let df = DataFrame::new(
+            n,
+            vec![
+                Column::new("x".into(), &x_vals),
+                Column::new("y".into(), &y_vals),
+                Column::new("f".into(), &facet_values),
+            ],
+        )
+        .unwrap();
+        ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("f")
+            .build();
+    }
+
+    #[test]
+    #[should_panic(expected = "colors.len() must equal number of facets")]
+    fn test_faceted_colors_mismatch_panics() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0],
+            "y" => [10.0, 20.0, 30.0],
+            "f" => ["a", "b", "c"]
+        ]
+        .unwrap();
+        ScatterPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("f")
+            .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
+            .build();
+    }
+}

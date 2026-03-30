@@ -329,3 +329,75 @@ impl ColorBar {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let cb = ColorBar::new();
+        assert!(cb.background_color.is_none());
+        assert!(cb.border_color.is_none());
+        assert!(cb.border_width.is_none());
+        assert!(cb.tick_step.is_none());
+        assert!(cb.value_exponent.is_none());
+        assert!(cb.length.is_none());
+        assert!(cb.n_ticks.is_none());
+        assert!(cb.orientation.is_none());
+        assert!(cb.outline_color.is_none());
+        assert!(cb.outline_width.is_none());
+        assert!(cb.separate_thousands.is_none());
+        assert!(cb.width.is_none());
+        assert!(cb.tick_angle.is_none());
+        assert!(cb.tick_color.is_none());
+        assert!(cb.tick_font.is_none());
+        assert!(cb.tick_length.is_none());
+        assert!(cb.tick_labels.is_none());
+        assert!(cb.tick_values.is_none());
+        assert!(cb.tick_width.is_none());
+        assert!(cb.tick_direction.is_none());
+        assert!(cb.title.is_none());
+        assert!(cb.x.is_none());
+        assert!(cb.y.is_none());
+    }
+
+    #[test]
+    fn test_title() {
+        let cb = ColorBar::new().title(Text::from("Scale"));
+        assert!(cb.title.is_some());
+    }
+
+    #[test]
+    fn test_length() {
+        let cb = ColorBar::new().length(0.5);
+        assert!((cb.length.unwrap() - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_thickness() {
+        let cb = ColorBar::new().width(20.0);
+        assert!((cb.width.unwrap() - 20.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_builder_chaining() {
+        let cb = ColorBar::new()
+            .background_color(Rgb(255, 255, 255))
+            .border_width(2)
+            .length(0.7)
+            .tick_step(100.0)
+            .separate_thousands(true)
+            .x(0.5)
+            .y(-0.3);
+
+        let bg = cb.background_color.unwrap();
+        assert_eq!(bg.0, 255);
+        assert_eq!(cb.border_width, Some(2));
+        assert!((cb.length.unwrap() - 0.7).abs() < 1e-6);
+        assert!((cb.tick_step.unwrap() - 100.0).abs() < 1e-6);
+        assert_eq!(cb.separate_thousands, Some(true));
+        assert!((cb.x.unwrap() - 0.5).abs() < 1e-6);
+        assert!((cb.y.unwrap() - (-0.3)).abs() < 1e-6);
+    }
+}

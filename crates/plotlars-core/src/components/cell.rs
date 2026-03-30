@@ -76,3 +76,37 @@ impl Cell {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let cell = Cell::new();
+        assert!(cell.height.is_none());
+        assert!(cell.align.is_none());
+        assert!(cell.fill.is_none());
+    }
+
+    #[test]
+    fn test_height() {
+        let cell = Cell::new().height(25.0);
+        assert!((cell.height.unwrap() - 25.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_align() {
+        let cell = Cell::new().align("right");
+        assert_eq!(cell.align, Some("right".to_string()));
+    }
+
+    #[test]
+    fn test_fill() {
+        let cell = Cell::new().fill(Rgb(240, 240, 240));
+        let fill = cell.fill.unwrap();
+        assert_eq!(fill.0, 240);
+        assert_eq!(fill.1, 240);
+        assert_eq!(fill.2, 240);
+    }
+}

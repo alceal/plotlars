@@ -100,3 +100,46 @@ impl Header {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let header = Header::new();
+        assert!(header.values.is_none());
+        assert!(header.height.is_none());
+        assert!(header.align.is_none());
+        assert!(header.font.is_none());
+        assert!(header.fill.is_none());
+    }
+
+    #[test]
+    fn test_values() {
+        let header = Header::new().values(vec!["A", "B"]);
+        let values = header.values.unwrap();
+        assert_eq!(values, vec!["A".to_string(), "B".to_string()]);
+    }
+
+    #[test]
+    fn test_height() {
+        let header = Header::new().height(30.0);
+        assert!((header.height.unwrap() - 30.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_align() {
+        let header = Header::new().align("left");
+        assert_eq!(header.align, Some("left".to_string()));
+    }
+
+    #[test]
+    fn test_fill() {
+        let header = Header::new().fill(Rgb(200, 200, 200));
+        let fill = header.fill.unwrap();
+        assert_eq!(fill.0, 200);
+        assert_eq!(fill.1, 200);
+        assert_eq!(fill.2, 200);
+    }
+}

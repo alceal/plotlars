@@ -38,3 +38,20 @@ pub enum Orientation {
     Horizontal,
     Vertical,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_clone() {
+        let o = Orientation::Horizontal;
+        let _cloned = o.clone();
+    }
+
+    #[test]
+    fn test_both_variants_exist() {
+        let _h = Orientation::Horizontal;
+        let _v = Orientation::Vertical;
+    }
+}

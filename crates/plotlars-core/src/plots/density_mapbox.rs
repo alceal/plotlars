@@ -137,3 +137,61 @@ impl crate::Plot for DensityMapbox {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "lat" => [40.7, 34.0, 41.8],
+            "lon" => [-74.0, -118.2, -87.6],
+            "density" => [100.0, 200.0, 150.0]
+        ]
+        .unwrap();
+        let plot = DensityMapbox::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .z("density")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let df = df![
+            "lat" => [40.7],
+            "lon" => [-74.0],
+            "density" => [100.0]
+        ]
+        .unwrap();
+        let plot = DensityMapbox::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .z("density")
+            .build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::DensityMapbox(_)));
+    }
+
+    #[test]
+    fn test_layout_has_mapbox() {
+        let df = df![
+            "lat" => [40.7],
+            "lon" => [-74.0],
+            "density" => [100.0]
+        ]
+        .unwrap();
+        let plot = DensityMapbox::builder()
+            .data(&df)
+            .lat("lat")
+            .lon("lon")
+            .z("density")
+            .build();
+        assert!(plot.ir_layout().mapbox.is_some());
+    }
+}

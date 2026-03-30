@@ -671,3 +671,84 @@ impl crate::Plot for TimeSeriesPlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "x" => ["2024-01", "2024-02", "2024-03"],
+            "y" => [1.0, 2.0, 3.0]
+        ]
+        .unwrap();
+        let plot = TimeSeriesPlot::builder().data(&df).x("x").y("y").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::TimeSeriesPlot(_)));
+    }
+
+    #[test]
+    fn test_with_additional_series() {
+        let df = df![
+            "x" => ["2024-01", "2024-02"],
+            "y" => [1.0, 2.0],
+            "y2" => [3.0, 4.0]
+        ]
+        .unwrap();
+        let plot = TimeSeriesPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .additional_series(vec!["y2"])
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_layout_titles() {
+        let df = df![
+            "x" => ["2024-01", "2024-02"],
+            "y" => [1.0, 2.0]
+        ]
+        .unwrap();
+        let plot = TimeSeriesPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .plot_title("My Title")
+            .x_title("X")
+            .y_title("Y")
+            .build();
+        let layout = plot.ir_layout();
+        assert!(layout.title.is_some());
+        assert!(layout.x_title.is_some());
+        assert!(layout.y_title.is_some());
+    }
+
+    #[test]
+    fn test_faceted_trace_count() {
+        let df = df![
+            "x" => ["2024-01", "2024-02", "2024-01", "2024-02"],
+            "y" => [1.0, 2.0, 3.0, 4.0],
+            "facet_col" => ["a", "a", "b", "b"]
+        ]
+        .unwrap();
+        let plot = TimeSeriesPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("facet_col")
+            .build();
+        // 2 facets, 1 series each = 2 traces
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_resolve_color_both_none() {
+        let result = TimeSeriesPlot::resolve_color(0, None, None);
+        assert!(result.is_none());
+    }
+}

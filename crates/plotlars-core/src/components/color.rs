@@ -114,3 +114,120 @@ pub const DEFAULT_PLOTLY_COLORS: [Rgb; 10] = [
     Rgb(255, 151, 255),
     Rgb(254, 203, 82),
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn assert_rgb(actual: Option<Rgb>, r: u8, g: u8, b: u8) {
+        let c = actual.expect("expected Some(Rgb)");
+        assert_eq!(c.0, r);
+        assert_eq!(c.1, g);
+        assert_eq!(c.2, b);
+    }
+
+    #[test]
+    fn test_parse_rgb_basic() {
+        assert_rgb(parse_color("rgb(255, 0, 128)"), 255, 0, 128);
+    }
+
+    #[test]
+    fn test_parse_rgb_whitespace() {
+        assert_rgb(parse_color("rgb( 128 , 64 , 32 )"), 128, 64, 32);
+    }
+
+    #[test]
+    fn test_parse_rgba_ignores_alpha() {
+        assert_rgb(parse_color("rgba(10, 20, 30, 0.5)"), 10, 20, 30);
+    }
+
+    #[test]
+    fn test_parse_rgb_overflow() {
+        assert!(parse_color("rgb(256, 0, 0)").is_none());
+    }
+
+    #[test]
+    fn test_parse_rgb_too_few_parts() {
+        assert!(parse_color("rgb(0, 0)").is_none());
+    }
+
+    #[test]
+    fn test_parse_hex6() {
+        assert_rgb(parse_color("#ff8000"), 255, 128, 0);
+    }
+
+    #[test]
+    fn test_parse_hex6_uppercase() {
+        assert_rgb(parse_color("#FF0000"), 255, 0, 0);
+    }
+
+    #[test]
+    fn test_parse_hex3() {
+        assert_rgb(parse_color("#f00"), 255, 0, 0);
+    }
+
+    #[test]
+    fn test_parse_hex_invalid_length() {
+        assert!(parse_color("#abcd").is_none());
+    }
+
+    #[test]
+    fn test_parse_hex_invalid_chars() {
+        assert!(parse_color("#xyz").is_none());
+    }
+
+    #[test]
+    fn test_parse_named_colors() {
+        assert_rgb(parse_color("black"), 0, 0, 0);
+        assert_rgb(parse_color("white"), 255, 255, 255);
+        assert_rgb(parse_color("red"), 255, 0, 0);
+    }
+
+    #[test]
+    fn test_parse_named_case_insensitive() {
+        assert_rgb(parse_color("BLUE"), 0, 0, 255);
+        assert_rgb(parse_color("Blue"), 0, 0, 255);
+    }
+
+    #[test]
+    fn test_parse_grey_alias() {
+        let grey = parse_color("grey").expect("expected Some");
+        let gray = parse_color("gray").expect("expected Some");
+        assert_eq!(grey.0, gray.0);
+        assert_eq!(grey.1, gray.1);
+        assert_eq!(grey.2, gray.2);
+        assert_rgb(parse_color("grey"), 128, 128, 128);
+    }
+
+    #[test]
+    fn test_parse_unknown_name() {
+        assert!(parse_color("chartreuse").is_none());
+    }
+
+    #[test]
+    fn test_parse_empty_string() {
+        assert!(parse_color("").is_none());
+    }
+
+    #[test]
+    fn test_rgb_default() {
+        let d = Rgb::default();
+        assert_eq!(d.0, 0);
+        assert_eq!(d.1, 0);
+        assert_eq!(d.2, 0);
+    }
+
+    #[test]
+    fn test_rgb_copy() {
+        let a = Rgb(1, 2, 3);
+        let b = a;
+        assert_eq!(a.0, b.0);
+        assert_eq!(a.1, b.1);
+        assert_eq!(a.2, b.2);
+    }
+
+    #[test]
+    fn test_default_plotly_colors_len() {
+        assert_eq!(DEFAULT_PLOTLY_COLORS.len(), 10);
+    }
+}

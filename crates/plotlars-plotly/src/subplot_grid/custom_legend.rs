@@ -319,7 +319,6 @@ impl CustomLegend {
     }
 }
 
-
 // ---------------------------------------------------------------------------
 // IR-based legend extraction
 // ---------------------------------------------------------------------------
@@ -333,88 +332,186 @@ fn extract_legend_entry_from_ir(trace: &TraceIR, trace_index: usize) -> Option<L
     match trace {
         TraceIR::ScatterPlot(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
-            let marker = ir.marker.as_ref().and_then(|m| m.shape.as_ref())
-                .map(|_| MarkerType::Circle).unwrap_or(MarkerType::Circle);
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
+                .unwrap_or_else(default_color);
+            let marker = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.shape.as_ref())
+                .map(|_| MarkerType::Circle)
+                .unwrap_or(MarkerType::Circle);
             Some(LegendEntry::new(marker, color, name))
         }
         TraceIR::BarPlot(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Square, color, name))
         }
         TraceIR::BoxPlot(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Square, color, name))
         }
         TraceIR::LinePlot(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.line.as_ref().and_then(|l| l.color)
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .line
+                .as_ref()
+                .and_then(|l| l.color)
                 .or_else(|| ir.marker.as_ref().and_then(|m| m.color))
                 .unwrap_or_else(default_color);
-            let is_line = ir.mode.is_none_or(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
-            let marker = if is_line { MarkerType::Line } else { MarkerType::Circle };
+            let is_line = ir
+                .mode
+                .is_none_or(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
+            let marker = if is_line {
+                MarkerType::Line
+            } else {
+                MarkerType::Circle
+            };
             Some(LegendEntry::new(marker, color, name))
         }
         TraceIR::TimeSeriesPlot(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.line.as_ref().and_then(|l| l.color)
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .line
+                .as_ref()
+                .and_then(|l| l.color)
                 .or_else(|| ir.marker.as_ref().and_then(|m| m.color))
                 .unwrap_or_else(default_color);
-            let is_line = ir.mode.is_none_or(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
-            let marker = if is_line { MarkerType::Line } else { MarkerType::Circle };
+            let is_line = ir
+                .mode
+                .is_none_or(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
+            let marker = if is_line {
+                MarkerType::Line
+            } else {
+                MarkerType::Circle
+            };
             Some(LegendEntry::new(marker, color, name))
         }
         TraceIR::Histogram(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Square, color, name))
         }
         TraceIR::ScatterPolar(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color)
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
                 .or_else(|| ir.line.as_ref().and_then(|l| l.color))
                 .unwrap_or_else(default_color);
-            let is_line = ir.mode.is_some_and(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
-            let marker = if is_line { MarkerType::Line } else { MarkerType::Circle };
+            let is_line = ir
+                .mode
+                .is_some_and(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
+            let marker = if is_line {
+                MarkerType::Line
+            } else {
+                MarkerType::Circle
+            };
             Some(LegendEntry::new(marker, color, name))
         }
         TraceIR::Scatter3dPlot(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Circle, color, name))
         }
         TraceIR::ScatterGeo(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color)
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
                 .or_else(|| ir.line.as_ref().and_then(|l| l.color))
                 .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Circle, color, name))
         }
         TraceIR::ScatterMap(ir) => {
             let name = ir.name.as_deref()?;
-            if name.is_empty() { return None; }
-            if ir.show_legend == Some(false) { return None; }
-            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            if name.is_empty() {
+                return None;
+            }
+            if ir.show_legend == Some(false) {
+                return None;
+            }
+            let color = ir
+                .marker
+                .as_ref()
+                .and_then(|m| m.color)
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Circle, color, name))
         }
         TraceIR::Mesh3D(ir) => {
@@ -427,17 +524,25 @@ fn extract_legend_entry_from_ir(trace: &TraceIR, trace_index: usize) -> Option<L
         }
         TraceIR::PieChart(ir) => {
             let name = ir.name.as_deref().unwrap_or("");
-            if name.is_empty() { return None; }
-            let color = ir.colors.as_ref().and_then(|c| c.first().cloned()).unwrap_or_else(default_color);
+            if name.is_empty() {
+                return None;
+            }
+            let color = ir
+                .colors
+                .as_ref()
+                .and_then(|c| c.first().cloned())
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Diamond, color, name))
         }
         TraceIR::CandlestickPlot(ir) => {
-            let color = ir.increasing.as_ref().and_then(|d| d.line_color).unwrap_or_else(default_color);
+            let color = ir
+                .increasing
+                .as_ref()
+                .and_then(|d| d.line_color)
+                .unwrap_or_else(default_color);
             Some(LegendEntry::new(MarkerType::Line, color, "candlestick"))
         }
-        TraceIR::OhlcPlot(_) => {
-            Some(LegendEntry::new(MarkerType::Line, default_color(), "ohlc"))
-        }
+        TraceIR::OhlcPlot(_) => Some(LegendEntry::new(MarkerType::Line, default_color(), "ohlc")),
         // Plot types that typically don't have legend entries in subplots
         _ => None,
     }

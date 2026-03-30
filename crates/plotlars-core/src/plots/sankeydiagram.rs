@@ -454,3 +454,63 @@ impl crate::Plot for SankeyDiagram {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "source" => ["A", "A", "B"],
+            "target" => ["B", "C", "C"],
+            "value" => [10.0, 20.0, 30.0]
+        ]
+        .unwrap();
+        let plot = SankeyDiagram::builder()
+            .data(&df)
+            .sources("source")
+            .targets("target")
+            .values("value")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::SankeyDiagram(_)));
+    }
+
+    #[test]
+    fn test_layout_no_axes() {
+        let df = df![
+            "source" => ["A", "B"],
+            "target" => ["B", "C"],
+            "value" => [10.0, 20.0]
+        ]
+        .unwrap();
+        let plot = SankeyDiagram::builder()
+            .data(&df)
+            .sources("source")
+            .targets("target")
+            .values("value")
+            .build();
+        assert!(plot.ir_layout().axes_2d.is_none());
+    }
+
+    #[test]
+    fn test_layout_title() {
+        let df = df![
+            "source" => ["A"],
+            "target" => ["B"],
+            "value" => [10.0]
+        ]
+        .unwrap();
+        let plot = SankeyDiagram::builder()
+            .data(&df)
+            .sources("source")
+            .targets("target")
+            .values("value")
+            .plot_title("Sankey")
+            .build();
+        assert!(plot.ir_layout().title.is_some());
+    }
+}

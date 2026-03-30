@@ -787,3 +787,365 @@ pub(crate) fn convert_text_to_axis_annotation(
 
     annotation
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ── convert_line ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_line_solid() {
+        let json = serde_json::to_value(convert_line(&Line::Solid)).unwrap();
+        assert_eq!(json, "solid");
+    }
+
+    #[test]
+    fn test_convert_line_dot() {
+        let json = serde_json::to_value(convert_line(&Line::Dot)).unwrap();
+        assert_eq!(json, "dot");
+    }
+
+    #[test]
+    fn test_convert_line_dash() {
+        let json = serde_json::to_value(convert_line(&Line::Dash)).unwrap();
+        assert_eq!(json, "dash");
+    }
+
+    #[test]
+    fn test_convert_line_long_dash() {
+        let json = serde_json::to_value(convert_line(&Line::LongDash)).unwrap();
+        assert_eq!(json, "longdash");
+    }
+
+    #[test]
+    fn test_convert_line_dash_dot() {
+        let json = serde_json::to_value(convert_line(&Line::DashDot)).unwrap();
+        assert_eq!(json, "dashdot");
+    }
+
+    #[test]
+    fn test_convert_line_long_dash_dot() {
+        let json = serde_json::to_value(convert_line(&Line::LongDashDot)).unwrap();
+        assert_eq!(json, "longdashdot");
+    }
+
+    // ── convert_mode ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_mode_lines() {
+        let json = serde_json::to_value(convert_mode(&Mode::Lines)).unwrap();
+        assert_eq!(json, "lines");
+    }
+
+    #[test]
+    fn test_convert_mode_markers() {
+        let json = serde_json::to_value(convert_mode(&Mode::Markers)).unwrap();
+        assert_eq!(json, "markers");
+    }
+
+    #[test]
+    fn test_convert_mode_text() {
+        let json = serde_json::to_value(convert_mode(&Mode::Text)).unwrap();
+        assert_eq!(json, "text");
+    }
+
+    #[test]
+    fn test_convert_mode_lines_markers() {
+        let json = serde_json::to_value(convert_mode(&Mode::LinesMarkers)).unwrap();
+        assert_eq!(json, "lines+markers");
+    }
+
+    #[test]
+    fn test_convert_mode_lines_text() {
+        let json = serde_json::to_value(convert_mode(&Mode::LinesText)).unwrap();
+        assert_eq!(json, "lines+text");
+    }
+
+    #[test]
+    fn test_convert_mode_markers_text() {
+        let json = serde_json::to_value(convert_mode(&Mode::MarkersText)).unwrap();
+        assert_eq!(json, "markers+text");
+    }
+
+    #[test]
+    fn test_convert_mode_lines_markers_text() {
+        let json = serde_json::to_value(convert_mode(&Mode::LinesMarkersText)).unwrap();
+        assert_eq!(json, "lines+markers+text");
+    }
+
+    #[test]
+    fn test_convert_mode_none() {
+        let json = serde_json::to_value(convert_mode(&Mode::None)).unwrap();
+        assert_eq!(json, "none");
+    }
+
+    // ── convert_bar_mode ────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_bar_mode_stack() {
+        let json = serde_json::to_value(convert_bar_mode(&BarMode::Stack)).unwrap();
+        assert_eq!(json, "stack");
+    }
+
+    #[test]
+    fn test_convert_bar_mode_group() {
+        let json = serde_json::to_value(convert_bar_mode(&BarMode::Group)).unwrap();
+        assert_eq!(json, "group");
+    }
+
+    #[test]
+    fn test_convert_bar_mode_overlay() {
+        let json = serde_json::to_value(convert_bar_mode(&BarMode::Overlay)).unwrap();
+        assert_eq!(json, "overlay");
+    }
+
+    #[test]
+    fn test_convert_bar_mode_relative() {
+        let json = serde_json::to_value(convert_bar_mode(&BarMode::Relative)).unwrap();
+        assert_eq!(json, "relative");
+    }
+
+    // ── convert_orientation ─────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_orientation_horizontal() {
+        let json = serde_json::to_value(convert_orientation(&Orientation::Horizontal)).unwrap();
+        assert_eq!(json, "h");
+    }
+
+    #[test]
+    fn test_convert_orientation_vertical() {
+        let json = serde_json::to_value(convert_orientation(&Orientation::Vertical)).unwrap();
+        assert_eq!(json, "v");
+    }
+
+    // ── convert_fill ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_fill_to_zero_y() {
+        let json = serde_json::to_value(convert_fill(&Fill::ToZeroY)).unwrap();
+        assert_eq!(json, "tozeroy");
+    }
+
+    #[test]
+    fn test_convert_fill_to_self() {
+        let json = serde_json::to_value(convert_fill(&Fill::ToSelf)).unwrap();
+        assert_eq!(json, "toself");
+    }
+
+    #[test]
+    fn test_convert_fill_none() {
+        let json = serde_json::to_value(convert_fill(&Fill::None)).unwrap();
+        assert_eq!(json, "none");
+    }
+
+    // ── convert_shape ───────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_shape_circle() {
+        let json = serde_json::to_value(convert_shape(&Shape::Circle)).unwrap();
+        assert_eq!(json, "circle");
+    }
+
+    #[test]
+    fn test_convert_shape_square() {
+        let json = serde_json::to_value(convert_shape(&Shape::Square)).unwrap();
+        assert_eq!(json, "square");
+    }
+
+    #[test]
+    fn test_convert_shape_diamond() {
+        let json = serde_json::to_value(convert_shape(&Shape::Diamond)).unwrap();
+        assert_eq!(json, "diamond");
+    }
+
+    // ── convert_palette ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_palette_viridis() {
+        let json = serde_json::to_value(convert_palette(&Palette::Viridis)).unwrap();
+        assert_eq!(json, "Viridis");
+    }
+
+    #[test]
+    fn test_convert_palette_greys() {
+        let json = serde_json::to_value(convert_palette(&Palette::Greys)).unwrap();
+        assert_eq!(json, "Greys");
+    }
+
+    // ── convert_coloring ────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_coloring_fill() {
+        let json = serde_json::to_value(convert_coloring(&Coloring::Fill)).unwrap();
+        assert_eq!(json, "fill");
+    }
+
+    #[test]
+    fn test_convert_coloring_heatmap() {
+        let json = serde_json::to_value(convert_coloring(&Coloring::HeatMap)).unwrap();
+        assert_eq!(json, "heatmap");
+    }
+
+    // ── convert_exponent ────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_exponent_none() {
+        let json = serde_json::to_value(convert_exponent(&ValueExponent::None)).unwrap();
+        assert_eq!(json, "none");
+    }
+
+    #[test]
+    fn test_convert_exponent_si() {
+        let json = serde_json::to_value(convert_exponent(&ValueExponent::SI)).unwrap();
+        assert_eq!(json, "SI");
+    }
+
+    // ── convert_intensity_mode ──────────────────────────────────────────
+
+    #[test]
+    fn test_convert_intensity_mode_vertex() {
+        let json = serde_json::to_value(convert_intensity_mode(&IntensityMode::Vertex)).unwrap();
+        assert_eq!(json, "vertex");
+    }
+
+    #[test]
+    fn test_convert_intensity_mode_cell() {
+        let json = serde_json::to_value(convert_intensity_mode(&IntensityMode::Cell)).unwrap();
+        assert_eq!(json, "cell");
+    }
+
+    // ── convert_arrangement ─────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_arrangement_snap() {
+        let json = serde_json::to_value(convert_arrangement(&Arrangement::Snap)).unwrap();
+        assert_eq!(json, "snap");
+    }
+
+    // ── convert_axis_side ───────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_axis_side_top() {
+        let json = serde_json::to_value(convert_axis_side(&AxisSide::Top)).unwrap();
+        assert_eq!(json, "top");
+    }
+
+    #[test]
+    fn test_convert_axis_side_right() {
+        let json = serde_json::to_value(convert_axis_side(&AxisSide::Right)).unwrap();
+        assert_eq!(json, "right");
+    }
+
+    // ── convert_axis_type ───────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_axis_type_log() {
+        let json = serde_json::to_value(convert_axis_type(&AxisType::Log)).unwrap();
+        assert_eq!(json, "log");
+    }
+
+    // ── convert_tick_direction / convert_tick_ticks ──────────────────────
+
+    #[test]
+    fn test_tick_direction_none_maps_to_outside() {
+        let json = serde_json::to_value(convert_tick_direction(&TickDirection::None)).unwrap();
+        assert_eq!(json, "outside");
+    }
+
+    #[test]
+    fn test_tick_ticks_none_maps_to_empty() {
+        let json = serde_json::to_value(convert_tick_ticks(&TickDirection::None)).unwrap();
+        assert_eq!(json, "");
+    }
+
+    // ── convert_rgb ─────────────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_rgb() {
+        let json = serde_json::to_value(convert_rgb(&Rgb(100, 200, 50))).unwrap();
+        assert_eq!(json, "rgb(100, 200, 50)");
+    }
+
+    // ── convert_header align ────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_header_align_left() {
+        let header = Header::new().align("left");
+        let default_values: Vec<String> = vec!["A".to_string(), "B".to_string()];
+        let result = convert_header(&header, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert_eq!(json["align"], "left");
+    }
+
+    #[test]
+    fn test_convert_header_align_right() {
+        let header = Header::new().align("right");
+        let default_values: Vec<String> = vec!["A".to_string()];
+        let result = convert_header(&header, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert_eq!(json["align"], "right");
+    }
+
+    #[test]
+    fn test_convert_header_align_default_center() {
+        let header = Header::new().align("anything");
+        let default_values: Vec<String> = vec!["A".to_string()];
+        let result = convert_header(&header, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert_eq!(json["align"], "center");
+    }
+
+    // ── convert_header fill / custom values ─────────────────────────────
+
+    #[test]
+    fn test_convert_header_with_fill() {
+        let header = Header::new().fill(Rgb(200, 200, 200));
+        let default_values: Vec<String> = vec!["A".to_string()];
+        let result = convert_header(&header, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert!(json["fill"].is_object());
+    }
+
+    #[test]
+    fn test_convert_header_custom_values() {
+        // convert_header uses default_values as the header values;
+        // the Header.values field is handled by the caller before conversion
+        let header = Header::new();
+        let default_values: Vec<String> = vec!["Custom1".to_string(), "Custom2".to_string()];
+        let result = convert_header(&header, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        let vals_str = serde_json::to_string(&json["values"]).unwrap();
+        assert!(vals_str.contains("Custom1"));
+    }
+
+    // ── convert_cell align ──────────────────────────────────────────────
+
+    #[test]
+    fn test_convert_cell_align_left() {
+        let cell = Cell::new().align("left");
+        let default_values: Vec<Vec<String>> = vec![vec!["x".to_string()]];
+        let result = convert_cell(&cell, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert_eq!(json["align"], "left");
+    }
+
+    #[test]
+    fn test_convert_cell_align_right() {
+        let cell = Cell::new().align("right");
+        let default_values: Vec<Vec<String>> = vec![vec!["x".to_string()]];
+        let result = convert_cell(&cell, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert_eq!(json["align"], "right");
+    }
+
+    #[test]
+    fn test_convert_cell_align_default_center() {
+        let cell = Cell::new().align("blah");
+        let default_values: Vec<Vec<String>> = vec![vec!["x".to_string()]];
+        let result = convert_cell(&cell, default_values);
+        let json = serde_json::to_value(&result).unwrap();
+        assert_eq!(json["align"], "center");
+    }
+}

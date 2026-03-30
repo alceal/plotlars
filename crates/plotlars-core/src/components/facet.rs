@@ -279,3 +279,75 @@ impl FacetConfig {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let fc = FacetConfig::new();
+        assert!(fc.rows.is_none());
+        assert!(fc.cols.is_none());
+        assert!(fc.h_gap.is_none());
+        assert!(fc.v_gap.is_none());
+        assert!(fc.title_style.is_none());
+        assert!(fc.sorter.is_none());
+        assert!(!fc.highlight_facet);
+        assert!(fc.unhighlighted_color.is_none());
+    }
+
+    #[test]
+    fn test_rows_valid() {
+        let fc = FacetConfig::new().rows(2);
+        assert_eq!(fc.rows, Some(2));
+    }
+
+    #[test]
+    #[should_panic(expected = "rows must be greater than 0")]
+    fn test_rows_zero_panics() {
+        FacetConfig::new().rows(0);
+    }
+
+    #[test]
+    fn test_cols_valid() {
+        let fc = FacetConfig::new().cols(3);
+        assert_eq!(fc.cols, Some(3));
+    }
+
+    #[test]
+    #[should_panic(expected = "cols must be greater than 0")]
+    fn test_cols_zero_panics() {
+        FacetConfig::new().cols(0);
+    }
+
+    #[test]
+    fn test_h_gap_valid() {
+        let fc = FacetConfig::new().h_gap(0.05);
+        assert!((fc.h_gap.unwrap() - 0.05).abs() < 1e-6);
+    }
+
+    #[test]
+    #[should_panic(expected = "h_gap must be a finite non-negative number")]
+    fn test_h_gap_negative_panics() {
+        FacetConfig::new().h_gap(-0.1);
+    }
+
+    #[test]
+    #[should_panic(expected = "h_gap must be a finite non-negative number")]
+    fn test_h_gap_nan_panics() {
+        FacetConfig::new().h_gap(f64::NAN);
+    }
+
+    #[test]
+    fn test_v_gap_valid() {
+        let fc = FacetConfig::new().v_gap(0.1);
+        assert!((fc.v_gap.unwrap() - 0.1).abs() < 1e-6);
+    }
+
+    #[test]
+    #[should_panic(expected = "v_gap must be a finite non-negative number")]
+    fn test_v_gap_negative_panics() {
+        FacetConfig::new().v_gap(-0.5);
+    }
+}

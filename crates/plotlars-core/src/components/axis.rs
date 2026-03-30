@@ -340,6 +340,66 @@ impl Axis {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_all_none() {
+        let a = Axis::new();
+        assert!(a.show_axis.is_none());
+        assert!(a.show_grid.is_none());
+        assert!(a.value_range.is_none());
+        assert!(a.tick_labels.is_none());
+        assert!(a.show_line.is_none());
+    }
+
+    #[test]
+    fn test_show_axis() {
+        let a = Axis::new().show_axis(true);
+        assert_eq!(a.show_axis, Some(true));
+        assert!(a.show_grid.is_none());
+        assert!(a.value_range.is_none());
+    }
+
+    #[test]
+    fn test_show_grid() {
+        let a = Axis::new().show_grid(false);
+        assert_eq!(a.show_grid, Some(false));
+        assert!(a.show_axis.is_none());
+    }
+
+    #[test]
+    fn test_value_range() {
+        let a = Axis::new().value_range(vec![0.0, 100.0]);
+        let range = a.value_range.unwrap();
+        assert!((range[0] - 0.0).abs() < 1e-6);
+        assert!((range[1] - 100.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_tick_labels_converts() {
+        let a = Axis::new().tick_labels(vec!["a", "b"]);
+        let labels = a.tick_labels.unwrap();
+        assert_eq!(labels, vec!["a".to_string(), "b".to_string()]);
+    }
+
+    #[test]
+    fn test_builder_chaining() {
+        let a = Axis::new()
+            .show_axis(true)
+            .show_grid(false)
+            .show_line(true)
+            .value_range(vec![1.0, 50.0])
+            .tick_labels(vec!["x", "y", "z"]);
+        assert_eq!(a.show_axis, Some(true));
+        assert_eq!(a.show_grid, Some(false));
+        assert_eq!(a.show_line, Some(true));
+        assert_eq!(a.value_range.unwrap().len(), 2);
+        assert_eq!(a.tick_labels.unwrap().len(), 3);
+    }
+}
+
 /// Enumeration representing the position of the axis.
 ///
 /// # Example

@@ -621,3 +621,89 @@ impl crate::Plot for LinePlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn assert_rgb(actual: Option<Rgb>, r: u8, g: u8, b: u8) {
+        let c = actual.expect("expected Some(Rgb)");
+        assert_eq!((c.0, c.1, c.2), (r, g, b));
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df!["x" => [1.0, 2.0, 3.0], "y" => [4.0, 5.0, 6.0]].unwrap();
+        let plot = LinePlot::builder().data(&df).x("x").y("y").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::LinePlot(_)));
+    }
+
+    #[test]
+    fn test_with_additional_lines() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0],
+            "y" => [4.0, 5.0, 6.0],
+            "y2" => [7.0, 8.0, 9.0]
+        ]
+        .unwrap();
+        let plot = LinePlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .additional_lines(vec!["y2"])
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+        assert!(matches!(plot.ir_traces()[1], TraceIR::LinePlot(_)));
+    }
+
+    #[test]
+    fn test_layout_titles() {
+        let df = df!["x" => [1.0, 2.0], "y" => [3.0, 4.0]].unwrap();
+        let plot = LinePlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .plot_title("My Title")
+            .x_title("X Axis")
+            .y_title("Y Axis")
+            .build();
+        let layout = plot.ir_layout();
+        assert!(layout.title.is_some());
+        assert!(layout.x_title.is_some());
+        assert!(layout.y_title.is_some());
+        assert!(layout.axes_2d.is_some());
+    }
+
+    #[test]
+    fn test_resolve_color_singular_priority() {
+        let result = LinePlot::resolve_color(0, Some(Rgb(255, 0, 0)), Some(vec![Rgb(0, 0, 255)]));
+        assert_rgb(result, 255, 0, 0);
+    }
+
+    #[test]
+    fn test_resolve_color_both_none() {
+        let result = LinePlot::resolve_color(0, None, None);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_faceted_trace_count() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0],
+            "y" => [4.0, 5.0, 6.0, 7.0],
+            "facet_col" => ["a", "a", "b", "b"]
+        ]
+        .unwrap();
+        let plot = LinePlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .facet("facet_col")
+            .build();
+        // 2 facets, 1 line each = 2 traces
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+}

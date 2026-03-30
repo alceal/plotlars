@@ -578,3 +578,70 @@ impl crate::Plot for Scatter3dPlot {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0],
+            "y" => [4.0, 5.0, 6.0],
+            "z" => [7.0, 8.0, 9.0]
+        ]
+        .unwrap();
+        let plot = Scatter3dPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Scatter3dPlot(_)));
+    }
+
+    #[test]
+    fn test_with_group() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0],
+            "y" => [4.0, 5.0, 6.0, 7.0],
+            "z" => [7.0, 8.0, 9.0, 10.0],
+            "g" => ["a", "b", "a", "b"]
+        ]
+        .unwrap();
+        let plot = Scatter3dPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .group("g")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_layout_no_axes_2d() {
+        let df = df![
+            "x" => [1.0, 2.0],
+            "y" => [3.0, 4.0],
+            "z" => [5.0, 6.0]
+        ]
+        .unwrap();
+        let plot = Scatter3dPlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .build();
+        assert!(plot.ir_layout().axes_2d.is_none());
+    }
+
+    #[test]
+    fn test_resolve_color_both_none() {
+        let result = Scatter3dPlot::resolve_color(0, None, None);
+        assert!(result.is_none());
+    }
+}

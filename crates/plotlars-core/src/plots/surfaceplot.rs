@@ -296,7 +296,11 @@ impl SurfacePlot {
             let scene = Self::get_scene_reference(facet_idx);
 
             // Only show colorbar on the first faceted trace to avoid overlap
-            let facet_show_scale = if facet_idx == 0 { show_scale } else { Some(false) };
+            let facet_show_scale = if facet_idx == 0 {
+                show_scale
+            } else {
+                Some(false)
+            };
 
             let ir = Self::build_surface_ir(
                 &facet_data,
@@ -382,5 +386,65 @@ impl crate::Plot for SurfacePlot {
 
     fn ir_layout(&self) -> &LayoutIR {
         &self.layout
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "x" => [1.0, 1.0, 2.0, 2.0],
+            "y" => [1.0, 2.0, 1.0, 2.0],
+            "z" => [5.0, 6.0, 7.0, 8.0]
+        ]
+        .unwrap();
+        let plot = SurfacePlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::SurfacePlot(_)));
+    }
+
+    #[test]
+    fn test_layout_no_axes_2d() {
+        let df = df![
+            "x" => [1.0, 1.0, 2.0, 2.0],
+            "y" => [1.0, 2.0, 1.0, 2.0],
+            "z" => [5.0, 6.0, 7.0, 8.0]
+        ]
+        .unwrap();
+        let plot = SurfacePlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .build();
+        assert!(plot.ir_layout().axes_2d.is_none());
+    }
+
+    #[test]
+    fn test_layout_title() {
+        let df = df![
+            "x" => [1.0, 1.0, 2.0, 2.0],
+            "y" => [1.0, 2.0, 1.0, 2.0],
+            "z" => [5.0, 6.0, 7.0, 8.0]
+        ]
+        .unwrap();
+        let plot = SurfacePlot::builder()
+            .data(&df)
+            .x("x")
+            .y("y")
+            .z("z")
+            .plot_title("Surface")
+            .build();
+        assert!(plot.ir_layout().title.is_some());
     }
 }

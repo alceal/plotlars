@@ -686,3 +686,181 @@ pub(super) fn determine_box_mode(
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // -----------------------------------------------------------------------
+    // calculate_spanning_domain
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_spanning_domain_single_cell() {
+        let (x0, x1, y0, y1) = calculate_spanning_domain(0, 0, 1, 1, 1, 1, 0.0, 0.0);
+        assert!((x0 - 0.0).abs() < 1e-6);
+        assert!((x1 - 1.0).abs() < 1e-6);
+        assert!(y0 < y1);
+    }
+
+    #[test]
+    fn test_spanning_domain_top_left_2x2() {
+        let (x0, x1, y0, y1) = calculate_spanning_domain(0, 0, 1, 1, 2, 2, 0.05, 0.05);
+        assert!(x0 >= 0.0);
+        assert!(x1 <= 1.0);
+        assert!(x0 < x1);
+        assert!(y0 < y1);
+    }
+
+    #[test]
+    fn test_spanning_domain_colspan() {
+        let (x0, x1, _, _) = calculate_spanning_domain(0, 0, 1, 2, 2, 2, 0.05, 0.05);
+        let (sx0, sx1, _, _) = calculate_spanning_domain(0, 0, 1, 1, 2, 2, 0.05, 0.05);
+        // colspan=2 should be wider than colspan=1
+        assert!(x1 - x0 > sx1 - sx0);
+    }
+
+    #[test]
+    fn test_spanning_domain_y_inverted() {
+        let (_, _, y0_top, _) = calculate_spanning_domain(0, 0, 1, 1, 2, 1, 0.0, 0.05);
+        let (_, _, y0_bot, _) = calculate_spanning_domain(1, 0, 1, 1, 2, 1, 0.0, 0.05);
+        // Top row should have higher y values than bottom row
+        assert!(y0_top > y0_bot);
+    }
+
+    // -----------------------------------------------------------------------
+    // adjust_domain_for_type
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_adjust_domain_cartesian2d() {
+        let (x, y) = adjust_domain_for_type(PlotType::Cartesian2D, 0.0, 1.0, 0.0, 1.0);
+        assert!((x[0] - 0.0).abs() < 1e-6);
+        assert!((x[1] - 1.0).abs() < 1e-6);
+        // Cartesian2D has 0 padding so y range is preserved
+        assert!((y[1] - y[0] - 1.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_adjust_domain_polar() {
+        let (_, y) = adjust_domain_for_type(PlotType::Polar, 0.0, 1.0, 0.0, 1.0);
+        // Polar has 18% padding - y range should be compressed
+        assert!(y[1] - y[0] < 1.0);
+    }
+
+    #[test]
+    fn test_adjust_domain_3d() {
+        let (_, y) = adjust_domain_for_type(PlotType::Cartesian3D, 0.0, 1.0, 0.0, 1.0);
+        // 3D has 12% padding
+        assert!(y[1] - y[0] < 1.0);
+    }
+
+    #[test]
+    fn test_adjust_domain_domain_type() {
+        let (_, y) = adjust_domain_for_type(PlotType::Domain, 0.0, 1.0, 0.0, 1.0);
+        // Domain has 8% padding
+        assert!(y[1] - y[0] < 1.0);
+    }
+
+    // -----------------------------------------------------------------------
+    // detect_plot_type (via JsonTrace implementing Trace)
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_detect_scatter_type() {
+        let trace = JsonTrace::from_value(json!({"type": "scatter", "x": [1], "y": [1]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Cartesian2D);
+    }
+
+    #[test]
+    fn test_detect_pie_type() {
+        let trace = JsonTrace::from_value(json!({"type": "pie", "labels": ["a"]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Domain);
+    }
+
+    #[test]
+    fn test_detect_scatter3d_type() {
+        let trace =
+            JsonTrace::from_value(json!({"type": "scatter3d", "x": [1], "y": [1], "z": [1]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Cartesian3D);
+    }
+
+    #[test]
+    fn test_detect_scatterpolar_type() {
+        let trace = JsonTrace::from_value(json!({"type": "scatterpolar", "r": [1], "theta": [0]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Polar);
+    }
+
+    #[test]
+    fn test_detect_bar_type() {
+        let trace = JsonTrace::from_value(json!({"type": "bar", "x": ["a"], "y": [1]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Cartesian2D);
+    }
+
+    #[test]
+    fn test_detect_scattergeo_type() {
+        let trace = JsonTrace::from_value(json!({"type": "scattergeo", "lat": [0], "lon": [0]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Geo);
+    }
+
+    #[test]
+    fn test_detect_scattermapbox_type() {
+        let trace = JsonTrace::from_value(json!({"type": "scattermapbox", "lat": [0], "lon": [0]}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Mapbox);
+    }
+
+    #[test]
+    fn test_detect_unknown_defaults_to_cartesian2d() {
+        let trace = JsonTrace::from_value(json!({"type": "unknown_type"}));
+        assert_eq!(detect_plot_type(&trace), PlotType::Cartesian2D);
+    }
+
+    // -----------------------------------------------------------------------
+    // JsonTrace.ensure_color
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_ensure_color_sets_marker_color() {
+        let mut trace = JsonTrace::from_value(json!({
+            "type": "scatter",
+            "mode": "markers",
+            "x": [1],
+            "y": [1]
+        }));
+        trace.ensure_color(0);
+        let json = serde_json::to_value(&trace).unwrap();
+        let json_str = serde_json::to_string(&json).unwrap();
+        assert!(json_str.contains("color"));
+    }
+
+    #[test]
+    fn test_ensure_color_cycles() {
+        let mut trace0 = JsonTrace::from_value(
+            json!({"type": "scatter", "mode": "markers", "x": [1], "y": [1]}),
+        );
+        let mut trace10 = JsonTrace::from_value(
+            json!({"type": "scatter", "mode": "markers", "x": [1], "y": [1]}),
+        );
+        trace0.ensure_color(0);
+        trace10.ensure_color(10);
+        let json0 = serde_json::to_value(&trace0).unwrap();
+        let json10 = serde_json::to_value(&trace10).unwrap();
+        assert_eq!(json0["marker"]["color"], json10["marker"]["color"]);
+    }
+
+    #[test]
+    fn test_ensure_color_different_indices() {
+        let mut trace0 = JsonTrace::from_value(
+            json!({"type": "scatter", "mode": "markers", "x": [1], "y": [1]}),
+        );
+        let mut trace1 = JsonTrace::from_value(
+            json!({"type": "scatter", "mode": "markers", "x": [1], "y": [1]}),
+        );
+        trace0.ensure_color(0);
+        trace1.ensure_color(1);
+        let json0 = serde_json::to_value(&trace0).unwrap();
+        let json1 = serde_json::to_value(&trace1).unwrap();
+        assert_ne!(json0["marker"]["color"], json1["marker"]["color"]);
+    }
+}

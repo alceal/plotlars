@@ -113,3 +113,26 @@ impl crate::Plot for Image {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+
+    fn image_path() -> String {
+        let manifest = env!("CARGO_MANIFEST_DIR");
+        format!("{}/../../data/image.png", manifest)
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let plot = Image::builder().path(&image_path()).build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let plot = Image::builder().path(&image_path()).build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Image(_)));
+    }
+}

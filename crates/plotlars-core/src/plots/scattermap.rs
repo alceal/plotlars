@@ -250,3 +250,72 @@ impl crate::Plot for ScatterMap {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "latitude" => [48.8, 51.5, 40.7],
+            "longitude" => [2.3, -0.1, -74.0]
+        ]
+        .unwrap();
+        let plot = ScatterMap::builder()
+            .data(&df)
+            .latitude("latitude")
+            .longitude("longitude")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let df = df![
+            "latitude" => [48.8],
+            "longitude" => [2.3]
+        ]
+        .unwrap();
+        let plot = ScatterMap::builder()
+            .data(&df)
+            .latitude("latitude")
+            .longitude("longitude")
+            .build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::ScatterMap(_)));
+    }
+
+    #[test]
+    fn test_with_group() {
+        let df = df![
+            "latitude" => [48.8, 51.5, 40.7],
+            "longitude" => [2.3, -0.1, -74.0],
+            "city" => ["paris", "london", "nyc"]
+        ]
+        .unwrap();
+        let plot = ScatterMap::builder()
+            .data(&df)
+            .latitude("latitude")
+            .longitude("longitude")
+            .group("city")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 3);
+    }
+
+    #[test]
+    fn test_layout_has_mapbox() {
+        let df = df![
+            "latitude" => [48.8],
+            "longitude" => [2.3]
+        ]
+        .unwrap();
+        let plot = ScatterMap::builder()
+            .data(&df)
+            .latitude("latitude")
+            .longitude("longitude")
+            .build();
+        assert!(plot.ir_layout().mapbox.is_some());
+    }
+}

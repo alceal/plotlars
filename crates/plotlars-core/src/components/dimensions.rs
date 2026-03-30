@@ -184,3 +184,34 @@ impl Dimensions {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let dims = Dimensions::new();
+        assert!(dims.width.is_none());
+        assert!(dims.height.is_none());
+        assert!(dims.auto_size.is_none());
+    }
+
+    #[test]
+    fn test_width() {
+        let dims = Dimensions::new().width(800);
+        assert_eq!(dims.width, Some(800));
+    }
+
+    #[test]
+    fn test_height() {
+        let dims = Dimensions::new().height(600);
+        assert_eq!(dims.height, Some(600));
+    }
+
+    #[test]
+    fn test_auto_size() {
+        let dims = Dimensions::new().auto_size(true);
+        assert_eq!(dims.auto_size, Some(true));
+    }
+}

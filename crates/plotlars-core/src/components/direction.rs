@@ -95,3 +95,43 @@ impl Direction {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let dir = Direction::new();
+        assert!(dir.line_color.is_none());
+        assert!(dir.line_width.is_none());
+    }
+
+    #[test]
+    fn test_line_color() {
+        let dir = Direction::new().line_color(Rgb(0, 255, 0));
+        let c = dir.line_color.unwrap();
+        assert_eq!(c.0, 0);
+        assert_eq!(c.1, 255);
+        assert_eq!(c.2, 0);
+    }
+
+    #[test]
+    fn test_line_width() {
+        let dir = Direction::new().line_width(2.0);
+        assert!((dir.line_width.unwrap() - 2.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_builder_chaining() {
+        let dir = Direction::new()
+            .line_color(Rgb(200, 0, 100))
+            .line_width(3.5);
+
+        let c = dir.line_color.unwrap();
+        assert_eq!(c.0, 200);
+        assert_eq!(c.1, 0);
+        assert_eq!(c.2, 100);
+        assert!((dir.line_width.unwrap() - 3.5).abs() < 1e-6);
+    }
+}

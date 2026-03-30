@@ -289,7 +289,6 @@ impl PieChart {
             pie_y_end,
         }
     }
-
 }
 
 impl crate::Plot for PieChart {
@@ -299,5 +298,64 @@ impl crate::Plot for PieChart {
 
     fn ir_layout(&self) -> &LayoutIR {
         &self.layout
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_facet_cell_single() {
+        let cell = PieChart::calculate_facet_cell(0, 1, 1, None, None);
+        assert!(cell.pie_x_start >= 0.0 && cell.pie_x_end <= 1.0);
+        assert!(cell.pie_y_start >= 0.0 && cell.pie_y_end <= 1.0);
+        assert!(cell.pie_x_start < cell.pie_x_end);
+        assert!(cell.pie_y_start < cell.pie_y_end);
+    }
+
+    #[test]
+    fn test_facet_cell_2x2_first() {
+        let cell = PieChart::calculate_facet_cell(0, 2, 2, None, None);
+        assert!(cell.pie_x_start < 0.01);
+    }
+
+    #[test]
+    fn test_facet_cell_2x2_last() {
+        let cell = PieChart::calculate_facet_cell(3, 2, 2, None, None);
+        assert!(cell.pie_x_start > 0.4);
+    }
+
+    #[test]
+    fn test_facet_cell_bounds() {
+        for idx in 0..4 {
+            let cell = PieChart::calculate_facet_cell(idx, 2, 2, None, None);
+            assert!(cell.pie_x_start < cell.pie_x_end);
+            assert!(cell.pie_y_start < cell.pie_y_end);
+        }
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df!["labels" => ["a", "b", "c", "a", "b"]].unwrap();
+        let plot = PieChart::builder().data(&df).labels("labels").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_faceted() {
+        let df = df![
+            "labels" => ["a", "b", "c", "a"],
+            "facet" => ["f1", "f1", "f2", "f2"]
+        ]
+        .unwrap();
+        let plot = PieChart::builder()
+            .data(&df)
+            .labels("labels")
+            .facet("facet")
+            .build();
+        assert_eq!(plot.ir_traces().len(), 2);
     }
 }

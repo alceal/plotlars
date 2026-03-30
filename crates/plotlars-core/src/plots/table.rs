@@ -154,3 +154,51 @@ impl crate::Plot for Table {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df![
+            "name" => ["Alice", "Bob"],
+            "age" => [30, 25]
+        ]
+        .unwrap();
+        let plot = Table::builder()
+            .data(&df)
+            .columns(vec!["name", "age"])
+            .build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let df = df![
+            "col1" => ["a", "b"],
+            "col2" => ["c", "d"]
+        ]
+        .unwrap();
+        let plot = Table::builder()
+            .data(&df)
+            .columns(vec!["col1", "col2"])
+            .build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Table(_)));
+    }
+
+    #[test]
+    fn test_layout_no_axes() {
+        let df = df![
+            "col1" => ["a"]
+        ]
+        .unwrap();
+        let plot = Table::builder().data(&df).columns(vec!["col1"]).build();
+        let layout = plot.ir_layout();
+        assert!(layout.axes_2d.is_none());
+        assert!(layout.scene_3d.is_none());
+        assert!(layout.polar.is_none());
+    }
+}

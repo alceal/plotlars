@@ -478,3 +478,63 @@ impl crate::Plot for Histogram {
         &self.layout
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+    use polars::prelude::*;
+
+    fn assert_rgb(actual: Option<Rgb>, r: u8, g: u8, b: u8) {
+        let c = actual.expect("expected Some(Rgb)");
+        assert_eq!((c.0, c.1, c.2), (r, g, b));
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let df = df!["x" => [1.0, 2.0, 3.0, 4.0, 5.0]].unwrap();
+        let plot = Histogram::builder().data(&df).x("x").build();
+        assert_eq!(plot.ir_traces().len(), 1);
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Histogram(_)));
+    }
+
+    #[test]
+    fn test_with_group() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0],
+            "g" => ["a", "b", "a", "b"]
+        ]
+        .unwrap();
+        let plot = Histogram::builder().data(&df).x("x").group("g").build();
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+
+    #[test]
+    fn test_resolve_color_singular_priority() {
+        let result = Histogram::resolve_color(0, Some(Rgb(255, 0, 0)), Some(vec![Rgb(0, 0, 255)]));
+        assert_rgb(result, 255, 0, 0);
+    }
+
+    #[test]
+    fn test_layout_has_axes() {
+        let df = df!["x" => [1.0, 2.0, 3.0]].unwrap();
+        let plot = Histogram::builder().data(&df).x("x").build();
+        assert!(plot.ir_layout().axes_2d.is_some());
+    }
+
+    #[test]
+    fn test_faceted_trace_count() {
+        let df = df![
+            "x" => [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            "facet_col" => ["a", "a", "a", "b", "b", "b"]
+        ]
+        .unwrap();
+        let plot = Histogram::builder()
+            .data(&df)
+            .x("x")
+            .facet("facet_col")
+            .build();
+        // 2 facets, no group = 2 traces
+        assert_eq!(plot.ir_traces().len(), 2);
+    }
+}

@@ -1035,3 +1035,149 @@ fn convert_sankey_diagram(ir: &SankeyDiagramIR) -> Box<dyn Trace + 'static> {
 
     trace
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use plotlars_core::components::{Line as LineStyle, Rgb, Shape};
+    use plotlars_core::ir::data::ColumnData;
+    use plotlars_core::ir::line::LineIR;
+    use plotlars_core::ir::marker::MarkerIR;
+
+    // ── extract_numeric ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_extract_numeric_with_nones() {
+        let data = ColumnData::Numeric(vec![Some(1.0), None, Some(3.0)]);
+        let result = extract_numeric(&data);
+        assert_eq!(result, vec![1.0, 0.0, 3.0]);
+    }
+
+    #[test]
+    fn test_extract_numeric_empty() {
+        let data = ColumnData::Numeric(vec![]);
+        let result = extract_numeric(&data);
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    #[should_panic(expected = "expected numeric column data")]
+    fn test_extract_numeric_wrong_type() {
+        let data = ColumnData::String(vec![Some("a".to_string())]);
+        extract_numeric(&data);
+    }
+
+    // ── extract_strings ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_extract_strings_basic() {
+        let data = ColumnData::String(vec![Some("a".to_string()), None]);
+        let result = extract_strings(&data);
+        assert_eq!(result, vec!["a".to_string(), "".to_string()]);
+    }
+
+    #[test]
+    #[should_panic(expected = "expected string column data")]
+    fn test_extract_strings_wrong_type() {
+        let data = ColumnData::Numeric(vec![Some(1.0)]);
+        extract_strings(&data);
+    }
+
+    // ── extract_numeric_options ─────────────────────────────────────────
+
+    #[test]
+    fn test_extract_numeric_options() {
+        let data = ColumnData::Numeric(vec![Some(1.0), None]);
+        let result = extract_numeric_options(&data);
+        assert_eq!(result, vec![Some(1.0), None]);
+    }
+
+    // ── extract_numeric_as_usize ────────────────────────────────────────
+
+    #[test]
+    fn test_extract_numeric_as_usize() {
+        let data = ColumnData::Numeric(vec![Some(3.7)]);
+        let result = extract_numeric_as_usize(&data);
+        assert_eq!(result, vec![3]);
+    }
+
+    #[test]
+    fn test_extract_numeric_as_usize_wrong_type() {
+        let data = ColumnData::String(vec![Some("a".to_string())]);
+        let result = extract_numeric_as_usize(&data);
+        assert!(result.is_empty());
+    }
+
+    // ── extract_numeric_as_f64 ──────────────────────────────────────────
+
+    #[test]
+    fn test_extract_numeric_as_f64() {
+        let data = ColumnData::Numeric(vec![Some(2.5), None]);
+        let result = extract_numeric_as_f64(&data);
+        assert_eq!(result, vec![2.5, 0.0]);
+    }
+
+    // ── parse_subplot_axes ──────────────────────────────────────────────
+
+    #[test]
+    fn test_parse_subplot_axes_xy() {
+        assert_eq!(parse_subplot_axes("xy"), ("x".to_string(), "y".to_string()));
+    }
+
+    #[test]
+    fn test_parse_subplot_axes_x2y3() {
+        assert_eq!(
+            parse_subplot_axes("x2y3"),
+            ("x2".to_string(), "y3".to_string())
+        );
+    }
+
+    #[test]
+    fn test_parse_subplot_axes_no_y() {
+        let (x, y) = parse_subplot_axes("x2");
+        assert_eq!(x, "x2");
+        assert_eq!(y, "");
+    }
+
+    // ── build_marker ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_build_marker_all_some() {
+        let ir = MarkerIR {
+            opacity: Some(0.5),
+            size: Some(10),
+            color: Some(Rgb(255, 0, 0)),
+            shape: Some(Shape::Circle),
+        };
+        let marker = build_marker(&ir);
+        let json = serde_json::to_value(&marker).unwrap();
+        assert_eq!(json["opacity"], 0.5);
+        assert_eq!(json["size"], 10);
+    }
+
+    // ── build_line ──────────────────────────────────────────────────────
+
+    #[test]
+    fn test_build_line_all_some() {
+        let ir = LineIR {
+            width: Some(2.0),
+            style: Some(LineStyle::Dash),
+            color: Some(Rgb(0, 0, 255)),
+        };
+        let line = build_line(&ir);
+        let json = serde_json::to_value(&line).unwrap();
+        assert!(json.get("width").is_some());
+    }
+
+    #[test]
+    fn test_build_line_empty() {
+        let ir = LineIR {
+            width: None,
+            style: None,
+            color: None,
+        };
+        let line = build_line(&ir);
+        let json = serde_json::to_value(&line).unwrap();
+        assert!(json.is_object());
+    }
+}

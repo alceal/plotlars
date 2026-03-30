@@ -267,3 +267,126 @@ pub(crate) fn create_facet_annotations(
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use plotlars_core::ir::layout::LayoutIR;
+
+    fn make_default_layout_ir() -> LayoutIR {
+        LayoutIR {
+            title: None,
+            x_title: None,
+            y_title: None,
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            box_mode: None,
+            box_gap: None,
+            margin_bottom: None,
+            axes_2d: None,
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // convert_layout_ir
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_no_grid_returns_none_overrides() {
+        let ir = make_default_layout_ir();
+        let (_layout, overrides) = convert_layout_ir(&ir);
+        assert!(overrides.is_none());
+    }
+
+    #[test]
+    fn test_axis_grid_returns_none_overrides() {
+        use plotlars_core::components::facet::FacetScales;
+        use plotlars_core::ir::facet::{FacetKind, GridSpec};
+
+        let mut ir = make_default_layout_ir();
+        ir.grid = Some(GridSpec {
+            kind: FacetKind::Axis,
+            rows: 1,
+            cols: 2,
+            h_gap: None,
+            v_gap: None,
+            scales: FacetScales::Fixed,
+            n_facets: 2,
+            facet_categories: vec!["A".to_string(), "B".to_string()],
+            title_style: None,
+            x_title: None,
+            y_title: None,
+            x_axis: None,
+            y_axis: None,
+            legend_title: None,
+            legend: None,
+        });
+        let (_layout, overrides) = convert_layout_ir(&ir);
+        assert!(overrides.is_none());
+    }
+
+    #[test]
+    fn test_scene_grid_returns_some_overrides() {
+        use plotlars_core::components::facet::FacetScales;
+        use plotlars_core::ir::facet::{FacetKind, GridSpec};
+
+        let mut ir = make_default_layout_ir();
+        ir.grid = Some(GridSpec {
+            kind: FacetKind::Scene,
+            rows: 1,
+            cols: 2,
+            h_gap: None,
+            v_gap: None,
+            scales: FacetScales::Fixed,
+            n_facets: 2,
+            facet_categories: vec!["A".to_string(), "B".to_string()],
+            title_style: None,
+            x_title: None,
+            y_title: None,
+            x_axis: None,
+            y_axis: None,
+            legend_title: None,
+            legend: None,
+        });
+        let (_layout, overrides) = convert_layout_ir(&ir);
+        assert!(overrides.is_some());
+    }
+
+    // -----------------------------------------------------------------------
+    // create_facet_annotations
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_annotations_count() {
+        let cats = vec!["A".to_string(), "B".to_string(), "C".to_string()];
+        let anns = create_facet_annotations(&cats, None);
+        assert_eq!(anns.len(), 3);
+    }
+
+    #[test]
+    fn test_annotations_text() {
+        let cats = vec!["Alpha".to_string(), "Beta".to_string()];
+        let anns = create_facet_annotations(&cats, None);
+        let json = serde_json::to_string(&anns).unwrap();
+        assert!(json.contains("Alpha"));
+        assert!(json.contains("Beta"));
+    }
+
+    #[test]
+    fn test_annotations_with_style() {
+        let cats = vec!["X".to_string()];
+        let style = Text::from("X").size(20);
+        let anns = create_facet_annotations(&cats, Some(&style));
+        let json = serde_json::to_string(&anns).unwrap();
+        assert!(json.contains("font"));
+    }
+}
