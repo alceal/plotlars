@@ -83,82 +83,48 @@ fn contourplot_example() {
 
     let grid_size = 25;
 
-    // Pattern 1: Gaussian Peak
-    for i in 0..grid_size {
-        for j in 0..grid_size {
-            let x = (i as f64 - 12.0) / 3.0;
-            let y = (j as f64 - 12.0) / 3.0;
-            let z = (-x * x - y * y).exp();
-            x_vals.push(x);
-            y_vals.push(y);
-            z_vals.push(z);
-            patterns.push("Gaussian");
-        }
-    }
-
-    // Pattern 2: Saddle Point
-    for i in 0..grid_size {
-        for j in 0..grid_size {
-            let x = (i as f64 - 12.0) / 3.0;
-            let y = (j as f64 - 12.0) / 3.0;
-            let z = x * x - y * y;
-            x_vals.push(x);
-            y_vals.push(y);
-            z_vals.push(z);
-            patterns.push("Saddle");
-        }
-    }
-
-    // Pattern 3: Ripple Effect
-    for i in 0..grid_size {
-        for j in 0..grid_size {
-            let x = (i as f64 - 12.0) / 3.0;
-            let y = (j as f64 - 12.0) / 3.0;
+    type SurfaceFn = Box<dyn Fn(f64, f64) -> f64>;
+    let functions: Vec<(&str, SurfaceFn)> = vec![
+        ("Gaussian", Box::new(|x, y| (-x * x - y * y).exp())),
+        ("Saddle", Box::new(|x, y| x * x - y * y)),
+        ("Ripple", Box::new(|x, y| {
             let r = (x * x + y * y).sqrt();
-            let z = (r * 2.0).sin() / (r + 0.1);
-            x_vals.push(x);
-            y_vals.push(y);
-            z_vals.push(z);
-            patterns.push("Ripple");
-        }
-    }
+            (r * 2.0).sin() / (r + 0.1)
+        })),
+        ("Paraboloid", Box::new(|x, y| x * x + y * y)),
+        ("Wave", Box::new(|x, y| (x * 2.0).sin() * (y * 2.0).cos())),
+        ("Diagonal", Box::new(|x, y| ((x + y) * 2.0).sin())),
+    ];
 
-    // Pattern 4: Paraboloid
-    for i in 0..grid_size {
-        for j in 0..grid_size {
-            let x = (i as f64 - 12.0) / 3.0;
-            let y = (j as f64 - 12.0) / 3.0;
-            let z = x * x + y * y;
-            x_vals.push(x);
-            y_vals.push(y);
-            z_vals.push(z);
-            patterns.push("Paraboloid");
-        }
-    }
+    for (name, func) in &functions {
+        let mut raw_z = Vec::new();
+        let mut coords = Vec::new();
 
-    // Pattern 5: Wave Interference
-    for i in 0..grid_size {
-        for j in 0..grid_size {
-            let x = (i as f64 - 12.0) / 3.0;
-            let y = (j as f64 - 12.0) / 3.0;
-            let z = (x * 2.0).sin() * (y * 2.0).cos();
-            x_vals.push(x);
-            y_vals.push(y);
-            z_vals.push(z);
-            patterns.push("Wave");
+        for i in 0..grid_size {
+            for j in 0..grid_size {
+                let x = (i as f64 - 12.0) / 3.0;
+                let y = (j as f64 - 12.0) / 3.0;
+                let z = func(x, y);
+                raw_z.push(z);
+                coords.push((x, y));
+            }
         }
-    }
 
-    // Pattern 6: Diagonal Waves
-    for i in 0..grid_size {
-        for j in 0..grid_size {
-            let x = (i as f64 - 12.0) / 3.0;
-            let y = (j as f64 - 12.0) / 3.0;
-            let z = ((x + y) * 2.0).sin();
+        // Normalize to [-1, 1]
+        let z_min = raw_z.iter().cloned().fold(f64::INFINITY, f64::min);
+        let z_max = raw_z.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+        let range = z_max - z_min;
+
+        for (idx, &(x, y)) in coords.iter().enumerate() {
+            let z = if range > 0.0 {
+                2.0 * (raw_z[idx] - z_min) / range - 1.0
+            } else {
+                0.0
+            };
             x_vals.push(x);
             y_vals.push(y);
             z_vals.push(z);
-            patterns.push("Diagonal");
+            patterns.push(*name);
         }
     }
 
