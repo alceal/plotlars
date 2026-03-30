@@ -327,14 +327,10 @@ pub(super) fn build_regular(
 
     let auto_legends_owned: Option<Vec<Option<CustomLegend>>> =
         owned_legends.clone().or_else(|| {
-            let generated: Vec<Option<CustomLegend>> = per_plot_traces
+            let generated: Vec<Option<CustomLegend>> = plots
                 .iter()
-                .enumerate()
-                .map(|(idx, traces)| {
-                    let (layout, _overrides) =
-                        crate::converters::layout::convert_layout_ir(plots[idx].ir_layout());
-                    let layout_json = serde_json::to_value(&layout).unwrap_or(Value::Null);
-                    CustomLegend::from_traces_and_layout(traces, &layout_json)
+                .map(|plot| {
+                    CustomLegend::from_ir(plot.ir_traces(), plot.ir_layout())
                 })
                 .collect();
             Some(generated)

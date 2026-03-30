@@ -1,12 +1,11 @@
 use plotly::common::Anchor;
 use plotly::layout::Annotation;
-use plotly::Trace;
 use serde::Serialize;
-use serde_json::Value;
 
 use crate::converters::components as conv;
-use plotlars_core::components::color::parse_color;
-use plotlars_core::components::{Orientation, Rgb};
+use plotlars_core::components::{Mode, Orientation, Rgb};
+use plotlars_core::ir::layout::LayoutIR;
+use plotlars_core::ir::trace::TraceIR;
 
 /// Plotly's default color sequence used when traces don't have explicit colors
 const PLOTLY_COLORS: &[(u8, u8, u8)] = &[
@@ -28,7 +27,9 @@ pub(crate) enum MarkerType {
     Square,
     Diamond,
     Triangle,
+    #[allow(dead_code)]
     Cross,
+    #[allow(dead_code)]
     Plus,
     Line,
     #[allow(dead_code)]
@@ -262,25 +263,13 @@ impl CustomLegend {
         Some(annotation)
     }
 
-    pub(crate) fn from_traces_and_layout(
-        traces: &[Box<dyn Trace + 'static>],
-        layout_json: &Value,
-    ) -> Option<Self> {
-        let legend_json = layout_json.get("legend");
-
-        let show_legend = legend_json
-            .and_then(|l| l.get("visible"))
-            .and_then(|v| v.as_bool())
-            .unwrap_or(true);
-
-        if !show_legend {
-            return None;
-        }
-
+    /// Build a CustomLegend directly from IR types, bypassing plotly serialization.
+    /// This produces accurate colors because it reads from the IR structs directly.
+    pub(crate) fn from_ir(ir_traces: &[TraceIR], ir_layout: &LayoutIR) -> Option<Self> {
         let mut entries = Vec::new();
 
-        for (trace_index, trace) in traces.iter().enumerate() {
-            if let Some(entry) = Self::extract_legend_entry(trace.as_ref(), trace_index) {
+        for (i, trace) in ir_traces.iter().enumerate() {
+            if let Some(entry) = extract_legend_entry_from_ir(trace, i) {
                 entries.push(entry);
             }
         }
@@ -294,272 +283,162 @@ impl CustomLegend {
             ..Default::default()
         };
 
-        if let Some(legend_json) = legend_json {
-            if let Some(x) = legend_json.get("x").and_then(|v| v.as_f64()) {
+        // Apply legend styling from IR layout
+        if let Some(ref leg) = ir_layout.legend {
+            if let Some(x) = leg.x {
                 legend.x = x;
             }
-            if let Some(y) = legend_json.get("y").and_then(|v| v.as_f64()) {
+            if let Some(y) = leg.y {
                 legend.y = y;
             }
-            if let Some(x_anchor) = legend_json.get("xanchor").and_then(|v| v.as_str()) {
-                legend.x_anchor = match x_anchor {
-                    "left" => Anchor::Left,
-                    "center" => Anchor::Center,
-                    "right" => Anchor::Right,
-                    _ => Anchor::Left,
-                };
+            if let Some(ref orient) = leg.orientation {
+                legend.orientation = orient.clone();
             }
-            if let Some(y_anchor) = legend_json.get("yanchor").and_then(|v| v.as_str()) {
-                legend.y_anchor = match y_anchor {
-                    "top" => Anchor::Top,
-                    "middle" => Anchor::Middle,
-                    "bottom" => Anchor::Bottom,
-                    _ => Anchor::Top,
-                };
+            if let Some(ref bg) = leg.background_color {
+                legend.background_color = Some(*bg);
             }
+            if let Some(ref bc) = leg.border_color {
+                legend.border_color = Some(*bc);
+            }
+            if let Some(bw) = leg.border_width {
+                legend.border_width = bw as f64;
+            }
+            if let Some(ref family) = leg.font {
+                legend.font_family = family.clone();
+            }
+        }
 
-            legend.orientation = legend_json
-                .get("orientation")
-                .and_then(|v| v.as_str())
-                .map(
-                    |orientation_str| match orientation_str.to_lowercase().as_str() {
-                        "h" | "horizontal" => Orientation::Horizontal,
-                        "v" | "vertical" => Orientation::Vertical,
-                        _ => Orientation::Vertical,
-                    },
-                )
-                .unwrap_or(Orientation::Vertical);
-
-            if let Some(bg_color) = legend_json
-                .get("bgcolor")
-                .and_then(|v| v.as_str())
-                .and_then(parse_color)
-            {
-                legend.background_color = Some(bg_color);
-            }
-            if let Some(border_color) = legend_json
-                .get("bordercolor")
-                .and_then(|v| v.as_str())
-                .and_then(parse_color)
-            {
-                legend.border_color = Some(border_color);
-            }
-            if let Some(border_width) = legend_json.get("borderwidth").and_then(|v| v.as_f64()) {
-                legend.border_width = border_width;
-            }
-            if let Some(font_obj) = legend_json.get("font") {
-                if let Some(family) = font_obj.get("family").and_then(|v| v.as_str()) {
-                    legend.font_family = family.to_string();
-                }
-                if let Some(size) = font_obj.get("size").and_then(|v| v.as_u64()) {
-                    legend.font_size = size as usize;
-                }
-                if let Some(color) = font_obj
-                    .get("color")
-                    .and_then(|v| v.as_str())
-                    .and_then(parse_color)
-                {
-                    legend.font_color = color;
-                }
-            }
-            if let Some(title_obj) = legend_json.get("title") {
-                if let Some(title_text) = title_obj.get("text").and_then(|v| v.as_str()) {
-                    legend.title = Some(title_text.to_string());
-                }
-                if let Some(title_font) = title_obj.get("font") {
-                    if let Some(size) = title_font.get("size").and_then(|v| v.as_u64()) {
-                        legend.title_font_size = Some(size as usize);
-                    }
-                }
+        if let Some(ref legend_title) = ir_layout.legend_title {
+            legend.title = Some(legend_title.content.clone());
+            if legend_title.size > 0 {
+                legend.title_font_size = Some(legend_title.size);
             }
         }
 
         Some(legend)
     }
-
-    fn extract_legend_entry(trace: &dyn Trace, trace_index: usize) -> Option<LegendEntry> {
-        let json_str = trace.to_json();
-        let trace_json: Value = serde_json::from_str(&json_str).ok()?;
-        extract_legend_entry_value(&trace_json, trace_index)
-    }
 }
 
-fn extract_legend_entry_value(trace_json: &Value, trace_index: usize) -> Option<LegendEntry> {
-    let show_legend = trace_json
-        .get("showlegend")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(true);
 
-    if !show_legend {
-        return None;
-    }
+// ---------------------------------------------------------------------------
+// IR-based legend extraction
+// ---------------------------------------------------------------------------
 
-    let name = trace_json
-        .get("name")
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
+fn extract_legend_entry_from_ir(trace: &TraceIR, trace_index: usize) -> Option<LegendEntry> {
+    let default_color = || {
+        let (r, g, b) = PLOTLY_COLORS[trace_index % PLOTLY_COLORS.len()];
+        Rgb(r, g, b)
+    };
 
-    if name.is_empty() {
-        return None;
-    }
-
-    let trace_type = trace_json.get("type").and_then(|v| v.as_str())?;
-
-    let marker_type = map_trace_type_to_marker(trace_type, trace_json);
-
-    let marker_color = extract_trace_color(trace_json, trace_type, trace_index);
-
-    Some(LegendEntry::new(marker_type, marker_color, name))
-}
-
-fn map_trace_type_to_marker(trace_type: &str, trace_json: &Value) -> MarkerType {
-    match trace_type {
-        "scatter" | "scattergl" => {
-            let mode = trace_json
-                .get("mode")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
-
-            if mode.contains("lines") && !mode.contains("markers") {
-                MarkerType::Line
-            } else {
-                extract_marker_symbol(trace_json)
-            }
+    match trace {
+        TraceIR::ScatterPlot(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            let marker = ir.marker.as_ref().and_then(|m| m.shape.as_ref())
+                .map(|_| MarkerType::Circle).unwrap_or(MarkerType::Circle);
+            Some(LegendEntry::new(marker, color, name))
         }
-        "bar" => MarkerType::Square,
-        "box" => MarkerType::Square,
-        "violin" => MarkerType::Diamond,
-        "histogram" => MarkerType::Square,
-        "pie" => MarkerType::Diamond,
-        "heatmap" => MarkerType::Square,
-        "contour" => MarkerType::Line,
-        "scatter3d" => extract_marker_symbol(trace_json),
-        "surface" => MarkerType::Line,
-        "mesh3d" => MarkerType::Triangle,
-        "scatterpolar" => {
-            let mode = trace_json
-                .get("mode")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
-
-            if mode.contains("lines") && !mode.contains("markers") {
-                MarkerType::Line
-            } else {
-                extract_marker_symbol(trace_json)
-            }
+        TraceIR::BarPlot(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Square, color, name))
         }
-        "barpolar" => MarkerType::Square,
-        "scattergeo" => extract_marker_symbol(trace_json),
-        "scattermapbox" => extract_marker_symbol(trace_json),
-        "densitymapbox" => MarkerType::Circle,
-        "candlestick" => MarkerType::Line,
-        "ohlc" => MarkerType::Line,
-        "sankey" => MarkerType::Line,
-        "table" => MarkerType::Square,
-        _ => MarkerType::Circle,
+        TraceIR::BoxPlot(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Square, color, name))
+        }
+        TraceIR::LinePlot(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.line.as_ref().and_then(|l| l.color)
+                .or_else(|| ir.marker.as_ref().and_then(|m| m.color))
+                .unwrap_or_else(default_color);
+            let is_line = ir.mode.is_none_or(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
+            let marker = if is_line { MarkerType::Line } else { MarkerType::Circle };
+            Some(LegendEntry::new(marker, color, name))
+        }
+        TraceIR::TimeSeriesPlot(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.line.as_ref().and_then(|l| l.color)
+                .or_else(|| ir.marker.as_ref().and_then(|m| m.color))
+                .unwrap_or_else(default_color);
+            let is_line = ir.mode.is_none_or(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
+            let marker = if is_line { MarkerType::Line } else { MarkerType::Circle };
+            Some(LegendEntry::new(marker, color, name))
+        }
+        TraceIR::Histogram(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Square, color, name))
+        }
+        TraceIR::ScatterPolar(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color)
+                .or_else(|| ir.line.as_ref().and_then(|l| l.color))
+                .unwrap_or_else(default_color);
+            let is_line = ir.mode.is_some_and(|m| matches!(m, Mode::Lines | Mode::LinesMarkers | Mode::LinesText));
+            let marker = if is_line { MarkerType::Line } else { MarkerType::Circle };
+            Some(LegendEntry::new(marker, color, name))
+        }
+        TraceIR::Scatter3dPlot(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Circle, color, name))
+        }
+        TraceIR::ScatterGeo(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color)
+                .or_else(|| ir.line.as_ref().and_then(|l| l.color))
+                .unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Circle, color, name))
+        }
+        TraceIR::ScatterMap(ir) => {
+            let name = ir.name.as_deref()?;
+            if name.is_empty() { return None; }
+            if ir.show_legend == Some(false) { return None; }
+            let color = ir.marker.as_ref().and_then(|m| m.color).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Circle, color, name))
+        }
+        TraceIR::Mesh3D(ir) => {
+            let color = ir.color.unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Triangle, color, "mesh3d"))
+        }
+        TraceIR::SankeyDiagram(_) => {
+            // Sankey diagrams have complex node/link colors; skip individual legend entries
+            None
+        }
+        TraceIR::PieChart(ir) => {
+            let name = ir.name.as_deref().unwrap_or("");
+            if name.is_empty() { return None; }
+            let color = ir.colors.as_ref().and_then(|c| c.first().cloned()).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Diamond, color, name))
+        }
+        TraceIR::CandlestickPlot(ir) => {
+            let color = ir.increasing.as_ref().and_then(|d| d.line_color).unwrap_or_else(default_color);
+            Some(LegendEntry::new(MarkerType::Line, color, "candlestick"))
+        }
+        TraceIR::OhlcPlot(_) => {
+            Some(LegendEntry::new(MarkerType::Line, default_color(), "ohlc"))
+        }
+        // Plot types that typically don't have legend entries in subplots
+        _ => None,
     }
-}
-
-/// Extracts the marker symbol from trace JSON and maps it to MarkerType
-fn extract_marker_symbol(trace_json: &Value) -> MarkerType {
-    if let Some(symbol) = trace_json
-        .get("marker")
-        .and_then(|m| m.get("symbol"))
-        .and_then(|s| s.as_str())
-    {
-        map_symbol_to_marker_type(symbol)
-    } else {
-        MarkerType::Circle
-    }
-}
-
-/// Maps plotly marker symbol strings to MarkerType enum
-fn map_symbol_to_marker_type(symbol: &str) -> MarkerType {
-    match symbol {
-        s if s.starts_with("circle") => MarkerType::Circle,
-        s if s.starts_with("square") => MarkerType::Square,
-        s if s.starts_with("diamond") => MarkerType::Diamond,
-        s if s.starts_with("triangle") => MarkerType::Triangle,
-        s if s.starts_with("cross") => MarkerType::Cross,
-        "x" | "x-open" | "x-thin" | "x-dot" => MarkerType::Cross,
-        "+" | "plus" | "plus-open" => MarkerType::Plus,
-        _ => MarkerType::Circle,
-    }
-}
-
-fn extract_trace_color(trace_json: &Value, trace_type: &str, trace_index: usize) -> Rgb {
-    match trace_type {
-        "scatter" | "scattergl" | "scatter3d" | "scatterpolar" | "scattergeo" | "scattermapbox" => {
-            if let Some(mode) = trace_json.get("mode").and_then(|v| v.as_str()) {
-                if mode.contains("markers") {
-                    if let Some(color) = trace_json
-                        .get("marker")
-                        .and_then(|m| m.get("color"))
-                        .and_then(|c| c.as_str())
-                        .and_then(parse_color)
-                    {
-                        return color;
-                    }
-                }
-                if mode.contains("lines") {
-                    if let Some(color) = trace_json
-                        .get("line")
-                        .and_then(|l| l.get("color"))
-                        .and_then(|c| c.as_str())
-                        .and_then(parse_color)
-                    {
-                        return color;
-                    }
-                }
-            }
-            if let Some(color) = trace_json
-                .get("marker")
-                .and_then(|m| m.get("color"))
-                .and_then(|c| c.as_str())
-                .and_then(parse_color)
-            {
-                return color;
-            }
-        }
-        "bar" | "box" | "histogram" | "barpolar" => {
-            if let Some(color) = trace_json
-                .get("marker")
-                .and_then(|m| m.get("color"))
-                .and_then(|c| c.as_str())
-                .and_then(parse_color)
-            {
-                return color;
-            }
-        }
-        "pie" => {
-            if let Some(colors) = trace_json.get("marker").and_then(|m| m.get("colors")) {
-                if let Some(color_arr) = colors.as_array() {
-                    if let Some(first_color) = color_arr
-                        .first()
-                        .and_then(|v| v.as_str())
-                        .and_then(parse_color)
-                    {
-                        return first_color;
-                    }
-                }
-            }
-        }
-        "candlestick" | "ohlc" => {
-            if let Some(color) = trace_json
-                .get("increasing")
-                .and_then(|i| i.get("line"))
-                .and_then(|l| l.get("color"))
-                .and_then(|c| c.as_str())
-                .and_then(parse_color)
-            {
-                return color;
-            }
-        }
-        _ => {}
-    }
-
-    // No explicit color found - use plotly's default color sequence based on trace index
-    let color_index = trace_index % PLOTLY_COLORS.len();
-    let (r, g, b) = PLOTLY_COLORS[color_index];
-    Rgb(r, g, b)
 }

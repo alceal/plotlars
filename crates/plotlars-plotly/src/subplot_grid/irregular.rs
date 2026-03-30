@@ -631,12 +631,10 @@ fn collect_annotations(
         }
     }
 
-    for (subplot_idx, ((plot, _, _, _, _), traces)) in
+    for (subplot_idx, ((plot, _, _, _, _), _traces)) in
         plots.iter().zip(per_plot_traces.iter()).enumerate()
     {
-        let (layout, _overrides) = crate::converters::layout::convert_layout_ir(plot.ir_layout());
-        let layout_json = serde_json::to_value(&layout).unwrap_or(Value::Null);
-        if let Some(auto_legend) = CustomLegend::from_traces_and_layout(traces, &layout_json) {
+        if let Some(auto_legend) = CustomLegend::from_ir(plot.ir_traces(), plot.ir_layout()) {
             let domain = plot_configs.get(subplot_idx).and_then(|config| {
                 if matches!(config.plot_type, PlotType::Cartesian2D) {
                     None
