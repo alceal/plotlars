@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .size(18),
         )
         .x_title(Text::from("species").font("Arial").size(15))
-        .y_title(Text::from("body mass (g)").font("Arial").size(15).x(-0.04))
+        .y_title(Text::from("body mass (g)").font("Arial").size(15).x(-0.07))
         .legend_title(Text::from("gender").font("Arial").size(15))
         .y_axis(&Axis::new().value_thousands(true))
         .legend(&Legend::new().border_width(1).x(0.9))

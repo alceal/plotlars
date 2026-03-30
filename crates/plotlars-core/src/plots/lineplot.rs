@@ -306,6 +306,7 @@ impl LinePlot {
             line: Some(line_ir),
             mode,
             show_legend: None,
+            legend_group: None,
             subplot_ref: None,
         }));
 
@@ -335,6 +336,7 @@ impl LinePlot {
                     line: Some(line_ir),
                     mode,
                     show_legend: None,
+                    legend_group: None,
                     subplot_ref: None,
                 }));
             }
@@ -466,6 +468,7 @@ impl LinePlot {
                                 line: Some(line_ir),
                                 mode: mode_for_facet,
                                 show_legend: Some(false),
+                                legend_group: None,
                                 subplot_ref: Some(subplot_ref.clone()),
                             }));
                         }
@@ -505,6 +508,7 @@ impl LinePlot {
                         line: Some(line_ir),
                         mode: mode_for_facet,
                         show_legend: Some(show_legend),
+                        legend_group: Some(y_col.to_string()),
                         subplot_ref: Some(subplot_ref.clone()),
                     }));
                 }
@@ -550,6 +554,7 @@ impl LinePlot {
                         line: Some(line_ir),
                         mode: mode_for_facet,
                         show_legend: Some(show_legend),
+                        legend_group: Some(y_col.to_string()),
                         subplot_ref: Some(subplot_ref.clone()),
                     }));
                 }

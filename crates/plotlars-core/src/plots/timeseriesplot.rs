@@ -351,6 +351,7 @@ impl TimeSeriesPlot {
             line: Some(line_ir),
             mode,
             show_legend: None,
+            legend_group: None,
             y_axis_ref: Some(String::new()),
             subplot_ref: None,
         }));
@@ -387,6 +388,7 @@ impl TimeSeriesPlot {
                     line: Some(line_ir),
                     mode,
                     show_legend: None,
+                    legend_group: None,
                     y_axis_ref: Some(y_axis_ref.clone()),
                     subplot_ref: None,
                 }));
@@ -513,6 +515,7 @@ impl TimeSeriesPlot {
                                 line: Some(line_ir),
                                 mode: mode_for_facet,
                                 show_legend: Some(false),
+                                legend_group: None,
                                 y_axis_ref: None,
                                 subplot_ref: Some(subplot_ref.clone()),
                             }));
@@ -553,6 +556,7 @@ impl TimeSeriesPlot {
                         line: Some(line_ir),
                         mode: mode_for_facet,
                         show_legend: Some(show_legend),
+                        legend_group: Some(y_col.to_string()),
                         y_axis_ref: None,
                         subplot_ref: Some(subplot_ref.clone()),
                     }));
@@ -599,6 +603,7 @@ impl TimeSeriesPlot {
                         line: Some(line_ir),
                         mode: mode_for_facet,
                         show_legend: Some(show_legend),
+                        legend_group: Some(y_col.to_string()),
                         y_axis_ref: None,
                         subplot_ref: Some(subplot_ref.clone()),
                     }));

@@ -93,6 +93,7 @@ pub struct LinePlotIR {
     pub line: Option<LineIR>,
     pub mode: Option<Mode>,
     pub show_legend: Option<bool>,
+    pub legend_group: Option<String>,
     pub subplot_ref: Option<String>,
 }
 
@@ -106,6 +107,7 @@ pub struct TimeSeriesPlotIR {
     pub line: Option<LineIR>,
     pub mode: Option<Mode>,
     pub show_legend: Option<bool>,
+    pub legend_group: Option<String>,
     pub y_axis_ref: Option<String>,
     pub subplot_ref: Option<String>,
 }

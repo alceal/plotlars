@@ -409,6 +409,10 @@ fn convert_line_plot(ir: &LinePlotIR) -> Box<dyn Trace + 'static> {
         trace = trace.show_legend(show);
     }
 
+    if let Some(ref group) = ir.legend_group {
+        trace = trace.legend_group(group);
+    }
+
     trace
 }
 
@@ -445,6 +449,10 @@ fn convert_time_series_plot(ir: &TimeSeriesPlotIR) -> Box<dyn Trace + 'static> {
 
     if let Some(show) = ir.show_legend {
         trace = trace.show_legend(show);
+    }
+
+    if let Some(ref group) = ir.legend_group {
+        trace = trace.legend_group(group);
     }
 
     trace
