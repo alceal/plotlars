@@ -2651,7 +2651,6 @@ dependencies = [
  "plotlars-core",
  "plotlars-plotly",
  "polars",
- "serde_json",
 ]
 
 [[package]]
