@@ -33,8 +33,11 @@ pub fn get_unique_groups(
     groups
 }
 
-#[doc(hidden)]
-pub fn filter_data_by_group(data: &DataFrame, group_col: &str, group_name: &str) -> DataFrame {
+pub(crate) fn filter_data_by_group(
+    data: &DataFrame,
+    group_col: &str,
+    group_name: &str,
+) -> DataFrame {
     data.clone()
         .lazy()
         .filter(col(group_col).cast(DataType::String).eq(lit(group_name)))
@@ -42,8 +45,7 @@ pub fn filter_data_by_group(data: &DataFrame, group_col: &str, group_name: &str)
         .unwrap()
 }
 
-#[doc(hidden)]
-pub fn get_numeric_column(data: &DataFrame, column_name: &str) -> Vec<Option<f32>> {
+pub(crate) fn get_numeric_column(data: &DataFrame, column_name: &str) -> Vec<Option<f32>> {
     data.column(column_name)
         .unwrap()
         .clone()
@@ -54,8 +56,7 @@ pub fn get_numeric_column(data: &DataFrame, column_name: &str) -> Vec<Option<f32
         .to_vec()
 }
 
-#[doc(hidden)]
-pub fn get_string_column(data: &DataFrame, column_name: &str) -> Vec<Option<String>> {
+pub(crate) fn get_string_column(data: &DataFrame, column_name: &str) -> Vec<Option<String>> {
     data.column(column_name)
         .unwrap()
         .clone()

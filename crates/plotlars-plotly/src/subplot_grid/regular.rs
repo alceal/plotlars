@@ -296,7 +296,7 @@ pub(super) fn build_regular(
 
         let mut legend_traces: Vec<JsonTrace> = Vec::new();
 
-        for trace in &traces {
+        for (trace_idx, trace) in traces.iter().enumerate() {
             let mut json_trace = JsonTrace::new(trace.clone());
             match plot_type {
                 PlotType::Cartesian2D => json_trace.set_axis_references(&x_axis, &y_axis),
@@ -306,7 +306,7 @@ pub(super) fn build_regular(
                 PlotType::Mapbox => json_trace.set_subplot_reference(&subplot_ref),
                 PlotType::Geo => json_trace.set_subplot_reference(&subplot_ref),
             }
-            json_trace.ensure_color(all_traces.len());
+            json_trace.ensure_color(trace_idx);
             legend_traces.push(json_trace.clone());
             all_traces.push(Box::new(json_trace));
         }

@@ -1,7 +1,7 @@
 use bon::bon;
 
 use crate::{
-    components::{Axis, ColorBar, Coloring, FacetConfig, Legend, Palette, Text},
+    components::{Axis, ColorBar, Coloring, FacetConfig, FacetScales, Legend, Palette, Text},
     ir::data::ColumnData,
     ir::layout::LayoutIR,
     ir::trace::{ContourPlotIR, TraceIR},
@@ -261,7 +261,12 @@ impl ContourPlot {
             );
         }
 
-        let z_range = Self::calculate_global_z_range(data, z);
+        let use_global_z = !matches!(config.scales, FacetScales::Free);
+        let z_range = if use_global_z {
+            Self::calculate_global_z_range(data, z)
+        } else {
+            None
+        };
 
         let mut traces = Vec::new();
 

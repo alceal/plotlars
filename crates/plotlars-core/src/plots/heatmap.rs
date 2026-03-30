@@ -1,7 +1,7 @@
 use bon::bon;
 
 use crate::{
-    components::{Axis, ColorBar, FacetConfig, Palette, Text},
+    components::{Axis, ColorBar, FacetConfig, FacetScales, Palette, Text},
     ir::data::ColumnData,
     ir::layout::LayoutIR,
     ir::trace::{HeatMapIR, TraceIR},
@@ -249,7 +249,12 @@ impl HeatMap {
             );
         }
 
-        let global_z_range = Self::calculate_global_z_range(data, z);
+        let use_global_z = !matches!(config.scales, FacetScales::Free);
+        let global_z_range = if use_global_z {
+            Some(Self::calculate_global_z_range(data, z))
+        } else {
+            None
+        };
 
         let mut traces = Vec::new();
 
@@ -268,6 +273,11 @@ impl HeatMap {
                 Some(false)
             };
 
+            let (z_min, z_max) = match global_z_range {
+                Some((zmin, zmax)) => (Some(zmin as f64), Some(zmax as f64)),
+                None => (None, None),
+            };
+
             traces.push(TraceIR::HeatMap(HeatMapIR {
                 x: ColumnData::String(crate::data::get_string_column(&facet_data, x)),
                 y: ColumnData::String(crate::data::get_string_column(&facet_data, y)),
@@ -277,8 +287,8 @@ impl HeatMap {
                 auto_color_scale,
                 reverse_scale,
                 show_scale: show_scale_for_trace,
-                z_min: Some(global_z_range.0 as f64),
-                z_max: Some(global_z_range.1 as f64),
+                z_min,
+                z_max,
                 subplot_ref: Some(subplot_ref),
             }));
         }

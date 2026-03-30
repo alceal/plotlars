@@ -176,7 +176,7 @@ fn contourplot_example() {
         .y("y")
         .z("z")
         .facet("pattern")
-        .facet_config(&FacetConfig::new().rows(2).cols(3))
+        .facet_config(&FacetConfig::new().rows(2).cols(3).scales(FacetScales::Free))
         .plot_title(Text::from("Mathematical Surface Patterns").size(16))
         .x_title(Text::from("X Axis"))
         .y_title(Text::from("Y Axis"))

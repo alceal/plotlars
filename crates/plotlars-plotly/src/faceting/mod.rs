@@ -4,14 +4,10 @@ use plotly::layout::{
 };
 
 use crate::converters::components as conv;
-use plotlars_core::components::facet::{FacetConfig, FacetScales};
-use plotlars_core::components::{Axis, Legend, Text};
-use plotlars_core::data;
-use plotlars_core::faceting::calculate_grid_dimensions;
+use plotlars_core::components::facet::FacetScales;
+use plotlars_core::components::{Axis, Text};
 use plotlars_core::ir::facet::GridSpec;
 use plotlars_core::ir::layout::LayoutIR;
-
-use polars::frame::DataFrame;
 
 /// Build a faceted layout from an IR GridSpec. Called by convert_layout_ir
 /// when the layout contains grid information.
@@ -69,64 +65,6 @@ fn is_bottom_row(subplot_index: usize, ncols: usize, nrows: usize, n_facets: usi
 
 fn is_left_column(subplot_index: usize, ncols: usize) -> bool {
     subplot_index % ncols == 0
-}
-
-/// Shared axis-based faceted layout builder for 2D Cartesian plots.
-///
-/// Returns a layout with grid, axis matching, axis titles, annotations, and legend.
-/// The caller can apply additional post-layout modifications (e.g., bar_mode, box_mode)
-/// to the returned layout.
-#[allow(clippy::too_many_arguments)]
-pub fn create_axis_faceted_layout(
-    data: &DataFrame,
-    facet_column: &str,
-    config: &FacetConfig,
-    plot_title: Option<Text>,
-    x_title: Option<Text>,
-    y_title: Option<Text>,
-    legend_title: Option<Text>,
-    x_axis: Option<&Axis>,
-    y_axis: Option<&Axis>,
-    legend: Option<&Legend>,
-) -> LayoutPlotly {
-    let facet_categories = data::get_unique_groups(data, facet_column, config.sorter);
-    let n_facets = facet_categories.len();
-
-    let (ncols, nrows) = calculate_grid_dimensions(n_facets, config.cols, config.rows);
-
-    let mut grid = LayoutGrid::new()
-        .rows(nrows)
-        .columns(ncols)
-        .pattern(GridPattern::Independent);
-
-    if let Some(x_gap) = config.h_gap {
-        grid = grid.x_gap(x_gap);
-    }
-    if let Some(y_gap) = config.v_gap {
-        grid = grid.y_gap(y_gap);
-    }
-
-    let mut layout = LayoutPlotly::new().grid(grid);
-
-    if let Some(title) = plot_title {
-        layout = layout.title(conv::convert_text_to_title(&title));
-    }
-
-    layout = apply_axis_matching(layout, n_facets, &config.scales);
-
-    layout = apply_facet_axis_titles(
-        layout, n_facets, ncols, nrows, x_title, y_title, x_axis, y_axis,
-    );
-
-    let annotations = crate::converters::layout::create_facet_annotations(
-        &facet_categories,
-        config.title_style.as_ref(),
-    );
-    layout = layout.annotations(annotations);
-
-    layout = layout.legend(conv::set_legend(legend_title, legend));
-
-    layout
 }
 
 /// Applies axis scale matching based on FacetScales configuration.

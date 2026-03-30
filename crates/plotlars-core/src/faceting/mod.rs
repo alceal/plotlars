@@ -27,8 +27,7 @@ pub fn calculate_grid_dimensions(
     }
 }
 
-#[doc(hidden)]
-pub fn get_axis_reference(subplot_index: usize, axis_type: &str) -> String {
+pub(crate) fn get_axis_reference(subplot_index: usize, axis_type: &str) -> String {
     if subplot_index == 0 {
         axis_type.to_string()
     } else {

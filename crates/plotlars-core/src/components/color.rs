@@ -49,60 +49,26 @@ pub struct Rgb(
     pub u8,
 );
 
+#[doc(hidden)]
 pub fn parse_color(color_str: &str) -> Option<Rgb> {
-    if color_str.starts_with("rgb(") || color_str.starts_with("rgba(") {
-        let start = color_str.find('(')?;
-        let end = color_str.find(')')?;
-        let values = &color_str[start + 1..end];
-        let parts: Vec<&str> = values.split(',').map(|s| s.trim()).collect();
+    let start = color_str.find('(')?;
+    let end = color_str.find(')')?;
+    let parts: Vec<&str> = color_str[start + 1..end]
+        .split(',')
+        .map(|s| s.trim())
+        .collect();
 
-        if parts.len() >= 3 {
-            let r = parts[0].parse::<u8>().ok()?;
-            let g = parts[1].parse::<u8>().ok()?;
-            let b = parts[2].parse::<u8>().ok()?;
-            return Some(Rgb(r, g, b));
-        }
+    if parts.len() >= 3 {
+        let r = parts[0].parse::<u8>().ok()?;
+        let g = parts[1].parse::<u8>().ok()?;
+        let b = parts[2].parse::<u8>().ok()?;
+        return Some(Rgb(r, g, b));
     }
 
-    if let Some(hex) = color_str.strip_prefix('#') {
-        if hex.len() == 6 {
-            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-            return Some(Rgb(r, g, b));
-        } else if hex.len() == 3 {
-            let r = u8::from_str_radix(&hex[0..1], 16).ok()? * 17;
-            let g = u8::from_str_radix(&hex[1..2], 16).ok()? * 17;
-            let b = u8::from_str_radix(&hex[2..3], 16).ok()? * 17;
-            return Some(Rgb(r, g, b));
-        }
-    }
-
-    match color_str.to_lowercase().as_str() {
-        "black" => Some(Rgb(0, 0, 0)),
-        "white" => Some(Rgb(255, 255, 255)),
-        "red" => Some(Rgb(255, 0, 0)),
-        "green" => Some(Rgb(0, 128, 0)),
-        "blue" => Some(Rgb(0, 0, 255)),
-        "yellow" => Some(Rgb(255, 255, 0)),
-        "cyan" => Some(Rgb(0, 255, 255)),
-        "magenta" => Some(Rgb(255, 0, 255)),
-        "gray" | "grey" => Some(Rgb(128, 128, 128)),
-        "orange" => Some(Rgb(255, 165, 0)),
-        "purple" => Some(Rgb(128, 0, 128)),
-        "pink" => Some(Rgb(255, 192, 203)),
-        "brown" => Some(Rgb(165, 42, 42)),
-        "lime" => Some(Rgb(0, 255, 0)),
-        "navy" => Some(Rgb(0, 0, 128)),
-        "teal" => Some(Rgb(0, 128, 128)),
-        "silver" => Some(Rgb(192, 192, 192)),
-        "maroon" => Some(Rgb(128, 0, 0)),
-        "olive" => Some(Rgb(128, 128, 0)),
-        _ => None,
-    }
+    None
 }
 
-pub const DEFAULT_PLOTLY_COLORS: [Rgb; 10] = [
+pub(crate) const DEFAULT_PLOTLY_COLORS: [Rgb; 10] = [
     Rgb(99, 110, 250),
     Rgb(239, 85, 59),
     Rgb(0, 204, 150),
@@ -152,56 +118,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_hex6() {
-        assert_rgb(parse_color("#ff8000"), 255, 128, 0);
-    }
-
-    #[test]
-    fn test_parse_hex6_uppercase() {
-        assert_rgb(parse_color("#FF0000"), 255, 0, 0);
-    }
-
-    #[test]
-    fn test_parse_hex3() {
-        assert_rgb(parse_color("#f00"), 255, 0, 0);
-    }
-
-    #[test]
-    fn test_parse_hex_invalid_length() {
-        assert!(parse_color("#abcd").is_none());
-    }
-
-    #[test]
-    fn test_parse_hex_invalid_chars() {
-        assert!(parse_color("#xyz").is_none());
-    }
-
-    #[test]
-    fn test_parse_named_colors() {
-        assert_rgb(parse_color("black"), 0, 0, 0);
-        assert_rgb(parse_color("white"), 255, 255, 255);
-        assert_rgb(parse_color("red"), 255, 0, 0);
-    }
-
-    #[test]
-    fn test_parse_named_case_insensitive() {
-        assert_rgb(parse_color("BLUE"), 0, 0, 255);
-        assert_rgb(parse_color("Blue"), 0, 0, 255);
-    }
-
-    #[test]
-    fn test_parse_grey_alias() {
-        let grey = parse_color("grey").expect("expected Some");
-        let gray = parse_color("gray").expect("expected Some");
-        assert_eq!(grey.0, gray.0);
-        assert_eq!(grey.1, gray.1);
-        assert_eq!(grey.2, gray.2);
-        assert_rgb(parse_color("grey"), 128, 128, 128);
-    }
-
-    #[test]
-    fn test_parse_unknown_name() {
-        assert!(parse_color("chartreuse").is_none());
+    fn test_parse_no_parens() {
+        assert!(parse_color("black").is_none());
     }
 
     #[test]
