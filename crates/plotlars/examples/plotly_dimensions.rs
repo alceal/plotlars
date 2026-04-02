@@ -50,7 +50,7 @@ fn main() {
         .lines(vec![Line::Solid, Line::Dot, Line::Dot])
         .plot_title(
             Text::from("De Bilt Temperature 2023")
-                .font("Arial Bold")
+                .font("Arial Black")
                 .size(16),
         )
         .y_title(Text::from("temperature (°C)").size(13).x(-0.08))
@@ -74,7 +74,11 @@ fn main() {
         .size(10)
         .colors(vec![Rgb(178, 34, 34), Rgb(65, 105, 225), Rgb(255, 140, 0)])
         .shapes(vec![Shape::Circle, Shape::Square, Shape::Diamond])
-        .plot_title(Text::from("Penguin Morphology").font("Arial Bold").size(16))
+        .plot_title(
+            Text::from("Penguin Morphology")
+                .font("Arial Black")
+                .size(16),
+        )
         .x_title(Text::from("body mass (g)").size(13))
         .y_title(Text::from("flipper length (mm)").size(13).x(-0.11))
         .legend_title(Text::from("Species").size(12))
@@ -92,7 +96,7 @@ fn main() {
         .sort_groups_by(|a, b| a.len().cmp(&b.len()))
         .error("error")
         .colors(vec![Rgb(255, 127, 80), Rgb(64, 224, 208)])
-        .plot_title(Text::from("Animal Statistics").font("Arial Bold").size(16))
+        .plot_title(Text::from("Animal Statistics").font("Arial Black").size(16))
         .x_title(Text::from("animal").size(13))
         .y_title(Text::from("value").size(13))
         .legend_title(Text::from("Gender").size(12))
@@ -117,7 +121,7 @@ fn main() {
         .colors(vec![Rgb(0, 191, 255), Rgb(57, 255, 20), Rgb(255, 105, 180)])
         .plot_title(
             Text::from("Body Mass Distribution")
-                .font("Arial Bold")
+                .font("Arial Black")
                 .size(16),
         )
         .x_title(Text::from("species").size(13))
@@ -139,7 +143,7 @@ fn main() {
         .title(
             Text::from("Scientific Data Visualization Dashboard")
                 .size(26)
-                .font("Arial Bold"),
+                .font("Arial Black"),
         )
         .build()
         .plot();

@@ -1,14 +1,24 @@
 #![doc = include_str!("../../../README.md")]
 #![allow(clippy::needless_doctest_main)]
 
-// Re-export PlotlyExt as Plot for backward compatibility
-pub use plotlars_plotly::PlotlyExt as Plot;
+// ── Section 1: Compile-time guards ──────────────────────────────────────
 
-// Re-export core Plot trait as PlotData for advanced users
+#[cfg(all(feature = "plotly", feature = "plotters"))]
+compile_error!(
+    "Only one plotlars backend can be enabled at a time. \
+     Choose either features = [\"plotly\"] or features = [\"plotters\"]."
+);
+
+#[cfg(not(any(feature = "plotly", feature = "plotters")))]
+compile_error!(
+    "A plotlars backend must be enabled. \
+     Add features = [\"plotly\"] or features = [\"plotters\"] to your Cargo.toml."
+);
+
+// ── Section 2: Unconditional core re-exports ────────────────────────────
+
+pub use plotlars_core::policy::{set_unsupported_option_policy, UnsupportedOptionPolicy};
 pub use plotlars_core::Plot as PlotData;
-
-// Re-export SubplotGrid from plotly crate
-pub use plotlars_plotly::SubplotGrid;
 
 // Component re-exports
 pub use plotlars_core::components::arrangement::Arrangement;
@@ -35,26 +45,77 @@ pub use plotlars_core::components::shape::Shape;
 pub use plotlars_core::components::text::Text;
 pub use plotlars_core::components::tick::TickDirection;
 
-// Plot type re-exports
+// ── Section 3a: Plotly backend ──────────────────────────────────────────
+
+#[cfg(feature = "plotly")]
+pub use plotlars_plotly::PlotlyExt as Plot;
+
+#[cfg(feature = "plotly")]
+pub use plotlars_plotly::SubplotGrid;
+
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::array2dplot::Array2dPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::barplot::BarPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::boxplot::BoxPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::candlestick::CandlestickPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::contourplot::ContourPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::density_mapbox::DensityMapbox;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::heatmap::HeatMap;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::histogram::Histogram;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::image::Image;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::lineplot::LinePlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::mesh3d::Mesh3D;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::ohlc::OhlcPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::piechart::PieChart;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::sankeydiagram::SankeyDiagram;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::scatter3dplot::Scatter3dPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::scattergeo::ScatterGeo;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::scattermap::ScatterMap;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::scatterplot::ScatterPlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::scatterpolar::ScatterPolar;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::surfaceplot::SurfacePlot;
+#[cfg(feature = "plotly")]
 pub use plotlars_core::plots::table::Table;
+#[cfg(feature = "plotly")]
+pub use plotlars_core::plots::timeseriesplot::TimeSeriesPlot;
+
+// ── Section 3b: Plotters backend ────────────────────────────────────────
+
+#[cfg(feature = "plotters")]
+pub use plotlars_plotters::PlottersExt as Plot;
+
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::barplot::BarPlot;
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::boxplot::BoxPlot;
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::candlestick::CandlestickPlot;
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::heatmap::HeatMap;
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::histogram::Histogram;
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::lineplot::LinePlot;
+#[cfg(feature = "plotters")]
+pub use plotlars_core::plots::scatterplot::ScatterPlot;
+#[cfg(feature = "plotters")]
 pub use plotlars_core::plots::timeseriesplot::TimeSeriesPlot;

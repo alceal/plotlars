@@ -126,14 +126,17 @@ impl SubplotGrid {
     pub fn plot(&self) {
         use std::env;
 
-        let html = self.to_html();
         match env::var("EVCXR_IS_RUNTIME") {
             Ok(_) => {
-                // In Jupyter/evcxr, print inline HTML
-                println!("{}", html);
+                let mut plotly_plot = plotly::Plot::new();
+                plotly_plot.set_layout(self.layout.clone());
+                for trace in self.traces.clone() {
+                    plotly_plot.add_trace(trace);
+                }
+                plotly_plot.evcxr_display();
             }
             _ => {
-                // Write to temp file and open in browser
+                let html = self.to_html();
                 let dir = std::env::temp_dir();
                 let path = dir.join("plotlars_subplot_grid.html");
                 std::fs::write(&path, &html).expect("Failed to write HTML file");
@@ -183,7 +186,7 @@ impl SubplotGrid {
 <html>
 <head>
     <meta charset="utf-8" />
-    <script src="https://cdn.plot.ly/plotly-2.18.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
 </head>
 <body>
     <div id="plotly-div" style="width:100%;height:100%;"></div>
@@ -194,6 +197,24 @@ impl SubplotGrid {
 </body>
 </html>"#,
             escaped_json
+        )
+    }
+
+    /// Render the subplot grid as an inline HTML snippet (no DOCTYPE/head).
+    pub fn to_inline_html(&self, plot_div_id: Option<&str>) -> String {
+        let div_id = plot_div_id.unwrap_or("plotly-div");
+        let plot_json = self.to_json().unwrap();
+        format!(
+            r#"<div>
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+<div id="{div_id}" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+<script type="text/javascript">
+  var plotData = {plot_json};
+  Plotly.newPlot("{div_id}", plotData.traces, plotData.layout, {{responsive: true}});
+</script>
+</div>"#,
+            div_id = div_id,
+            plot_json = plot_json
         )
     }
 }

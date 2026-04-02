@@ -1,5 +1,5 @@
 [package]
-name = "plotlars-core"
+name = "plotlars-plotters"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,16 +7,14 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 publish = false
-description = "Core types and traits for plotlars"
+description = "Plotters backend for plotlars"
 
 [lib]
 doctest = false
 
 [dependencies]
-bon.workspace = true
-image.workspace = true
-indexmap.workspace = true
-ordered-float.workspace = true
+plotlars-core = { path = "../plotlars-core" }
+plotters.workspace = true
+
+[dev-dependencies]
 polars.workspace = true
-serde.workspace = true
-serde_json.workspace = true

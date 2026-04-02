@@ -133,7 +133,7 @@ fn regular_grid_example() {
         .title(
             Text::from("Regular Subplot Grid")
                 .size(16)
-                .font("Arial bold")
+                .font("Arial Black")
                 .y(0.95),
         )
         .build()
@@ -238,7 +238,7 @@ fn irregular_grid_example() {
         .title(
             Text::from("Irregular Subplot Grid")
                 .size(16)
-                .font("Arial bold")
+                .font("Arial Black")
                 .y(0.95),
         )
         .build()
@@ -373,7 +373,7 @@ fn mixed_grid_example() {
         .title(
             Text::from("Mixed Subplot Grid")
                 .size(16)
-                .font("Arial bold")
+                .font("Arial Black")
                 .y(0.95),
         )
         .build()

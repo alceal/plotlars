@@ -16,7 +16,7 @@ fn main() {
             "Years of Service",
         ])
         .align("center")
-        .font("Arial Bold")
+        .font("Arial Black")
         .fill(Rgb(70, 130, 180));
 
     let cell = Cell::new()
