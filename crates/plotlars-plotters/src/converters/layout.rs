@@ -1,12 +1,26 @@
-use plotlars_core::components::{Axis, Legend, TickDirection};
+use plotlars_core::components::{Axis, Legend, Rgb, TickDirection};
 use plotlars_core::ir::layout::LayoutIR;
 use plotlars_core::policy::report_unsupported;
 
 pub(crate) struct LayoutConfig {
     pub title: Option<String>,
     pub title_font_size: u32,
+    pub title_font: String,
+    pub title_color: Option<Rgb>,
+    pub title_x: Option<f64>,
+    pub title_y: Option<f64>,
     pub x_label: Option<String>,
+    pub x_label_font: String,
+    pub x_label_size: u32,
+    pub x_label_color: Rgb,
+    pub x_label_x: Option<f64>,
+    pub x_label_y: Option<f64>,
     pub y_label: Option<String>,
+    pub y_label_font: String,
+    pub y_label_size: u32,
+    pub y_label_color: Rgb,
+    pub y_label_x: Option<f64>,
+    pub y_label_y: Option<f64>,
     pub x_axis: Option<Axis>,
     pub y_axis: Option<Axis>,
     pub legend: Option<Legend>,
@@ -21,9 +35,81 @@ pub(crate) fn extract_layout_config(
 ) -> LayoutConfig {
     let title = layout.title.as_ref().map(|t| t.content.clone());
     let title_font_size = layout.title.as_ref().map(|t| t.size).unwrap_or(20) as u32;
+    let title_font = layout
+        .title
+        .as_ref()
+        .map(|t| {
+            if t.font.is_empty() {
+                "sans-serif".to_string()
+            } else {
+                t.font.clone()
+            }
+        })
+        .unwrap_or_else(|| "sans-serif".to_string());
+    let title_color = layout.title.as_ref().map(|t| t.color);
+    let title_x = layout.title.as_ref().and_then(|t| {
+        if (t.x - 0.5).abs() < f64::EPSILON { None } else { Some(t.x) }
+    });
+    let title_y = layout.title.as_ref().and_then(|t| {
+        if (t.y - 0.9).abs() < f64::EPSILON { None } else { Some(t.y) }
+    });
 
     let x_label = layout.x_title.as_ref().map(|t| t.content.clone());
+    let x_label_font = layout
+        .x_title
+        .as_ref()
+        .map(|t| {
+            if t.font.is_empty() {
+                "sans-serif".to_string()
+            } else {
+                t.font.clone()
+            }
+        })
+        .unwrap_or_else(|| "sans-serif".to_string());
+    let x_label_size = layout
+        .x_title
+        .as_ref()
+        .map(|t| if t.size == 12 { 15 } else { t.size as u32 })
+        .unwrap_or(15);
+    let x_label_color = layout
+        .x_title
+        .as_ref()
+        .map(|t| t.color)
+        .unwrap_or(Rgb(0, 0, 0));
+    let x_label_x = layout.x_title.as_ref().and_then(|t| {
+        if (t.x - 0.5).abs() < f64::EPSILON { None } else { Some(t.x) }
+    });
+    let x_label_y = layout.x_title.as_ref().and_then(|t| {
+        if (t.y - 0.9).abs() < f64::EPSILON { None } else { Some(t.y) }
+    });
     let y_label = layout.y_title.as_ref().map(|t| t.content.clone());
+    let y_label_font = layout
+        .y_title
+        .as_ref()
+        .map(|t| {
+            if t.font.is_empty() {
+                "sans-serif".to_string()
+            } else {
+                t.font.clone()
+            }
+        })
+        .unwrap_or_else(|| "sans-serif".to_string());
+    let y_label_size = layout
+        .y_title
+        .as_ref()
+        .map(|t| if t.size == 12 { 15 } else { t.size as u32 })
+        .unwrap_or(15);
+    let y_label_color = layout
+        .y_title
+        .as_ref()
+        .map(|t| t.color)
+        .unwrap_or(Rgb(0, 0, 0));
+    let y_label_x = layout.y_title.as_ref().and_then(|t| {
+        if (t.x - 0.5).abs() < f64::EPSILON { None } else { Some(t.x) }
+    });
+    let y_label_y = layout.y_title.as_ref().and_then(|t| {
+        if (t.y - 0.9).abs() < f64::EPSILON { None } else { Some(t.y) }
+    });
 
     let (x_axis, y_axis) = match &layout.axes_2d {
         Some(axes) => (axes.x_axis.clone(), axes.y_axis.clone()),
@@ -86,8 +172,22 @@ pub(crate) fn extract_layout_config(
     LayoutConfig {
         title,
         title_font_size,
+        title_font,
+        title_color,
+        title_x,
+        title_y,
         x_label,
+        x_label_font,
+        x_label_size,
+        x_label_color,
+        x_label_x,
+        x_label_y,
         y_label,
+        y_label_font,
+        y_label_size,
+        y_label_color,
+        y_label_x,
+        y_label_y,
         x_axis,
         y_axis,
         legend,

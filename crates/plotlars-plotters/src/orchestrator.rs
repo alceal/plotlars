@@ -40,6 +40,103 @@ struct LegendEntry {
     kind: SwatchKind,
 }
 
+fn draw_plot_title<DB: DrawingBackend>(
+    root: &DrawingArea<DB, plotters::coord::Shift>,
+    config: &LayoutConfig,
+    width: u32,
+    height: u32,
+) {
+    let title = match config.title {
+        Some(ref t) => t,
+        None => return,
+    };
+
+    let font_name = config.title_font.as_str();
+    let font_size = config.title_font_size as f64;
+    let color = config
+        .title_color
+        .as_ref()
+        .map(convert_rgb)
+        .unwrap_or(BLACK);
+
+    let style = TextStyle::from((font_name, font_size).into_font())
+        .color(&color)
+        .pos(Pos::new(HPos::Center, VPos::Top));
+
+    // Position: default is centered at top, user can override with x/y
+    let tx = config
+        .title_x
+        .map(|x| (x * width as f64) as i32)
+        .unwrap_or(width as i32 / 2);
+    let ty = config
+        .title_y
+        .map(|y| ((1.0 - y) * height as f64) as i32)
+        .unwrap_or((15 + title_top_margin(config) as i32) / 2);
+
+    root.draw_text(title, &style, (tx, ty)).unwrap();
+}
+
+fn title_top_margin(config: &LayoutConfig) -> u32 {
+    if config.title.is_some() {
+        config.title_font_size + 10
+    } else {
+        0
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn draw_axis_titles<DB: DrawingBackend>(
+    root: &DrawingArea<DB, plotters::coord::Shift>,
+    config: &LayoutConfig,
+    width: u32,
+    height: u32,
+    chart_margin: u32,
+    y_label_area: u32,
+    x_label_area: u32,
+) {
+    let top_margin = chart_margin + title_top_margin(config);
+
+    // X-axis title
+    if let Some(ref label) = config.x_label {
+        let color = convert_rgb(&config.x_label_color);
+        let size = config.x_label_size as f64;
+        let style = TextStyle::from((config.x_label_font.as_str(), size).into_font())
+            .color(&color)
+            .pos(Pos::new(HPos::Center, VPos::Bottom));
+        let cx = config
+            .x_label_x
+            .map(|x| (x * width as f64) as i32)
+            .unwrap_or((chart_margin + y_label_area + width - chart_margin) as i32 / 2);
+        let cy = config
+            .x_label_y
+            .map(|y| ((1.0 - y) * height as f64) as i32)
+            .unwrap_or(height as i32 - 5);
+        root.draw_text(label, &style, (cx, cy)).unwrap();
+    }
+
+    // Y-axis title (rotated)
+    if let Some(ref label) = config.y_label {
+        let color = convert_rgb(&config.y_label_color);
+        let size = config.y_label_size as f64;
+        let style = TextStyle::from(
+            (config.y_label_font.as_str(), size)
+                .into_font()
+                .transform(FontTransform::Rotate270),
+        )
+        .color(&color)
+        .pos(Pos::new(HPos::Center, VPos::Center));
+        let cx = config
+            .y_label_x
+            .map(|x| (x * width as f64) as i32)
+            .unwrap_or(config.y_label_size as i32 / 2 + 2);
+        let cy = config
+            .y_label_y
+            .map(|y| ((1.0 - y) * height as f64) as i32)
+            .unwrap_or((top_margin + height - chart_margin - x_label_area) as i32 / 2);
+        root.draw_text(label, &style, (cx, cy)).unwrap();
+    }
+}
+
 fn is_horizontal_legend(layout: &LayoutIR) -> bool {
     layout
         .legend
@@ -135,14 +232,16 @@ fn render_numeric<DB: DrawingBackend>(
     // Collect timeseries labels for custom x-axis formatting
     let ts_labels = collect_timeseries_labels(traces);
 
-    let mut builder = ChartBuilder::on(root);
-    if let Some(ref title) = config.title {
-        builder.caption(title, ("sans-serif", config.title_font_size).into_font());
-    }
+    let (w, h) = resolve_dimensions(layout);
+    draw_plot_title(root, &config, w, h);
 
+    let mut builder = ChartBuilder::on(root);
     let x_label_area = if ts_labels.is_empty() { 40 } else { 60 };
     builder
-        .margin(15)
+        .margin_top(15 + title_top_margin(&config))
+        .margin_bottom(15)
+        .margin_left(15)
+        .margin_right(15)
         .x_label_area_size(x_label_area)
         .y_label_area_size(50);
 
@@ -152,12 +251,6 @@ fn render_numeric<DB: DrawingBackend>(
 
     {
         let mut mesh = chart.configure_mesh();
-        if let Some(ref x_label) = config.x_label {
-            mesh.x_desc(x_label);
-        }
-        if let Some(ref y_label) = config.y_label {
-            mesh.y_desc(y_label);
-        }
 
         apply_mesh_axis_config(&mut mesh, &config);
 
@@ -414,8 +507,9 @@ fn render_numeric<DB: DrawingBackend>(
         }
     }
 
+    draw_axis_titles(root, &config, w, h, 15, 50, x_label_area as u32);
+
     if has_legend {
-        let (w, h) = resolve_dimensions(layout);
         apply_legend_config(&mut chart, root, &config, w, h, 15, 50, x_label_area as u32, &legend_entries);
     }
 }
@@ -571,12 +665,15 @@ fn render_bar_vertical<DB: DrawingBackend>(
     let y_lo = config.y_range.map(|(lo, _)| lo).unwrap_or(0.0);
     let y_range = y_lo..y_hi;
 
+    let (w, h) = resolve_dimensions(layout);
+    draw_plot_title(root, &config, w, h);
+
     let mut builder = ChartBuilder::on(root);
-    if let Some(ref title) = config.title {
-        builder.caption(title, ("sans-serif", config.title_font_size).into_font());
-    }
     builder
-        .margin(15)
+        .margin_top(15 + title_top_margin(&config))
+        .margin_bottom(15)
+        .margin_left(15)
+        .margin_right(15)
         .x_label_area_size(40)
         .y_label_area_size(50);
 
@@ -590,9 +687,6 @@ fn render_bar_vertical<DB: DrawingBackend>(
     {
         let mut mesh = chart.configure_mesh();
         mesh.x_labels(n_cats).x_label_formatter(&x_formatter);
-        if let Some(ref y_label) = config.y_label {
-            mesh.y_desc(y_label);
-        }
 
         apply_mesh_axis_config(&mut mesh, &config);
 
@@ -685,6 +779,8 @@ fn render_bar_vertical<DB: DrawingBackend>(
         let (w, h) = resolve_dimensions(layout);
         apply_legend_config(&mut chart, root, &config, w, h, 15, 50, 40, &legend_entries);
     }
+
+    draw_axis_titles(root, &config, w, h, 15, 50, 40);
 }
 
 // ── Horizontal bar chart ────────────────────────────────────────────────
@@ -709,12 +805,15 @@ fn render_bar_horizontal<DB: DrawingBackend>(
     let x_range = x_lo..x_hi;
     let y_range = -0.5..(n_cats as f64 - 0.5);
 
+    let (w, h) = resolve_dimensions(layout);
+    draw_plot_title(root, &config, w, h);
+
     let mut builder = ChartBuilder::on(root);
-    if let Some(ref title) = config.title {
-        builder.caption(title, ("sans-serif", config.title_font_size).into_font());
-    }
     builder
-        .margin(15)
+        .margin_top(15 + title_top_margin(&config))
+        .margin_bottom(15)
+        .margin_left(15)
+        .margin_right(15)
         .x_label_area_size(40)
         .y_label_area_size(70);
 
@@ -728,9 +827,6 @@ fn render_bar_horizontal<DB: DrawingBackend>(
     {
         let mut mesh = chart.configure_mesh();
         mesh.y_labels(n_cats).y_label_formatter(&y_formatter);
-        if let Some(ref x_label) = config.x_label {
-            mesh.x_desc(x_label);
-        }
 
         apply_mesh_axis_config(&mut mesh, &config);
 
@@ -806,8 +902,10 @@ fn render_bar_horizontal<DB: DrawingBackend>(
         }
     }
 
+    let (w, h) = resolve_dimensions(layout);
+    draw_axis_titles(root, &config, w, h, 15, 70, 40);
+
     if has_legend {
-        let (w, h) = resolve_dimensions(layout);
         apply_legend_config(&mut chart, root, &config, w, h, 15, 70, 40, &legend_entries);
     }
 }
