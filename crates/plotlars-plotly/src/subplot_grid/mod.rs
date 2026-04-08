@@ -140,7 +140,7 @@ impl SubplotGrid {
                 let dir = std::env::temp_dir();
                 let path = dir.join("plotlars_subplot_grid.html");
                 std::fs::write(&path, &html).expect("Failed to write HTML file");
-                crate::ext::open_html_file(&path);
+                crate::render::open_html_file(&path);
             }
         }
     }
