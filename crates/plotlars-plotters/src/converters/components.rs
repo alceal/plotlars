@@ -164,7 +164,7 @@ pub(crate) fn resolve_trace_shape(
 // ── Vertex computation ─────────────────────────────────────────────
 
 // Vertex functions operate in backend pixel coordinates (i32).
-// The orchestrator converts chart (f64, f64) to pixel (i32, i32) via
+// The render pipeline converts chart (f64, f64) to pixel (i32, i32) via
 // chart.backend_coord() before calling these.
 
 pub(crate) fn square_vertices(cx: i32, cy: i32, r: i32) -> Vec<(i32, i32)> {

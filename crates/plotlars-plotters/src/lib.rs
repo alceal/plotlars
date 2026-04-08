@@ -1,5 +1,5 @@
 mod converters;
 mod ext;
-mod orchestrator;
+mod render;
 
 pub use ext::PlottersExt;

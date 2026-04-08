@@ -21,15 +21,15 @@ pub trait PlottersExt: Plot {
 
 impl<T: Plot> PlottersExt for T {
     fn plot(&self) {
-        crate::orchestrator::plot_interactive(self);
+        crate::render::plot_interactive(self);
     }
 
     fn save(&self, path: &str) {
-        crate::orchestrator::save_to_file(self, path);
+        crate::render::save_to_file(self, path);
     }
 
     fn to_svg(&self) -> String {
-        crate::orchestrator::render_to_svg_string(self)
+        crate::render::render_to_svg_string(self)
     }
 }
 
