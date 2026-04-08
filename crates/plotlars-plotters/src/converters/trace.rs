@@ -120,8 +120,10 @@ pub(crate) fn compute_bar_ranges(traces: &[TraceIR]) -> (usize, f64) {
             let labels = extract_strings(&ir.labels);
             n_categories = n_categories.max(labels.len());
             let vals = extract_f64(&ir.values);
-            for v in vals {
-                max_val = max_val.max(v);
+            let errs: Vec<f64> = ir.error.as_ref().map(extract_f64).unwrap_or_default();
+            for (i, v) in vals.iter().enumerate() {
+                let e = errs.get(i).copied().unwrap_or(0.0);
+                max_val = max_val.max(v + e);
             }
         }
     }

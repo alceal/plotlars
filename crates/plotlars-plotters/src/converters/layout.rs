@@ -1,4 +1,5 @@
-use plotlars_core::components::{Axis, Legend, Rgb, TickDirection};
+use plotlars_core::components::axis::AxisType;
+use plotlars_core::components::{Axis, Legend, Rgb};
 use plotlars_core::ir::layout::LayoutIR;
 use plotlars_core::policy::report_unsupported;
 
@@ -48,10 +49,18 @@ pub(crate) fn extract_layout_config(
         .unwrap_or_else(|| "sans-serif".to_string());
     let title_color = layout.title.as_ref().map(|t| t.color);
     let title_x = layout.title.as_ref().and_then(|t| {
-        if (t.x - 0.5).abs() < f64::EPSILON { None } else { Some(t.x) }
+        if (t.x - 0.5).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.x)
+        }
     });
     let title_y = layout.title.as_ref().and_then(|t| {
-        if (t.y - 0.9).abs() < f64::EPSILON { None } else { Some(t.y) }
+        if (t.y - 0.9).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.y)
+        }
     });
 
     let x_label = layout.x_title.as_ref().map(|t| t.content.clone());
@@ -77,10 +86,18 @@ pub(crate) fn extract_layout_config(
         .map(|t| t.color)
         .unwrap_or(Rgb(0, 0, 0));
     let x_label_x = layout.x_title.as_ref().and_then(|t| {
-        if (t.x - 0.5).abs() < f64::EPSILON { None } else { Some(t.x) }
+        if (t.x - 0.5).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.x)
+        }
     });
     let x_label_y = layout.x_title.as_ref().and_then(|t| {
-        if (t.y - 0.9).abs() < f64::EPSILON { None } else { Some(t.y) }
+        if (t.y - 0.9).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.y)
+        }
     });
     let y_label = layout.y_title.as_ref().map(|t| t.content.clone());
     let y_label_font = layout
@@ -105,10 +122,18 @@ pub(crate) fn extract_layout_config(
         .map(|t| t.color)
         .unwrap_or(Rgb(0, 0, 0));
     let y_label_x = layout.y_title.as_ref().and_then(|t| {
-        if (t.x - 0.5).abs() < f64::EPSILON { None } else { Some(t.x) }
+        if (t.x - 0.5).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.x)
+        }
     });
     let y_label_y = layout.y_title.as_ref().and_then(|t| {
-        if (t.y - 0.9).abs() < f64::EPSILON { None } else { Some(t.y) }
+        if (t.y - 0.9).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.y)
+        }
     });
 
     let (x_axis, y_axis) = match &layout.axes_2d {
@@ -161,7 +186,6 @@ pub(crate) fn extract_layout_config(
         report_unsupported("plotters", "Layout", "annotations", unsupported);
     }
 
-
     // Report unsupported axis fields
     for (axis_opt, name) in [(&x_axis, "x_axis"), (&y_axis, "y_axis")] {
         if let Some(axis) = axis_opt {
@@ -198,32 +222,27 @@ pub(crate) fn extract_layout_config(
 }
 
 fn report_unsupported_axis_fields(axis: &Axis, name: &str, unsupported: &mut Vec<String>) {
-    if axis.axis_side.is_some() {
-        report_unsupported("plotters", name, "axis_side", unsupported);
-    }
     if axis.axis_position.is_some() {
         report_unsupported("plotters", name, "axis_position", unsupported);
     }
-    if axis.axis_type.is_some() {
+    if axis
+        .axis_type
+        .as_ref()
+        .is_some_and(|t| matches!(t, AxisType::MultiCategory))
+    {
         report_unsupported("plotters", name, "axis_type", unsupported);
     }
-    if axis.tick_angle.is_some() {
-        report_unsupported("plotters", name, "tick_angle", unsupported);
+    if axis.tick_direction.is_some() {
+        report_unsupported("plotters", name, "tick_direction", unsupported);
     }
     if axis.tick_width.is_some() {
         report_unsupported("plotters", name, "tick_width", unsupported);
     }
+    if axis.tick_angle.is_some() {
+        report_unsupported("plotters", name, "tick_angle", unsupported);
+    }
     if axis.tick_color.is_some() {
         report_unsupported("plotters", name, "tick_color", unsupported);
-    }
-    if axis.value_color.is_some() {
-        report_unsupported("plotters", name, "value_color", unsupported);
-    }
-    if axis.tick_values.is_some() {
-        report_unsupported("plotters", name, "tick_values", unsupported);
-    }
-    if axis.value_exponent.is_some() {
-        report_unsupported("plotters", name, "value_exponent", unsupported);
     }
     if axis.show_zero_line.is_some() {
         report_unsupported("plotters", name, "show_zero_line", unsupported);
@@ -240,17 +259,10 @@ fn report_unsupported_axis_fields(axis: &Axis, name: &str, unsupported: &mut Vec
 /// Positive = outward, negative = inward, 0 = hidden.
 pub(crate) fn resolve_tick_size(axis: &Axis) -> Option<i32> {
     let length = axis.tick_length.unwrap_or(5) as i32;
-    match axis.tick_direction {
-        Some(TickDirection::InSide) => Some(-length),
-        Some(TickDirection::OutSide) => Some(length),
-        Some(TickDirection::None) => Some(0),
-        None => {
-            if axis.tick_length.is_some() {
-                Some(length)
-            } else {
-                None
-            }
-        }
+    if axis.tick_length.is_some() {
+        Some(length)
+    } else {
+        None
     }
 }
 
