@@ -9,6 +9,15 @@ use crate::converters::components::convert_rgb;
 use crate::converters::layout::{resolve_tick_size, LayoutConfig};
 use crate::converters::trace::{extract_f64, extract_strings};
 
+/// Resolve an axis's value-label color, defaulting to black when unset.
+/// Centralizes the `axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK)`
+/// chain that otherwise repeats across every renderer.
+pub(super) fn axis_value_color(axis: Option<&Axis>) -> RGBColor {
+    axis.and_then(|a| a.value_color.as_ref())
+        .map(convert_rgb)
+        .unwrap_or(BLACK)
+}
+
 pub(super) fn configure_label_areas(
     builder: &mut ChartBuilder<'_, '_, impl DrawingBackend>,
     config: &LayoutConfig,
@@ -81,6 +90,26 @@ pub(super) fn format_log_label(v: &f64) -> String {
         s.trim_end_matches('0').trim_end_matches('.').to_string()
     } else {
         format!("{original:.2e}")
+    }
+}
+
+/// Format an axis tick value, honoring the axis's `value_exponent` and
+/// `value_thousands` settings before falling back to a 0-decimal default.
+/// Used for any tick label not produced by plotters' built-in mesh formatter
+/// (custom ticks, secondary axes, color-bar labels).
+pub(super) fn format_axis_value(v: f64, axis: Option<&Axis>) -> String {
+    use crate::converters::layout::format_thousands;
+    let exp = axis.and_then(|a| a.value_exponent.as_ref());
+    if let Some(e) = exp {
+        if !matches!(e, plotlars_core::components::ValueExponent::None) {
+            return format_exponent(v, e);
+        }
+    }
+    let thousands = axis.and_then(|a| a.value_thousands).unwrap_or(false);
+    if thousands {
+        format_thousands(v)
+    } else {
+        format!("{v:.0}")
     }
 }
 

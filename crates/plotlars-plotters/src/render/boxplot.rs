@@ -7,7 +7,7 @@ use crate::converters::components::resolve_trace_color;
 use crate::converters::layout::extract_layout_config;
 use crate::converters::trace::{extract_f64, extract_strings};
 
-use super::axis::configure_label_areas;
+use super::axis::{apply_mesh_axis_config, axis_value_color, configure_label_areas};
 use super::legend::apply_legend_config;
 use super::title::{draw_axis_titles, draw_plot_title, title_top_margin};
 use super::{resolve_dimensions, LegendEntry, SwatchKind};
@@ -63,6 +63,17 @@ fn percentile(sorted: &[f64], p: f64) -> f64 {
     let hi = (lo + 1).min(sorted.len() - 1);
     let frac = idx - lo as f64;
     sorted[lo] * (1.0 - frac) + sorted[hi] * frac
+}
+
+/// `slot_width` is the per-group horizontal slice; `box_width` is the rendered
+/// box width within the slot, narrowed when grouped so adjacent boxes don't touch.
+fn box_slot_widths(n_groups: usize) -> (f64, f64) {
+    if n_groups > 1 {
+        let slot = 0.8 / n_groups as f64;
+        (slot, slot * 0.5)
+    } else {
+        (0.5, 0.5)
+    }
 }
 
 /// Detect if any trace requests horizontal orientation.
@@ -151,28 +162,23 @@ pub(super) fn render_boxplot<DB: DrawingBackend>(
                 let idx = v.round() as usize;
                 cats.get(idx).cloned().unwrap_or_default()
             };
+            let xvc = axis_value_color(config.x_axis.as_ref());
+            let yvc = axis_value_color(config.y_axis.as_ref());
             let mut mesh = chart.configure_mesh();
             mesh.y_labels(n_cats);
             mesh.y_label_formatter(&cat_formatter);
+            apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
             mesh.draw().unwrap();
         }
 
         let mut has_legend = false;
         let mut legend_entries: Vec<LegendEntry> = Vec::new();
-        // slot_width: total space per group (for offset/spacing)
-        // box_width: visual box width (narrower, so points fit between groups)
-        let (slot_width, box_width) = if n_groups > 1 {
-            let slot = 0.8 / n_groups as f64;
-            (slot, slot * 0.5)
-        } else {
-            (0.5, 0.5)
-        };
+        let (slot_width, box_width) = box_slot_widths(n_groups);
 
         for (trace_idx, trace) in traces.iter().enumerate() {
             if let TraceIR::BoxPlot(ir) = trace {
                 draw_boxes_horizontal(
                     &mut chart,
-                    root,
                     ir,
                     trace_idx,
                     &categories,
@@ -200,28 +206,23 @@ pub(super) fn render_boxplot<DB: DrawingBackend>(
                 let idx = v.round() as usize;
                 cats.get(idx).cloned().unwrap_or_default()
             };
+            let xvc = axis_value_color(config.x_axis.as_ref());
+            let yvc = axis_value_color(config.y_axis.as_ref());
             let mut mesh = chart.configure_mesh();
             mesh.x_labels(n_cats);
             mesh.x_label_formatter(&cat_formatter);
+            apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
             mesh.draw().unwrap();
         }
 
         let mut has_legend = false;
         let mut legend_entries: Vec<LegendEntry> = Vec::new();
-        // slot_width: total space per group (for offset/spacing)
-        // box_width: visual box width (narrower, so points fit between groups)
-        let (slot_width, box_width) = if n_groups > 1 {
-            let slot = 0.8 / n_groups as f64;
-            (slot, slot * 0.5)
-        } else {
-            (0.5, 0.5)
-        };
+        let (slot_width, box_width) = box_slot_widths(n_groups);
 
         for (trace_idx, trace) in traces.iter().enumerate() {
             if let TraceIR::BoxPlot(ir) = trace {
                 draw_boxes_vertical(
                     &mut chart,
-                    root,
                     ir,
                     trace_idx,
                     &categories,
@@ -249,7 +250,6 @@ fn draw_boxes_vertical<DB: DrawingBackend>(
         DB,
         Cartesian2d<plotters::coord::types::RangedCoordf64, plotters::coord::types::RangedCoordf64>,
     >,
-    _root: &DrawingArea<DB, plotters::coord::Shift>,
     ir: &plotlars_core::ir::trace::BoxPlotIR,
     trace_idx: usize,
     categories: &[String],
@@ -293,14 +293,12 @@ fn draw_boxes_vertical<DB: DrawingBackend>(
         let c = cat_idx as f64 + group_offset;
         let hw = box_width / 2.0 * 0.9;
 
-        // Box filled
         chart
             .draw_series(std::iter::once(Rectangle::new(
                 [(c - hw, stats.q1), (c + hw, stats.q3)],
                 fill_style,
             )))
             .unwrap();
-        // Box border
         chart
             .draw_series(std::iter::once(PathElement::new(
                 vec![
@@ -313,7 +311,6 @@ fn draw_boxes_vertical<DB: DrawingBackend>(
                 line_style,
             )))
             .unwrap();
-        // Median
         chart
             .draw_series(std::iter::once(PathElement::new(
                 vec![(c - hw, stats.median), (c + hw, stats.median)],
@@ -324,7 +321,6 @@ fn draw_boxes_vertical<DB: DrawingBackend>(
                 },
             )))
             .unwrap();
-        // Whiskers
         chart
             .draw_series(std::iter::once(PathElement::new(
                 vec![(c, stats.whisker_lo), (c, stats.q1)],
@@ -355,7 +351,6 @@ fn draw_boxes_vertical<DB: DrawingBackend>(
                 line_style,
             )))
             .unwrap();
-        // Outliers
         if !stats.outliers.is_empty() {
             let os = ShapeStyle {
                 color: color.mix(opacity),
@@ -367,7 +362,6 @@ fn draw_boxes_vertical<DB: DrawingBackend>(
                 .unwrap();
         }
 
-        // Box points: draw all individual data points
         if ir.box_points.unwrap_or(false) {
             let slot_hw = slot_width / 2.0;
             let offset = ir.point_offset.unwrap_or(0.0) / 2.0 * slot_hw;
@@ -396,7 +390,6 @@ fn draw_boxes_horizontal<DB: DrawingBackend>(
         DB,
         Cartesian2d<plotters::coord::types::RangedCoordf64, plotters::coord::types::RangedCoordf64>,
     >,
-    _root: &DrawingArea<DB, plotters::coord::Shift>,
     ir: &plotlars_core::ir::trace::BoxPlotIR,
     trace_idx: usize,
     categories: &[String],
@@ -440,14 +433,12 @@ fn draw_boxes_horizontal<DB: DrawingBackend>(
         let c = cat_idx as f64 + group_offset;
         let hw = box_width / 2.0 * 0.9;
 
-        // Box filled (x=values, y=category)
         chart
             .draw_series(std::iter::once(Rectangle::new(
                 [(stats.q1, c - hw), (stats.q3, c + hw)],
                 fill_style,
             )))
             .unwrap();
-        // Box border
         chart
             .draw_series(std::iter::once(PathElement::new(
                 vec![
@@ -460,7 +451,6 @@ fn draw_boxes_horizontal<DB: DrawingBackend>(
                 line_style,
             )))
             .unwrap();
-        // Median
         chart
             .draw_series(std::iter::once(PathElement::new(
                 vec![(stats.median, c - hw), (stats.median, c + hw)],
@@ -471,7 +461,6 @@ fn draw_boxes_horizontal<DB: DrawingBackend>(
                 },
             )))
             .unwrap();
-        // Whiskers (horizontal: along x-axis)
         chart
             .draw_series(std::iter::once(PathElement::new(
                 vec![(stats.whisker_lo, c), (stats.q1, c)],
@@ -502,7 +491,6 @@ fn draw_boxes_horizontal<DB: DrawingBackend>(
                 line_style,
             )))
             .unwrap();
-        // Outliers
         if !stats.outliers.is_empty() {
             let os = ShapeStyle {
                 color: color.mix(opacity),
@@ -514,7 +502,6 @@ fn draw_boxes_horizontal<DB: DrawingBackend>(
                 .unwrap();
         }
 
-        // Box points: draw all individual data points
         if ir.box_points.unwrap_or(false) {
             let slot_hw = slot_width / 2.0;
             let offset = ir.point_offset.unwrap_or(0.0) / 2.0 * slot_hw;
@@ -554,7 +541,9 @@ fn add_legend_entry(
     }
 }
 
-/// Simple deterministic pseudo-random jitter from value index.
+/// Deterministic pseudo-random jitter from value index. Determinism matters so
+/// SVG output is byte-stable across runs (relied on by integration tests).
+/// `2654435761` is Knuth's multiplicative-hash constant (golden-ratio integer).
 fn pseudo_jitter(index: usize, jitter_amount: f64) -> f64 {
     let hash = (index as u32).wrapping_mul(2654435761) as f64 / u32::MAX as f64;
     (hash - 0.5) * 2.0 * jitter_amount

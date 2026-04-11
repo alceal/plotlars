@@ -8,7 +8,9 @@ use plotters::style::text_anchor::{HPos, Pos, VPos};
 use crate::converters::components::convert_rgb;
 use crate::converters::layout::{extract_layout_config, format_thousands};
 
-use super::axis::{configure_label_areas, format_exponent};
+use super::axis::{
+    apply_mesh_axis_config, axis_value_color, configure_label_areas, format_exponent,
+};
 use super::resolve_dimensions;
 use super::title::{draw_axis_titles, draw_plot_title, title_top_margin};
 
@@ -238,12 +240,17 @@ pub(super) fn render_heatmap<DB: DrawingBackend>(
             let idx = v.round() as usize;
             y_c.get(idx).cloned().unwrap_or_default()
         };
+        let xvc = axis_value_color(config.x_axis.as_ref());
+        let yvc = axis_value_color(config.y_axis.as_ref());
         let mut mesh = chart.configure_mesh();
-        mesh.disable_mesh();
         mesh.x_labels(n_x);
         mesh.y_labels(n_y);
         mesh.x_label_formatter(&x_fmt);
         mesh.y_label_formatter(&y_fmt);
+        apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
+        // Heatmap cells fill the chart area, so suppress interior grid lines
+        // regardless of axis grid_color settings (axis line styling above is honored).
+        mesh.disable_mesh();
         mesh.draw().unwrap();
     }
 

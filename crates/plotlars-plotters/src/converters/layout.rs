@@ -1,7 +1,74 @@
 use plotlars_core::components::axis::AxisType;
-use plotlars_core::components::{Axis, Legend, Rgb};
+use plotlars_core::components::{Axis, Legend, Rgb, Text};
 use plotlars_core::ir::layout::LayoutIR;
 use plotlars_core::policy::report_unsupported;
+
+/// Default font for axis labels when the user doesn't set one.
+const DEFAULT_LABEL_FONT: &str = "sans-serif";
+
+/// Default rendered size (px) for axis-title labels when the user leaves
+/// `Text::size` at its default of 12. We promote 12 → 15 because plotlars'
+/// `Text` default is too small for axis titles in plotters' raster output.
+///
+/// This conflates "user explicitly set 12" with "default" — the proper fix is
+/// `Text::size: Option<usize>` upstream. Until then, an explicit `.size(12)`
+/// will render at 15.
+const DEFAULT_AXIS_LABEL_SIZE: u32 = 15;
+
+/// Resolve a `Text` font, falling back to `sans-serif` for both unset titles
+/// and titles with an empty `font` field.
+fn label_font(text: Option<&Text>) -> String {
+    text.map(|t| {
+        if t.font.is_empty() {
+            DEFAULT_LABEL_FONT.to_string()
+        } else {
+            t.font.clone()
+        }
+    })
+    .unwrap_or_else(|| DEFAULT_LABEL_FONT.to_string())
+}
+
+/// Resolve an axis-title font size, applying the 12 → `DEFAULT_AXIS_LABEL_SIZE`
+/// promotion described on `DEFAULT_AXIS_LABEL_SIZE`.
+fn label_size(text: Option<&Text>) -> u32 {
+    text.map(|t| {
+        if t.size == 12 {
+            DEFAULT_AXIS_LABEL_SIZE
+        } else {
+            t.size as u32
+        }
+    })
+    .unwrap_or(DEFAULT_AXIS_LABEL_SIZE)
+}
+
+/// Resolve a `Text` color, defaulting to black.
+fn label_color(text: Option<&Text>) -> Rgb {
+    text.map(|t| t.color).unwrap_or(Rgb(0, 0, 0))
+}
+
+/// Return the user-set x position only when it differs from the `Text` default
+/// of 0.5 (so callers know whether to apply manual positioning).
+fn label_x(text: Option<&Text>) -> Option<f64> {
+    text.and_then(|t| {
+        if (t.x - 0.5).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.x)
+        }
+    })
+}
+
+/// Return the user-set y position only when it differs from the `Text` default
+/// of 0.9.
+fn label_y(text: Option<&Text>) -> Option<f64> {
+    text.and_then(|t| {
+        if (t.y - 0.9).abs() < f64::EPSILON {
+            None
+        } else {
+            Some(t.y)
+        }
+    })
+}
 
 pub(crate) struct LayoutConfig {
     pub title: Option<String>,
@@ -40,106 +107,26 @@ pub(crate) fn extract_layout_config(
     unsupported: &mut Vec<String>,
 ) -> LayoutConfig {
     let title = layout.title.as_ref().map(|t| t.content.clone());
+    // Plot title default size is 20, not the 12→15 axis-title promotion.
     let title_font_size = layout.title.as_ref().map(|t| t.size).unwrap_or(20) as u32;
-    let title_font = layout
-        .title
-        .as_ref()
-        .map(|t| {
-            if t.font.is_empty() {
-                "sans-serif".to_string()
-            } else {
-                t.font.clone()
-            }
-        })
-        .unwrap_or_else(|| "sans-serif".to_string());
+    let title_font = label_font(layout.title.as_ref());
     let title_color = layout.title.as_ref().map(|t| t.color);
-    let title_x = layout.title.as_ref().and_then(|t| {
-        if (t.x - 0.5).abs() < f64::EPSILON {
-            None
-        } else {
-            Some(t.x)
-        }
-    });
-    let title_y = layout.title.as_ref().and_then(|t| {
-        if (t.y - 0.9).abs() < f64::EPSILON {
-            None
-        } else {
-            Some(t.y)
-        }
-    });
+    let title_x = label_x(layout.title.as_ref());
+    let title_y = label_y(layout.title.as_ref());
 
     let x_label = layout.x_title.as_ref().map(|t| t.content.clone());
-    let x_label_font = layout
-        .x_title
-        .as_ref()
-        .map(|t| {
-            if t.font.is_empty() {
-                "sans-serif".to_string()
-            } else {
-                t.font.clone()
-            }
-        })
-        .unwrap_or_else(|| "sans-serif".to_string());
-    let x_label_size = layout
-        .x_title
-        .as_ref()
-        .map(|t| if t.size == 12 { 15 } else { t.size as u32 })
-        .unwrap_or(15);
-    let x_label_color = layout
-        .x_title
-        .as_ref()
-        .map(|t| t.color)
-        .unwrap_or(Rgb(0, 0, 0));
-    let x_label_x = layout.x_title.as_ref().and_then(|t| {
-        if (t.x - 0.5).abs() < f64::EPSILON {
-            None
-        } else {
-            Some(t.x)
-        }
-    });
-    let x_label_y = layout.x_title.as_ref().and_then(|t| {
-        if (t.y - 0.9).abs() < f64::EPSILON {
-            None
-        } else {
-            Some(t.y)
-        }
-    });
+    let x_label_font = label_font(layout.x_title.as_ref());
+    let x_label_size = label_size(layout.x_title.as_ref());
+    let x_label_color = label_color(layout.x_title.as_ref());
+    let x_label_x = label_x(layout.x_title.as_ref());
+    let x_label_y = label_y(layout.x_title.as_ref());
+
     let y_label = layout.y_title.as_ref().map(|t| t.content.clone());
-    let y_label_font = layout
-        .y_title
-        .as_ref()
-        .map(|t| {
-            if t.font.is_empty() {
-                "sans-serif".to_string()
-            } else {
-                t.font.clone()
-            }
-        })
-        .unwrap_or_else(|| "sans-serif".to_string());
-    let y_label_size = layout
-        .y_title
-        .as_ref()
-        .map(|t| if t.size == 12 { 15 } else { t.size as u32 })
-        .unwrap_or(15);
-    let y_label_color = layout
-        .y_title
-        .as_ref()
-        .map(|t| t.color)
-        .unwrap_or(Rgb(0, 0, 0));
-    let y_label_x = layout.y_title.as_ref().and_then(|t| {
-        if (t.x - 0.5).abs() < f64::EPSILON {
-            None
-        } else {
-            Some(t.x)
-        }
-    });
-    let y_label_y = layout.y_title.as_ref().and_then(|t| {
-        if (t.y - 0.9).abs() < f64::EPSILON {
-            None
-        } else {
-            Some(t.y)
-        }
-    });
+    let y_label_font = label_font(layout.y_title.as_ref());
+    let y_label_size = label_size(layout.y_title.as_ref());
+    let y_label_color = label_color(layout.y_title.as_ref());
+    let y_label_x = label_x(layout.y_title.as_ref());
+    let y_label_y = label_y(layout.y_title.as_ref());
 
     let (x_axis, y_axis, y2_axis) = match &layout.axes_2d {
         Some(axes) => (
@@ -151,27 +138,9 @@ pub(crate) fn extract_layout_config(
     };
 
     let y2_label = layout.y2_title.as_ref().map(|t| t.content.clone());
-    let y2_label_font = layout
-        .y2_title
-        .as_ref()
-        .map(|t| {
-            if t.font.is_empty() {
-                "sans-serif".to_string()
-            } else {
-                t.font.clone()
-            }
-        })
-        .unwrap_or_else(|| "sans-serif".to_string());
-    let y2_label_size = layout
-        .y2_title
-        .as_ref()
-        .map(|t| if t.size == 12 { 15 } else { t.size as u32 })
-        .unwrap_or(15);
-    let y2_label_color = layout
-        .y2_title
-        .as_ref()
-        .map(|t| t.color)
-        .unwrap_or(Rgb(0, 0, 0));
+    let y2_label_font = label_font(layout.y2_title.as_ref());
+    let y2_label_size = label_size(layout.y2_title.as_ref());
+    let y2_label_color = label_color(layout.y2_title.as_ref());
 
     let legend = layout.legend.clone();
     let legend_title = layout.legend_title.as_ref().map(|t| t.content.clone());

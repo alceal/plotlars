@@ -151,53 +151,58 @@ pub fn render_to_svg_string(plot: &impl Plot) -> String {
 
 /// Apply `stroke-dasharray` only to `<polyline>` elements whose stroke color
 /// matches a dash entry. `<line>`, `<rect>`, and other elements are left untouched
-/// so axis lines, grid lines, and tick marks are never dashed.
+/// so axis lines, grid lines, and tick marks are never dashed (they often share
+/// the default `#000000` stroke with data series).
+///
+/// Walks each polyline tag once and collects in-place `replace_range` edits.
+/// Edits are applied in reverse byte order so earlier offsets stay valid as the
+/// string grows.
 fn apply_svg_dash_patterns(svg: &mut String, dashes: &[numeric::DashEntry]) {
     if dashes.is_empty() {
         return;
     }
 
-    let mut result = String::with_capacity(svg.len());
-    let mut remaining = svg.as_str();
-
-    while let Some(tag_start) = remaining.find("<polyline ") {
-        // Copy everything before this <polyline
-        result.push_str(&remaining[..tag_start]);
-        remaining = &remaining[tag_start..];
-
-        // Find the end of this tag
-        let tag_end = remaining
+    let mut edits: Vec<(usize, usize, String)> = Vec::new();
+    let mut search_from = 0usize;
+    while let Some(rel_start) = svg[search_from..].find("<polyline ") {
+        let tag_start = search_from + rel_start;
+        let tag_end = svg[tag_start..]
             .find("/>")
-            .map(|i| i + 2)
-            .unwrap_or(remaining.len());
-        let tag = &remaining[..tag_end];
+            .map(|i| tag_start + i + 2)
+            .unwrap_or(svg.len());
+        let tag = &svg[tag_start..tag_end];
 
-        // Check if this polyline's stroke matches any dash entry
-        let mut patched = tag.to_string();
-        for &(color, dash_len, gap_len) in dashes {
-            let hex = format!("#{:02X}{:02X}{:02X}", color.0, color.1, color.2);
-            let needle = format!("stroke=\"{}\"", hex);
-            if tag.contains(&needle) && !tag.contains("stroke-dasharray") {
-                let replacement = format!(
-                    "stroke=\"{}\" stroke-dasharray=\"{},{}\"",
-                    hex, dash_len, gap_len
-                );
-                patched = patched.replacen(&needle, &replacement, 1);
-                break;
+        if !tag.contains("stroke-dasharray") {
+            for &(color, pattern) in dashes {
+                let hex = format!("#{:02X}{:02X}{:02X}", color.0, color.1, color.2);
+                let needle = format!("stroke=\"{hex}\"");
+                if let Some(off) = tag.find(&needle) {
+                    let edit_start = tag_start + off;
+                    let replacement =
+                        format!("stroke=\"{hex}\" stroke-dasharray=\"{pattern}\"");
+                    edits.push((edit_start, needle.len(), replacement));
+                    break;
+                }
             }
         }
-        result.push_str(&patched);
-        remaining = &remaining[tag_end..];
+        search_from = tag_end;
     }
-    result.push_str(remaining);
-    *svg = result;
+
+    for (start, len, replacement) in edits.into_iter().rev() {
+        svg.replace_range(start..start + len, &replacement);
+    }
 }
 
 /// Post-process SVG to improve line rendering quality:
 /// 1. Inject round joins/caps so thick strokes blend smoothly at vertices.
 /// 2. Simplify dense polylines (Ramer-Douglas-Peucker) to remove sub-pixel
 ///    zigzag noise caused by plotters' integer coordinate rounding.
+///
+/// No-op for plots without polylines (bar/box/heatmap).
 fn smooth_svg_lines(svg: &mut String) {
+    if !svg.contains("<polyline ") {
+        return;
+    }
     *svg = svg.replace(
         "<polyline fill=\"none\"",
         "<polyline stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\"",
@@ -208,11 +213,16 @@ fn smooth_svg_lines(svg: &mut String) {
 /// Find every `points="..."` attribute in the SVG and, when the polyline has
 /// enough vertices, apply Ramer-Douglas-Peucker to remove redundant ones.
 fn simplify_svg_polylines(svg: &mut String) {
+    // MIN_POINTS: skip simplification for short polylines (axis ticks, error-bar
+    // caps, scatter markers); RDP overhead outweighs savings below this size.
+    // EPSILON: 0.5 px matches plotters' integer-pixel rounding granularity, so
+    // collinear-after-rounding vertices collapse without altering visible shape.
     const MIN_POINTS: usize = 20;
     const EPSILON: f64 = 0.5;
 
     let mut result = String::with_capacity(svg.len());
     let mut remaining = svg.as_str();
+    let mut modified = false;
 
     while let Some(idx) = remaining.find("points=\"") {
         let prefix_end = idx + 8; // length of `points="`
@@ -221,10 +231,18 @@ fn simplify_svg_polylines(svg: &mut String) {
 
         if let Some(end) = remaining.find('"') {
             let raw = &remaining[..end];
-            let points = parse_svg_points(raw);
-            if points.len() > MIN_POINTS {
-                let simplified = rdp_simplify(&points, EPSILON);
-                result.push_str(&format_svg_points(&simplified));
+            // Cheap pre-check: count separators before parsing. A polyline with
+            // <MIN_POINTS vertices has <MIN_POINTS spaces between coord pairs.
+            let space_count = raw.bytes().filter(|&b| b == b' ').count();
+            if space_count >= MIN_POINTS {
+                let points = parse_svg_points(raw);
+                if points.len() > MIN_POINTS {
+                    let simplified = rdp_simplify(&points, EPSILON);
+                    result.push_str(&format_svg_points(&simplified));
+                    modified = true;
+                } else {
+                    result.push_str(raw);
+                }
             } else {
                 result.push_str(raw);
             }
@@ -232,8 +250,10 @@ fn simplify_svg_polylines(svg: &mut String) {
             remaining = &remaining[end + 1..];
         }
     }
-    result.push_str(remaining);
-    *svg = result;
+    if modified {
+        result.push_str(remaining);
+        *svg = result;
+    }
 }
 
 fn parse_svg_points(s: &str) -> Vec<(f64, f64)> {

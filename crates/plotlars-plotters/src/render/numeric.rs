@@ -17,30 +17,36 @@ use crate::converters::trace::{
 };
 
 use super::axis::{
-    apply_mesh_axis_config, category_xy_pairs, collect_string_x_labels, configure_label_areas,
-    format_exponent, format_log_label, is_category_axis, is_date_axis, is_log_axis, log_range,
-    log_transform_points,
+    apply_mesh_axis_config, axis_value_color, category_xy_pairs, collect_string_x_labels,
+    configure_label_areas, format_axis_value, format_exponent, format_log_label, is_category_axis,
+    is_date_axis, is_log_axis, log_range, log_transform_points,
 };
 use super::legend::apply_legend_config;
 use super::title::{draw_axis_titles, draw_plot_title, title_top_margin};
 use super::{polygon_vertices_at_origin, resolve_dimensions, LegendEntry, SwatchKind};
 
-/// Returns (dash_len, gap_len) in pixels for a given line style, or None for Solid.
-fn dash_pattern(line_ir: Option<&LineIR>) -> Option<(u32, u32)> {
+/// Pairs a stroke color with its SVG `stroke-dasharray` value, captured during
+/// rendering and applied to matching `<polyline>` elements in the SVG post-pass.
+pub(super) type DashEntry = (RGBColor, &'static str);
+
+/// Returns the SVG `stroke-dasharray` value for a given line style, or `None` for Solid.
+fn dash_pattern(line_ir: Option<&LineIR>) -> Option<&'static str> {
     let style = line_ir?.style.as_ref()?;
     match style {
         LineStyle::Solid => None,
-        LineStyle::Dot => Some((2, 4)),
-        LineStyle::Dash => Some((8, 6)),
-        LineStyle::LongDash => Some((14, 6)),
-        LineStyle::DashDot => Some((8, 4)), // simplified: dash-gap only
-        LineStyle::LongDashDot => Some((14, 4)), // simplified: long-dash-gap only
+        LineStyle::Dot => Some("2,4"),
+        LineStyle::Dash => Some("8,6"),
+        LineStyle::LongDash => Some("14,6"),
+        LineStyle::DashDot => Some("8,4,2,4"),
+        LineStyle::LongDashDot => Some("14,4,2,4"),
     }
 }
 
 /// Draw a line series on a cartesian chart.
-/// Always draws as a solid `LineSeries` (single polyline). Dashed styles are applied
-/// later via SVG `stroke-dasharray` to avoid generating thousands of tiny elements.
+///
+/// Always emits a single solid `LineSeries`; dashed styles are applied later by
+/// `apply_svg_dash_patterns` so dense series stay as one polyline rather than
+/// exploding into thousands of dash segments.
 #[allow(clippy::too_many_arguments)]
 fn draw_line_on_chart<DB: DrawingBackend>(
     chart: &mut ChartContext<
@@ -49,16 +55,15 @@ fn draw_line_on_chart<DB: DrawingBackend>(
     >,
     points: &[(f64, f64)],
     line_style: ShapeStyle,
-    dash: Option<(u32, u32)>,
+    dash: Option<&'static str>,
     name: Option<&str>,
     has_legend: &mut bool,
     legend_entries: &mut Vec<LegendEntry>,
     color: RGBColor,
     width: u32,
-    dash_entries: &mut Vec<(RGBColor, u32, u32)>,
+    dash_entries: &mut Vec<DashEntry>,
     marker_shape: Option<(BaseShape, FillMode)>,
 ) {
-    // Always draw as solid LineSeries for compact SVG output
     let series = chart
         .draw_series(LineSeries::new(
             points.iter().map(|&(x, y)| (x, y)),
@@ -83,9 +88,8 @@ fn draw_line_on_chart<DB: DrawingBackend>(
         });
     }
 
-    // Record dash pattern to apply via SVG post-processing
-    if let Some((dash_len, gap_len)) = dash {
-        dash_entries.push((color, dash_len, gap_len));
+    if let Some(pattern) = dash {
+        dash_entries.push((color, pattern));
     }
 }
 
@@ -98,9 +102,6 @@ fn y2_to_primary(val: f64, y2_min: f64, y2_max: f64, y_min: f64, y_max: f64) -> 
     let t = (val - y2_min) / y2_range;
     y_min + t * (y_max - y_min)
 }
-
-/// Entries for SVG post-processing: (color, dash_len, gap_len).
-pub(super) type DashEntry = (RGBColor, u32, u32);
 
 pub(super) fn render_numeric<DB: DrawingBackend>(
     root: &DrawingArea<DB, plotters::coord::Shift>,
@@ -189,55 +190,45 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         ts_labels = collect_candlestick_labels(traces);
     }
 
-    // Detect dual y-axis: compute y2 range from traces with y_axis_ref == "y2"
-    let has_y2 = traces.iter().any(|t| {
-        if let TraceIR::TimeSeriesPlot(ir) = t {
-            ir.y_axis_ref.as_deref() == Some("y2")
-        } else {
-            false
-        }
-    });
-
-    let (mut y2_min, mut y2_max) = if has_y2 {
-        let mut lo = f64::INFINITY;
-        let mut hi = f64::NEG_INFINITY;
-        for trace in traces {
-            if let TraceIR::TimeSeriesPlot(ir) = trace {
-                if ir.y_axis_ref.as_deref() == Some("y2") {
-                    let vals = extract_f64(&ir.y);
-                    for v in &vals {
-                        lo = lo.min(*v);
-                        hi = hi.max(*v);
-                    }
+    // Single-pass dual y-axis detection: walk TimeSeriesPlot traces once,
+    // accumulating min/max for y2 traces (`y_axis_ref == "y2"`) and primary
+    // traces separately. `has_y2` is implied by whether any y2 trace was seen.
+    let mut y2_lo = f64::INFINITY;
+    let mut y2_hi = f64::NEG_INFINITY;
+    let mut primary_lo = f64::INFINITY;
+    let mut primary_hi = f64::NEG_INFINITY;
+    for trace in traces {
+        if let TraceIR::TimeSeriesPlot(ir) = trace {
+            let is_y2 = ir.y_axis_ref.as_deref() == Some("y2");
+            if is_y2 {
+                for v in extract_f64(&ir.y) {
+                    y2_lo = y2_lo.min(v);
+                    y2_hi = y2_hi.max(v);
+                }
+            } else {
+                let (pts, _) = extract_timeseries_points(&ir.x, &ir.y);
+                for (_, y) in &pts {
+                    primary_lo = primary_lo.min(*y);
+                    primary_hi = primary_hi.max(*y);
                 }
             }
         }
-        let margin = (hi - lo).abs() * 0.05;
-        (lo - margin.max(0.01), hi + margin.max(0.01))
+    }
+    let has_y2 = y2_lo.is_finite();
+
+    let (mut y2_min, mut y2_max) = if has_y2 {
+        let margin = (y2_hi - y2_lo).abs() * 0.05;
+        (y2_lo - margin.max(0.01), y2_hi + margin.max(0.01))
     } else {
         (0.0, 1.0)
     };
 
-    // Exclude y2 traces from primary y-range
-    if has_y2 {
-        let mut primary_y_min = f64::INFINITY;
-        let mut primary_y_max = f64::NEG_INFINITY;
-        for trace in traces {
-            if let TraceIR::TimeSeriesPlot(ir) = trace {
-                if ir.y_axis_ref.as_deref() != Some("y2") {
-                    let (pts, _) = extract_timeseries_points(&ir.x, &ir.y);
-                    for (_, y) in &pts {
-                        primary_y_min = primary_y_min.min(*y);
-                        primary_y_max = primary_y_max.max(*y);
-                    }
-                }
-            }
-        }
-        if primary_y_min.is_finite() && primary_y_max.is_finite() {
-            let margin = (primary_y_max - primary_y_min).abs() * 0.05;
-            y_min = primary_y_min - margin.max(0.01);
-            y_max = primary_y_max + margin.max(0.01);
-        }
+    // Re-bound primary y-range from non-y2 traces only when y2 is in play
+    // (otherwise the earlier `compute_numeric_ranges` result is correct).
+    if has_y2 && primary_lo.is_finite() && primary_hi.is_finite() {
+        let margin = (primary_hi - primary_lo).abs() * 0.05;
+        y_min = primary_lo - margin.max(0.01);
+        y_max = primary_hi + margin.max(0.01);
     }
 
     // Apply user-specified y2 axis range
@@ -287,18 +278,8 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
             mesh.light_line_style(TRANSPARENT);
         }
 
-        let xvc = config
-            .x_axis
-            .as_ref()
-            .and_then(|a| a.value_color.as_ref())
-            .map(convert_rgb)
-            .unwrap_or(BLACK);
-        let yvc = config
-            .y_axis
-            .as_ref()
-            .and_then(|a| a.value_color.as_ref())
-            .map(convert_rgb)
-            .unwrap_or(BLACK);
+        let xvc = axis_value_color(config.x_axis.as_ref());
+        let yvc = axis_value_color(config.y_axis.as_ref());
         apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
 
         // Thousands formatter (applied before timeseries override)
@@ -884,18 +865,8 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         .as_ref()
         .and_then(|a| a.show_axis)
         .unwrap_or(true);
-    let x_val_color_tv = config
-        .x_axis
-        .as_ref()
-        .and_then(|a| a.value_color.as_ref())
-        .map(convert_rgb)
-        .unwrap_or(BLACK);
-    let y_val_color_tv = config
-        .y_axis
-        .as_ref()
-        .and_then(|a| a.value_color.as_ref())
-        .map(convert_rgb)
-        .unwrap_or(BLACK);
+    let x_val_color_tv = axis_value_color(config.x_axis.as_ref());
+    let y_val_color_tv = axis_value_color(config.y_axis.as_ref());
     let x_exponent_tv = config
         .x_axis
         .as_ref()
@@ -1052,12 +1023,7 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
 
     // Draw right-side y2 axis labels
     if has_y2 {
-        let y2_color = config
-            .y2_axis
-            .as_ref()
-            .and_then(|a| a.value_color.as_ref())
-            .map(convert_rgb)
-            .unwrap_or(BLACK);
+        let y2_color = axis_value_color(config.y2_axis.as_ref());
         let label_style = TextStyle::from(("sans-serif", 12).into_font())
             .color(&y2_color)
             .pos(Pos::new(HPos::Left, VPos::Center));
@@ -1080,8 +1046,7 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                 },
             ))
             .unwrap();
-            // Label
-            let label = format!("{y2_val:.0}");
+            let label = format_axis_value(y2_val, config.y2_axis.as_ref());
             root.draw_text(&label, &label_style, (px + 7, py)).unwrap();
         }
 
