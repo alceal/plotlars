@@ -13,6 +13,7 @@ fn main() {
         .labels("animal")
         .values("value")
         .group("gender")
+        .error("error")
         .colors(vec![Rgb(255, 127, 80), Rgb(64, 224, 208)])
         .plot_title("Bar Plot")
         .x_title("animal")

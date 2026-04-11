@@ -140,7 +140,19 @@ required-features = ["plotly"]
 # ── Plotters examples ───────────────────────────────────────────────────
 
 [[example]]
+name = "plotters_boxplot"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_candlestick"
+required-features = ["plotters"]
+
+[[example]]
 name = "plotters_barplot"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_heatmap"
 required-features = ["plotters"]
 
 [[example]]

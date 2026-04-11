@@ -224,6 +224,27 @@ fn draw_vertical_legend<DB: DrawingBackend>(
                 ))
                 .unwrap();
             }
+            SwatchKind::LineShape(w, base_shape, fill_mode) => {
+                let line_style = ShapeStyle {
+                    color: entry.color.mix(entry.opacity),
+                    filled: false,
+                    stroke_width: w,
+                };
+                root.draw(&PathElement::new(
+                    vec![(x, center_y), (x + swatch_w as i32, center_y)],
+                    line_style,
+                ))
+                .unwrap();
+                draw_legend_swatch_shape(
+                    root,
+                    x + swatch_w as i32 / 2,
+                    center_y,
+                    base_shape,
+                    fill_mode,
+                    entry.color,
+                    entry.opacity,
+                );
+            }
             SwatchKind::Rect => {
                 root.draw(&Rectangle::new(
                     [(x, center_y - 5), (x + swatch_w as i32, center_y + 5)],
@@ -295,7 +316,7 @@ fn draw_horizontal_legend<DB: DrawingBackend>(
         .iter()
         .map(|e| {
             let sw = match e.kind {
-                SwatchKind::Line(_) => 12,
+                SwatchKind::Line(_) | SwatchKind::LineShape(_, _, _) => 12,
                 _ => swatch_w,
             };
             let text_w = root
@@ -420,7 +441,7 @@ fn draw_horizontal_legend<DB: DrawingBackend>(
 
     for (i, entry) in entries.iter().enumerate() {
         let sw = match entry.kind {
-            SwatchKind::Line(_) => 12i32,
+            SwatchKind::Line(_) | SwatchKind::LineShape(_, _, _) => 12i32,
             _ => swatch_w as i32,
         };
         let style = entry.color.mix(entry.opacity).filled();
@@ -444,6 +465,27 @@ fn draw_horizontal_legend<DB: DrawingBackend>(
                     style,
                 ))
                 .unwrap();
+            }
+            SwatchKind::LineShape(w, base_shape, fill_mode) => {
+                let line_style = ShapeStyle {
+                    color: entry.color.mix(entry.opacity),
+                    filled: false,
+                    stroke_width: w,
+                };
+                root.draw(&PathElement::new(
+                    vec![(x, entry_center_y), (x + sw, entry_center_y)],
+                    line_style,
+                ))
+                .unwrap();
+                draw_legend_swatch_shape(
+                    root,
+                    x + sw / 2,
+                    entry_center_y,
+                    base_shape,
+                    fill_mode,
+                    entry.color,
+                    entry.opacity,
+                );
             }
             SwatchKind::Shape(base_shape, fill_mode) => {
                 draw_legend_swatch_shape(

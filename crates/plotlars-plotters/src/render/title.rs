@@ -99,4 +99,20 @@ pub(super) fn draw_axis_titles<DB: DrawingBackend>(
             .unwrap_or((top_margin + height - chart_margin - x_label_area) as i32 / 2);
         root.draw_text(label, &style, (cx, cy)).unwrap();
     }
+
+    // Y2-axis title (rotated, right side)
+    if let Some(ref label) = config.y2_label {
+        let color = convert_rgb(&config.y2_label_color);
+        let size = config.y2_label_size as f64;
+        let style = TextStyle::from(
+            (config.y2_label_font.as_str(), size)
+                .into_font()
+                .transform(FontTransform::Rotate90),
+        )
+        .color(&color)
+        .pos(Pos::new(HPos::Center, VPos::Center));
+        let cx = width as i32 - config.y2_label_size as i32 / 2 - 2;
+        let cy = (top_margin + height - chart_margin - x_label_area) as i32 / 2;
+        root.draw_text(label, &style, (cx, cy)).unwrap();
+    }
 }

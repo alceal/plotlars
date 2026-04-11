@@ -1,4 +1,6 @@
+use plotlars_core::components::Line as LineStyle;
 use plotlars_core::ir::layout::LayoutIR;
+use plotlars_core::ir::line::LineIR;
 use plotlars_core::ir::trace::TraceIR;
 use plotters::coord::cartesian::Cartesian2d;
 use plotters::prelude::*;
@@ -9,8 +11,9 @@ use crate::converters::components::{
 };
 use crate::converters::layout::{extract_layout_config, format_thousands};
 use crate::converters::trace::{
-    auto_compute_bins, collect_timeseries_labels, compute_bins_from_ir, compute_numeric_ranges,
-    extract_f64, extract_timeseries_points, extract_xy_pairs, histogram_max_count,
+    auto_compute_bins, collect_candlestick_labels, collect_timeseries_labels, compute_bins_from_ir,
+    compute_numeric_ranges, extract_f64, extract_strings, extract_timeseries_points,
+    extract_xy_pairs, histogram_max_count,
 };
 
 use super::axis::{
@@ -22,11 +25,89 @@ use super::legend::apply_legend_config;
 use super::title::{draw_axis_titles, draw_plot_title, title_top_margin};
 use super::{polygon_vertices_at_origin, resolve_dimensions, LegendEntry, SwatchKind};
 
+/// Returns (dash_len, gap_len) in pixels for a given line style, or None for Solid.
+fn dash_pattern(line_ir: Option<&LineIR>) -> Option<(u32, u32)> {
+    let style = line_ir?.style.as_ref()?;
+    match style {
+        LineStyle::Solid => None,
+        LineStyle::Dot => Some((2, 4)),
+        LineStyle::Dash => Some((8, 6)),
+        LineStyle::LongDash => Some((14, 6)),
+        LineStyle::DashDot => Some((8, 4)), // simplified: dash-gap only
+        LineStyle::LongDashDot => Some((14, 4)), // simplified: long-dash-gap only
+    }
+}
+
+/// Draw a line series on a cartesian chart.
+/// Always draws as a solid `LineSeries` (single polyline). Dashed styles are applied
+/// later via SVG `stroke-dasharray` to avoid generating thousands of tiny elements.
+#[allow(clippy::too_many_arguments)]
+fn draw_line_on_chart<DB: DrawingBackend>(
+    chart: &mut ChartContext<
+        DB,
+        Cartesian2d<plotters::coord::types::RangedCoordf64, plotters::coord::types::RangedCoordf64>,
+    >,
+    points: &[(f64, f64)],
+    line_style: ShapeStyle,
+    dash: Option<(u32, u32)>,
+    name: Option<&str>,
+    has_legend: &mut bool,
+    legend_entries: &mut Vec<LegendEntry>,
+    color: RGBColor,
+    width: u32,
+    dash_entries: &mut Vec<(RGBColor, u32, u32)>,
+    marker_shape: Option<(BaseShape, FillMode)>,
+) {
+    // Always draw as solid LineSeries for compact SVG output
+    let series = chart
+        .draw_series(LineSeries::new(
+            points.iter().map(|&(x, y)| (x, y)),
+            line_style,
+        ))
+        .unwrap();
+
+    if let Some(name) = name {
+        *has_legend = true;
+        series
+            .label(name)
+            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], line_style));
+        let kind = match marker_shape {
+            Some((base, fill)) => SwatchKind::LineShape(width, base, fill),
+            None => SwatchKind::Line(width),
+        };
+        legend_entries.push(LegendEntry {
+            name: name.to_string(),
+            color,
+            opacity: 1.0,
+            kind,
+        });
+    }
+
+    // Record dash pattern to apply via SVG post-processing
+    if let Some((dash_len, gap_len)) = dash {
+        dash_entries.push((color, dash_len, gap_len));
+    }
+}
+
+/// Transform a y-value from y2-space to primary y-space.
+fn y2_to_primary(val: f64, y2_min: f64, y2_max: f64, y_min: f64, y_max: f64) -> f64 {
+    let y2_range = y2_max - y2_min;
+    if y2_range == 0.0 {
+        return (y_min + y_max) / 2.0;
+    }
+    let t = (val - y2_min) / y2_range;
+    y_min + t * (y_max - y_min)
+}
+
+/// Entries for SVG post-processing: (color, dash_len, gap_len).
+pub(super) type DashEntry = (RGBColor, u32, u32);
+
 pub(super) fn render_numeric<DB: DrawingBackend>(
     root: &DrawingArea<DB, plotters::coord::Shift>,
     layout: &LayoutIR,
     traces: &[TraceIR],
     unsupported: &mut Vec<String>,
+    dash_entries: &mut Vec<DashEntry>,
 ) {
     let config = extract_layout_config(layout, unsupported);
 
@@ -102,19 +183,93 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         }
     }
 
-    // Collect timeseries labels for custom x-axis formatting
-    let ts_labels = collect_timeseries_labels(traces);
+    // Collect timeseries/candlestick labels for custom x-axis formatting
+    let mut ts_labels = collect_timeseries_labels(traces);
+    if ts_labels.is_empty() {
+        ts_labels = collect_candlestick_labels(traces);
+    }
+
+    // Detect dual y-axis: compute y2 range from traces with y_axis_ref == "y2"
+    let has_y2 = traces.iter().any(|t| {
+        if let TraceIR::TimeSeriesPlot(ir) = t {
+            ir.y_axis_ref.as_deref() == Some("y2")
+        } else {
+            false
+        }
+    });
+
+    let (mut y2_min, mut y2_max) = if has_y2 {
+        let mut lo = f64::INFINITY;
+        let mut hi = f64::NEG_INFINITY;
+        for trace in traces {
+            if let TraceIR::TimeSeriesPlot(ir) = trace {
+                if ir.y_axis_ref.as_deref() == Some("y2") {
+                    let vals = extract_f64(&ir.y);
+                    for v in &vals {
+                        lo = lo.min(*v);
+                        hi = hi.max(*v);
+                    }
+                }
+            }
+        }
+        let margin = (hi - lo).abs() * 0.05;
+        (lo - margin.max(0.01), hi + margin.max(0.01))
+    } else {
+        (0.0, 1.0)
+    };
+
+    // Exclude y2 traces from primary y-range
+    if has_y2 {
+        let mut primary_y_min = f64::INFINITY;
+        let mut primary_y_max = f64::NEG_INFINITY;
+        for trace in traces {
+            if let TraceIR::TimeSeriesPlot(ir) = trace {
+                if ir.y_axis_ref.as_deref() != Some("y2") {
+                    let (pts, _) = extract_timeseries_points(&ir.x, &ir.y);
+                    for (_, y) in &pts {
+                        primary_y_min = primary_y_min.min(*y);
+                        primary_y_max = primary_y_max.max(*y);
+                    }
+                }
+            }
+        }
+        if primary_y_min.is_finite() && primary_y_max.is_finite() {
+            let margin = (primary_y_max - primary_y_min).abs() * 0.05;
+            y_min = primary_y_min - margin.max(0.01);
+            y_max = primary_y_max + margin.max(0.01);
+        }
+    }
+
+    // Apply user-specified y2 axis range
+    if has_y2 {
+        if let Some(y2_range) = config
+            .y2_axis
+            .as_ref()
+            .and_then(|a| a.value_range.as_ref())
+            .and_then(|r| {
+                if r.len() >= 2 {
+                    Some((r[0], r[1]))
+                } else {
+                    None
+                }
+            })
+        {
+            y2_min = y2_range.0;
+            y2_max = y2_range.1;
+        }
+    }
 
     let (w, h) = resolve_dimensions(layout);
     draw_plot_title(root, &config, w, h);
 
+    let right_margin = if has_y2 { 60 } else { 15 };
     let mut builder = ChartBuilder::on(root);
     let x_label_area = if ts_labels.is_empty() { 40 } else { 60 };
     builder
         .margin_top(15 + title_top_margin(&config))
         .margin_bottom(15)
         .margin_left(15)
-        .margin_right(15);
+        .margin_right(right_margin);
     configure_label_areas(&mut builder, &config, x_label_area as u32, 50);
 
     let mut chart = builder
@@ -132,8 +287,18 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
             mesh.light_line_style(TRANSPARENT);
         }
 
-        let xvc = config.x_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
-        let yvc = config.y_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
+        let xvc = config
+            .x_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
+        let yvc = config
+            .y_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
         apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
 
         // Thousands formatter (applied before timeseries override)
@@ -157,8 +322,14 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         let x_tick_fmt;
         let y_tick_fmt;
 
-        let x_exponent = config.x_axis.as_ref().and_then(|a| a.value_exponent.as_ref());
-        let y_exponent = config.y_axis.as_ref().and_then(|a| a.value_exponent.as_ref());
+        let x_exponent = config
+            .x_axis
+            .as_ref()
+            .and_then(|a| a.value_exponent.as_ref());
+        let y_exponent = config
+            .y_axis
+            .as_ref()
+            .and_then(|a| a.value_exponent.as_ref());
 
         let x_tick_values = config.x_axis.as_ref().and_then(|a| a.tick_values.clone());
         let y_tick_values = config.y_axis.as_ref().and_then(|a| a.tick_values.clone());
@@ -242,8 +413,16 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         let y_grid_color = config.y_axis.as_ref().and_then(|a| a.grid_color.as_ref());
         let x_show_grid = config.x_axis.as_ref().and_then(|a| a.show_grid);
         let y_show_grid = config.y_axis.as_ref().and_then(|a| a.show_grid);
-        let x_grid_width = config.x_axis.as_ref().and_then(|a| a.grid_width).unwrap_or(1) as u32;
-        let y_grid_width = config.y_axis.as_ref().and_then(|a| a.grid_width).unwrap_or(1) as u32;
+        let x_grid_width = config
+            .x_axis
+            .as_ref()
+            .and_then(|a| a.grid_width)
+            .unwrap_or(1) as u32;
+        let y_grid_width = config
+            .y_axis
+            .as_ref()
+            .and_then(|a| a.grid_width)
+            .unwrap_or(1) as u32;
 
         if x_grid_color.is_some() || y_grid_color.is_some() {
             let default_color = RGBColor(200, 200, 200);
@@ -251,7 +430,11 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
             // X-axis grid: vertical lines at x tick positions
             if x_show_grid != Some(false) {
                 let color = x_grid_color.map(convert_rgb).unwrap_or(default_color);
-                let style = ShapeStyle { color: color.to_rgba(), filled: false, stroke_width: x_grid_width };
+                let style = ShapeStyle {
+                    color: color.to_rgba(),
+                    filled: false,
+                    stroke_width: x_grid_width,
+                };
                 // Use plotters' generated label positions (approximately 11 ticks)
                 let range = x_max - x_min;
                 let step = range / 10.0;
@@ -260,7 +443,8 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     while v <= x_max + step * 0.01 {
                         let (px, py_lo) = chart.backend_coord(&(v, y_min));
                         let (_, py_hi) = chart.backend_coord(&(v, y_max));
-                        root.draw(&PathElement::new(vec![(px, py_hi), (px, py_lo)], style)).unwrap();
+                        root.draw(&PathElement::new(vec![(px, py_hi), (px, py_lo)], style))
+                            .unwrap();
                         v += step;
                     }
                 }
@@ -269,7 +453,11 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
             // Y-axis grid: horizontal lines at y tick positions
             if y_show_grid != Some(false) {
                 let color = y_grid_color.map(convert_rgb).unwrap_or(default_color);
-                let style = ShapeStyle { color: color.to_rgba(), filled: false, stroke_width: y_grid_width };
+                let style = ShapeStyle {
+                    color: color.to_rgba(),
+                    filled: false,
+                    stroke_width: y_grid_width,
+                };
                 let range = y_max - y_min;
                 let step = range / 10.0;
                 if step > 0.0 {
@@ -277,7 +465,8 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     while v <= y_max + step * 0.01 {
                         let (px_lo, py) = chart.backend_coord(&(x_min, v));
                         let (px_hi, _) = chart.backend_coord(&(x_max, v));
-                        root.draw(&PathElement::new(vec![(px_lo, py), (px_hi, py)], style)).unwrap();
+                        root.draw(&PathElement::new(vec![(px_lo, py), (px_hi, py)], style))
+                            .unwrap();
                         v += step;
                     }
                 }
@@ -297,15 +486,21 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         // x-axis visible, y-axis hidden: draw bottom line
         let (px_lo, py) = chart.backend_coord(&(x_min, y_min));
         let (px_hi, _) = chart.backend_coord(&(x_max, y_min));
-        root.draw(&PathElement::new(vec![(px_lo, py), (px_hi, py)], axis_line_style))
-            .unwrap();
+        root.draw(&PathElement::new(
+            vec![(px_lo, py), (px_hi, py)],
+            axis_line_style,
+        ))
+        .unwrap();
     }
     if y_show_line != Some(false) && x_show_line == Some(false) {
         // y-axis visible, x-axis hidden: draw left line
         let (px, py_lo) = chart.backend_coord(&(x_min, y_min));
         let (_, py_hi) = chart.backend_coord(&(x_min, y_max));
-        root.draw(&PathElement::new(vec![(px, py_hi), (px, py_lo)], axis_line_style))
-            .unwrap();
+        root.draw(&PathElement::new(
+            vec![(px, py_hi), (px, py_lo)],
+            axis_line_style,
+        ))
+        .unwrap();
     }
 
     let mut has_legend = false;
@@ -318,7 +513,11 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     category_xy_pairs(&ir.x, &ir.y, &cat_labels, y_log)
                 } else {
                     let raw = extract_xy_pairs(&ir.x, &ir.y);
-                    if x_log || y_log { log_transform_points(&raw, x_log, y_log) } else { raw }
+                    if x_log || y_log {
+                        log_transform_points(&raw, x_log, y_log)
+                    } else {
+                        raw
+                    }
                 };
                 if points.is_empty() {
                     continue;
@@ -363,7 +562,11 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     category_xy_pairs(&ir.x, &ir.y, &cat_labels, y_log)
                 } else {
                     let raw = extract_xy_pairs(&ir.x, &ir.y);
-                    if x_log || y_log { log_transform_points(&raw, x_log, y_log) } else { raw }
+                    if x_log || y_log {
+                        log_transform_points(&raw, x_log, y_log)
+                    } else {
+                        raw
+                    }
                 };
                 if points.is_empty() {
                     continue;
@@ -395,26 +598,27 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                         | Some(plotlars_core::components::Mode::LinesMarkers)
                 );
 
-                if draw_lines {
-                    let series = chart
-                        .draw_series(LineSeries::new(
-                            points.iter().map(|&(x, y)| (x, y)),
-                            line_style,
-                        ))
-                        .unwrap();
+                let shape_for_legend = if draw_markers {
+                    Some(resolve_trace_shape(&ir.marker))
+                } else {
+                    None
+                };
 
-                    if let Some(ref name) = ir.name {
-                        has_legend = true;
-                        series.label(name).legend(move |(x, y)| {
-                            PathElement::new(vec![(x, y), (x + 20, y)], line_style)
-                        });
-                        legend_entries.push(LegendEntry {
-                            name: name.clone(),
-                            color,
-                            opacity: 1.0,
-                            kind: SwatchKind::Line(width),
-                        });
-                    }
+                if draw_lines {
+                    let dash = dash_pattern(ir.line.as_ref());
+                    draw_line_on_chart(
+                        &mut chart,
+                        &points,
+                        line_style,
+                        dash,
+                        ir.name.as_deref(),
+                        &mut has_legend,
+                        &mut legend_entries,
+                        color,
+                        width,
+                        dash_entries,
+                        shape_for_legend,
+                    );
                 }
 
                 if draw_markers {
@@ -434,8 +638,14 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                 }
             }
             TraceIR::TimeSeriesPlot(ir) => {
+                let is_y2_trace = has_y2 && ir.y_axis_ref.as_deref() == Some("y2");
                 let (raw_points, _) = extract_timeseries_points(&ir.x, &ir.y);
-                let points = if x_log || y_log {
+                let points = if is_y2_trace {
+                    raw_points
+                        .into_iter()
+                        .map(|(x, y)| (x, y2_to_primary(y, y2_min, y2_max, y_min, y_max)))
+                        .collect()
+                } else if x_log || y_log {
                     log_transform_points(&raw_points, x_log, y_log)
                 } else {
                     raw_points
@@ -462,32 +672,50 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     stroke_width: width,
                 };
 
-                let series = chart
-                    .draw_series(LineSeries::new(
-                        points.iter().map(|&(x, y)| (x, y)),
-                        line_style,
-                    ))
-                    .unwrap();
+                // Determine mode
+                let draw_lines = !matches!(ir.mode, Some(plotlars_core::components::Mode::Markers));
+                let draw_markers = matches!(
+                    ir.mode,
+                    Some(plotlars_core::components::Mode::Markers)
+                        | Some(plotlars_core::components::Mode::LinesMarkers)
+                );
 
-                if let Some(ref name) = ir.name {
-                    has_legend = true;
-                    series.label(name).legend(move |(x, y)| {
-                        PathElement::new(vec![(x, y), (x + 20, y)], line_style)
-                    });
-                    legend_entries.push(LegendEntry {
-                        name: name.clone(),
+                let shape_for_legend = if draw_markers {
+                    Some(resolve_trace_shape(&ir.marker))
+                } else {
+                    None
+                };
+
+                if draw_lines {
+                    let dash = dash_pattern(ir.line.as_ref());
+                    draw_line_on_chart(
+                        &mut chart,
+                        &points,
+                        line_style,
+                        dash,
+                        ir.name.as_deref(),
+                        &mut has_legend,
+                        &mut legend_entries,
                         color,
-                        opacity: 1.0,
-                        kind: SwatchKind::Line(width),
-                    });
+                        width,
+                        dash_entries,
+                        shape_for_legend,
+                    );
                 }
 
-                if ir.y_axis_ref.is_some() {
-                    plotlars_core::policy::report_unsupported(
-                        "plotters",
-                        "TimeSeriesPlot",
-                        "y_axis_ref",
-                        unsupported,
+                if draw_markers {
+                    let marker_size = ir.marker.as_ref().and_then(|m| m.size).unwrap_or(4) as i32;
+                    let (base_shape, fill_mode) = resolve_trace_shape(&ir.marker);
+                    draw_scatter_series(
+                        &mut chart,
+                        &points,
+                        marker_size,
+                        color,
+                        1.0,
+                        base_shape,
+                        fill_mode,
+                        None,
+                        &mut has_legend,
                     );
                 }
             }
@@ -552,6 +780,68 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     });
                 }
             }
+            TraceIR::CandlestickPlot(ir) => {
+                let dates = extract_strings(&ir.dates);
+                let open = extract_f64(&ir.open);
+                let high = extract_f64(&ir.high);
+                let low = extract_f64(&ir.low);
+                let close = extract_f64(&ir.close);
+
+                let inc_color = ir
+                    .increasing
+                    .as_ref()
+                    .and_then(|d| d.line_color.as_ref())
+                    .map(convert_rgb)
+                    .unwrap_or(RGBColor(38, 166, 91));
+                let dec_color = ir
+                    .decreasing
+                    .as_ref()
+                    .and_then(|d| d.line_color.as_ref())
+                    .map(convert_rgb)
+                    .unwrap_or(RGBColor(239, 85, 59));
+                let line_width = ir
+                    .increasing
+                    .as_ref()
+                    .and_then(|d| d.line_width)
+                    .unwrap_or(1.0) as u32;
+                let candle_width = ir.whisker_width.unwrap_or(0.6) / 2.0;
+
+                let n = dates
+                    .len()
+                    .min(open.len())
+                    .min(high.len())
+                    .min(low.len())
+                    .min(close.len());
+
+                for i in 0..n {
+                    let x = i as f64;
+                    let is_increasing = close[i] >= open[i];
+                    let color = if is_increasing { inc_color } else { dec_color };
+                    let body_lo = open[i].min(close[i]);
+                    let body_hi = open[i].max(close[i]);
+
+                    // Wick (low to high)
+                    let wick_style = ShapeStyle {
+                        color: color.to_rgba(),
+                        filled: false,
+                        stroke_width: line_width,
+                    };
+                    chart
+                        .draw_series(std::iter::once(PathElement::new(
+                            vec![(x, low[i]), (x, high[i])],
+                            wick_style,
+                        )))
+                        .unwrap();
+
+                    // Body (open to close)
+                    chart
+                        .draw_series(std::iter::once(Rectangle::new(
+                            [(x - candle_width, body_lo), (x + candle_width, body_hi)],
+                            color.filled(),
+                        )))
+                        .unwrap();
+                }
+            }
             _ => {}
         }
     }
@@ -577,27 +867,74 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
     let (x_tick_lo, x_tick_hi) = (0, tick_len);
     let (y_tick_lo, y_tick_hi) = (-tick_len, 0);
     let line_zero = traces.iter().any(|t| matches!(t, TraceIR::LinePlot(_)));
-    let x_label_anchor = if line_zero && y_min <= 0.0 && y_max >= 0.0 { 0.0 } else { y_min };
+    let x_label_anchor = if line_zero && y_min <= 0.0 && y_max >= 0.0 {
+        0.0
+    } else {
+        y_min
+    };
     let y_label_anchor = x_min;
 
-    let x_show_axis = config.x_axis.as_ref().and_then(|a| a.show_axis).unwrap_or(true);
-    let y_show_axis = config.y_axis.as_ref().and_then(|a| a.show_axis).unwrap_or(true);
-    let x_val_color_tv = config.x_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
-    let y_val_color_tv = config.y_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
-    let x_exponent_tv = config.x_axis.as_ref().and_then(|a| a.value_exponent.as_ref());
-    let y_exponent_tv = config.y_axis.as_ref().and_then(|a| a.value_exponent.as_ref());
-    let x_thousands_tv = config.x_axis.as_ref().and_then(|a| a.value_thousands).unwrap_or(false);
-    let y_thousands_tv = config.y_axis.as_ref().and_then(|a| a.value_thousands).unwrap_or(false);
+    let x_show_axis = config
+        .x_axis
+        .as_ref()
+        .and_then(|a| a.show_axis)
+        .unwrap_or(true);
+    let y_show_axis = config
+        .y_axis
+        .as_ref()
+        .and_then(|a| a.show_axis)
+        .unwrap_or(true);
+    let x_val_color_tv = config
+        .x_axis
+        .as_ref()
+        .and_then(|a| a.value_color.as_ref())
+        .map(convert_rgb)
+        .unwrap_or(BLACK);
+    let y_val_color_tv = config
+        .y_axis
+        .as_ref()
+        .and_then(|a| a.value_color.as_ref())
+        .map(convert_rgb)
+        .unwrap_or(BLACK);
+    let x_exponent_tv = config
+        .x_axis
+        .as_ref()
+        .and_then(|a| a.value_exponent.as_ref());
+    let y_exponent_tv = config
+        .y_axis
+        .as_ref()
+        .and_then(|a| a.value_exponent.as_ref());
+    let x_thousands_tv = config
+        .x_axis
+        .as_ref()
+        .and_then(|a| a.value_thousands)
+        .unwrap_or(false);
+    let y_thousands_tv = config
+        .y_axis
+        .as_ref()
+        .and_then(|a| a.value_thousands)
+        .unwrap_or(false);
 
     use plotlars_core::components::axis::AxisSide;
-    let x_on_top = config.x_axis.as_ref().and_then(|a| a.axis_side.as_ref()).is_some_and(|s| matches!(s, AxisSide::Top));
-    let y_on_right = config.y_axis.as_ref().and_then(|a| a.axis_side.as_ref()).is_some_and(|s| matches!(s, AxisSide::Right));
+    let x_on_top = config
+        .x_axis
+        .as_ref()
+        .and_then(|a| a.axis_side.as_ref())
+        .is_some_and(|s| matches!(s, AxisSide::Top));
+    let y_on_right = config
+        .y_axis
+        .as_ref()
+        .and_then(|a| a.axis_side.as_ref())
+        .is_some_and(|s| matches!(s, AxisSide::Right));
 
     if x_show_axis {
         if let Some(ref tvs) = x_tick_values {
             let label_style = TextStyle::from(("sans-serif", 12).into_font())
                 .color(&x_val_color_tv)
-                .pos(Pos::new(HPos::Center, if x_on_top { VPos::Bottom } else { VPos::Top }));
+                .pos(Pos::new(
+                    HPos::Center,
+                    if x_on_top { VPos::Bottom } else { VPos::Top },
+                ));
             let anchor_y = if x_on_top { y_max } else { x_label_anchor };
             for (i, &tv) in tvs.iter().enumerate() {
                 let label = x_tick_labels_cfg
@@ -615,8 +952,11 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                 let (px, _) = chart.backend_coord(&(tv, anchor_y));
                 let (_, py_hi) = chart.backend_coord(&(tv, y_max));
                 let (_, py_lo) = chart.backend_coord(&(tv, y_min));
-                root.draw(&PathElement::new(vec![(px, py_hi), (px, py_lo)], grid_style))
-                    .unwrap();
+                root.draw(&PathElement::new(
+                    vec![(px, py_hi), (px, py_lo)],
+                    grid_style,
+                ))
+                .unwrap();
                 let label_y = chart.backend_coord(&(tv, anchor_y)).1;
                 // Tick mark
                 root.draw(&PathElement::new(
@@ -624,9 +964,12 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     tick_style,
                 ))
                 .unwrap();
-                let text_y = if x_on_top { label_y + x_tick_lo - 2 } else { label_y + x_tick_hi + 2 };
-                root.draw_text(&label, &label_style, (px, text_y))
-                    .unwrap();
+                let text_y = if x_on_top {
+                    label_y + x_tick_lo - 2
+                } else {
+                    label_y + x_tick_hi + 2
+                };
+                root.draw_text(&label, &label_style, (px, text_y)).unwrap();
             }
         }
     }
@@ -635,7 +978,10 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
             let anchor_x = if y_on_right { x_max } else { y_label_anchor };
             let label_style = TextStyle::from(("sans-serif", 12).into_font())
                 .color(&y_val_color_tv)
-                .pos(Pos::new(if y_on_right { HPos::Left } else { HPos::Right }, VPos::Center));
+                .pos(Pos::new(
+                    if y_on_right { HPos::Left } else { HPos::Right },
+                    VPos::Center,
+                ));
             for (i, &tv) in tvs.iter().enumerate() {
                 let label = y_tick_labels_cfg
                     .as_ref()
@@ -652,8 +998,11 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                 let (_, py) = chart.backend_coord(&(anchor_x, tv));
                 let (px_lo, _) = chart.backend_coord(&(x_min, tv));
                 let (px_hi, _) = chart.backend_coord(&(x_max, tv));
-                root.draw(&PathElement::new(vec![(px_lo, py), (px_hi, py)], grid_style))
-                    .unwrap();
+                root.draw(&PathElement::new(
+                    vec![(px_lo, py), (px_hi, py)],
+                    grid_style,
+                ))
+                .unwrap();
                 let label_x = chart.backend_coord(&(anchor_x, tv)).0;
                 // Tick mark
                 root.draw(&PathElement::new(
@@ -661,9 +1010,12 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
                     tick_style,
                 ))
                 .unwrap();
-                let text_x = if y_on_right { label_x + y_tick_hi + 2 } else { label_x + y_tick_lo - 2 };
-                root.draw_text(&label, &label_style, (text_x, py))
-                    .unwrap();
+                let text_x = if y_on_right {
+                    label_x + y_tick_hi + 2
+                } else {
+                    label_x + y_tick_lo - 2
+                };
+                root.draw_text(&label, &label_style, (text_x, py)).unwrap();
             }
         }
     }
@@ -680,17 +1032,72 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
         if y_min <= 0.0 && y_max >= 0.0 {
             let (px_lo, py) = chart.backend_coord(&(x_min, 0.0));
             let (px_hi, _) = chart.backend_coord(&(x_max, 0.0));
-            root.draw(&PathElement::new(vec![(px_lo, py), (px_hi, py)], zero_style))
-                .unwrap();
+            root.draw(&PathElement::new(
+                vec![(px_lo, py), (px_hi, py)],
+                zero_style,
+            ))
+            .unwrap();
         }
         // Vertical Y axis at left edge
         let (px, py_lo) = chart.backend_coord(&(x_min, y_min));
         let (_, py_hi) = chart.backend_coord(&(x_min, y_max));
-        root.draw(&PathElement::new(vec![(px, py_hi), (px, py_lo)], zero_style))
-            .unwrap();
+        root.draw(&PathElement::new(
+            vec![(px, py_hi), (px, py_lo)],
+            zero_style,
+        ))
+        .unwrap();
     }
 
     draw_axis_titles(root, &config, w, h, 15, 50, x_label_area as u32);
+
+    // Draw right-side y2 axis labels
+    if has_y2 {
+        let y2_color = config
+            .y2_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
+        let label_style = TextStyle::from(("sans-serif", 12).into_font())
+            .color(&y2_color)
+            .pos(Pos::new(HPos::Left, VPos::Center));
+
+        // Draw ~7 evenly spaced tick labels on the right side
+        let n_ticks = 7usize;
+        let y2_range = y2_max - y2_min;
+        for i in 0..=n_ticks {
+            let t = i as f64 / n_ticks as f64;
+            let y2_val = y2_min + t * y2_range;
+            let y_primary = y2_to_primary(y2_val, y2_min, y2_max, y_min, y_max);
+            let (px, py) = chart.backend_coord(&(x_max, y_primary));
+            // Tick mark
+            root.draw(&PathElement::new(
+                vec![(px, py), (px + 5, py)],
+                ShapeStyle {
+                    color: y2_color.to_rgba(),
+                    filled: false,
+                    stroke_width: 1,
+                },
+            ))
+            .unwrap();
+            // Label
+            let label = format!("{y2_val:.0}");
+            root.draw_text(&label, &label_style, (px + 7, py)).unwrap();
+        }
+
+        // Right axis line
+        let (px_lo, py_lo) = chart.backend_coord(&(x_max, y_min));
+        let (_, py_hi) = chart.backend_coord(&(x_max, y_max));
+        root.draw(&PathElement::new(
+            vec![(px_lo, py_hi), (px_lo, py_lo)],
+            ShapeStyle {
+                color: y2_color.to_rgba(),
+                filled: false,
+                stroke_width: 1,
+            },
+        ))
+        .unwrap();
+    }
 
     if has_legend {
         apply_legend_config(

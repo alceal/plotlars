@@ -10,6 +10,8 @@ use crate::converters::trace::is_horizontal_bar;
 
 mod axis;
 mod bar;
+mod boxplot;
+mod heatmap;
 mod legend;
 mod numeric;
 mod title;
@@ -20,6 +22,7 @@ const DEFAULT_HEIGHT: u32 = 600;
 #[derive(Clone, Copy)]
 pub(super) enum SwatchKind {
     Line(u32),
+    LineShape(u32, BaseShape, crate::converters::components::FillMode),
     Rect,
     Shape(BaseShape, crate::converters::components::FillMode),
 }
@@ -62,17 +65,18 @@ pub(super) fn polygon_vertices_at_origin(base_shape: BaseShape, r: i32) -> Vec<(
 fn render_to_backend<DB: DrawingBackend>(
     plot: &impl Plot,
     root: DrawingArea<DB, plotters::coord::Shift>,
-) {
+) -> Vec<numeric::DashEntry> {
     let layout = plot.ir_layout();
     let traces = plot.ir_traces();
 
     root.fill(&WHITE).unwrap();
 
     let mut unsupported = Vec::new();
+    let mut dash_entries = Vec::new();
 
     if traces.is_empty() {
         root.present().unwrap();
-        return;
+        return dash_entries;
     }
 
     match &traces[0] {
@@ -83,11 +87,18 @@ fn render_to_backend<DB: DrawingBackend>(
                 bar::render_bar_vertical(&root, layout, traces, &mut unsupported);
             }
         }
-        _ => numeric::render_numeric(&root, layout, traces, &mut unsupported),
+        TraceIR::BoxPlot(_) => {
+            boxplot::render_boxplot(&root, layout, traces, &mut unsupported);
+        }
+        TraceIR::HeatMap(_) => {
+            heatmap::render_heatmap(&root, layout, traces, &mut unsupported);
+        }
+        _ => numeric::render_numeric(&root, layout, traces, &mut unsupported, &mut dash_entries),
     }
 
     enforce_strict("plotters", &unsupported);
     root.present().unwrap();
+    dash_entries
 }
 
 pub fn plot_interactive(plot: &impl Plot) {
@@ -100,7 +111,7 @@ pub fn plot_interactive(plot: &impl Plot) {
         return;
     }
 
-    let tmp = std::env::temp_dir().join("plotlars_tmp.png");
+    let tmp = std::env::temp_dir().join("plotlars_tmp.svg");
     let path = tmp.to_str().unwrap();
     save_to_file(plot, path);
     open_file(path);
@@ -110,8 +121,15 @@ pub fn save_to_file(plot: &impl Plot, path: &str) {
     let (w, h) = resolve_dimensions(plot.ir_layout());
 
     if path.ends_with(".svg") {
-        let root = SVGBackend::new(path, (w, h)).into_drawing_area();
-        render_to_backend(plot, root);
+        let mut svg = String::new();
+        let dashes;
+        {
+            let root = SVGBackend::with_string(&mut svg, (w, h)).into_drawing_area();
+            dashes = render_to_backend(plot, root);
+        }
+        smooth_svg_lines(&mut svg);
+        apply_svg_dash_patterns(&mut svg, &dashes);
+        std::fs::write(path, svg).unwrap();
     } else {
         let root = BitMapBackend::new(path, (w, h)).into_drawing_area();
         render_to_backend(plot, root);
@@ -121,11 +139,156 @@ pub fn save_to_file(plot: &impl Plot, path: &str) {
 pub fn render_to_svg_string(plot: &impl Plot) -> String {
     let (w, h) = resolve_dimensions(plot.ir_layout());
     let mut svg_string = String::new();
+    let dashes;
     {
         let root = SVGBackend::with_string(&mut svg_string, (w, h)).into_drawing_area();
-        render_to_backend(plot, root);
+        dashes = render_to_backend(plot, root);
     }
+    smooth_svg_lines(&mut svg_string);
+    apply_svg_dash_patterns(&mut svg_string, &dashes);
     svg_string
+}
+
+/// Apply `stroke-dasharray` only to `<polyline>` elements whose stroke color
+/// matches a dash entry. `<line>`, `<rect>`, and other elements are left untouched
+/// so axis lines, grid lines, and tick marks are never dashed.
+fn apply_svg_dash_patterns(svg: &mut String, dashes: &[numeric::DashEntry]) {
+    if dashes.is_empty() {
+        return;
+    }
+
+    let mut result = String::with_capacity(svg.len());
+    let mut remaining = svg.as_str();
+
+    while let Some(tag_start) = remaining.find("<polyline ") {
+        // Copy everything before this <polyline
+        result.push_str(&remaining[..tag_start]);
+        remaining = &remaining[tag_start..];
+
+        // Find the end of this tag
+        let tag_end = remaining
+            .find("/>")
+            .map(|i| i + 2)
+            .unwrap_or(remaining.len());
+        let tag = &remaining[..tag_end];
+
+        // Check if this polyline's stroke matches any dash entry
+        let mut patched = tag.to_string();
+        for &(color, dash_len, gap_len) in dashes {
+            let hex = format!("#{:02X}{:02X}{:02X}", color.0, color.1, color.2);
+            let needle = format!("stroke=\"{}\"", hex);
+            if tag.contains(&needle) && !tag.contains("stroke-dasharray") {
+                let replacement = format!(
+                    "stroke=\"{}\" stroke-dasharray=\"{},{}\"",
+                    hex, dash_len, gap_len
+                );
+                patched = patched.replacen(&needle, &replacement, 1);
+                break;
+            }
+        }
+        result.push_str(&patched);
+        remaining = &remaining[tag_end..];
+    }
+    result.push_str(remaining);
+    *svg = result;
+}
+
+/// Post-process SVG to improve line rendering quality:
+/// 1. Inject round joins/caps so thick strokes blend smoothly at vertices.
+/// 2. Simplify dense polylines (Ramer-Douglas-Peucker) to remove sub-pixel
+///    zigzag noise caused by plotters' integer coordinate rounding.
+fn smooth_svg_lines(svg: &mut String) {
+    *svg = svg.replace(
+        "<polyline fill=\"none\"",
+        "<polyline stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\"",
+    );
+    simplify_svg_polylines(svg);
+}
+
+/// Find every `points="..."` attribute in the SVG and, when the polyline has
+/// enough vertices, apply Ramer-Douglas-Peucker to remove redundant ones.
+fn simplify_svg_polylines(svg: &mut String) {
+    const MIN_POINTS: usize = 20;
+    const EPSILON: f64 = 0.5;
+
+    let mut result = String::with_capacity(svg.len());
+    let mut remaining = svg.as_str();
+
+    while let Some(idx) = remaining.find("points=\"") {
+        let prefix_end = idx + 8; // length of `points="`
+        result.push_str(&remaining[..prefix_end]);
+        remaining = &remaining[prefix_end..];
+
+        if let Some(end) = remaining.find('"') {
+            let raw = &remaining[..end];
+            let points = parse_svg_points(raw);
+            if points.len() > MIN_POINTS {
+                let simplified = rdp_simplify(&points, EPSILON);
+                result.push_str(&format_svg_points(&simplified));
+            } else {
+                result.push_str(raw);
+            }
+            result.push('"');
+            remaining = &remaining[end + 1..];
+        }
+    }
+    result.push_str(remaining);
+    *svg = result;
+}
+
+fn parse_svg_points(s: &str) -> Vec<(f64, f64)> {
+    s.split_whitespace()
+        .filter_map(|p| {
+            let (x, y) = p.split_once(',')?;
+            Some((x.parse().ok()?, y.parse().ok()?))
+        })
+        .collect()
+}
+
+fn format_svg_points(pts: &[(f64, f64)]) -> String {
+    pts.iter()
+        .map(|(x, y)| format!("{},{}", *x as i32, *y as i32))
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Ramer-Douglas-Peucker polyline simplification.
+fn rdp_simplify(points: &[(f64, f64)], epsilon: f64) -> Vec<(f64, f64)> {
+    if points.len() <= 2 {
+        return points.to_vec();
+    }
+    let first = points[0];
+    let last = points[points.len() - 1];
+
+    let mut max_dist = 0.0f64;
+    let mut max_idx = 0;
+    for (i, &p) in points.iter().enumerate().skip(1).take(points.len() - 2) {
+        let d = perp_distance(p, first, last);
+        if d > max_dist {
+            max_dist = d;
+            max_idx = i;
+        }
+    }
+
+    if max_dist > epsilon {
+        let mut left = rdp_simplify(&points[..=max_idx], epsilon);
+        let right = rdp_simplify(&points[max_idx..], epsilon);
+        left.pop();
+        left.extend(right);
+        left
+    } else {
+        vec![first, last]
+    }
+}
+
+fn perp_distance((px, py): (f64, f64), (ax, ay): (f64, f64), (bx, by): (f64, f64)) -> f64 {
+    let dx = bx - ax;
+    let dy = by - ay;
+    let len_sq = dx * dx + dy * dy;
+    if len_sq == 0.0 {
+        return ((px - ax).powi(2) + (py - ay).powi(2)).sqrt();
+    }
+    (dy * px - dx * py + bx * ay - by * ax).abs() / len_sq.sqrt()
 }
 
 fn open_file(path: &str) {

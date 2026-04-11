@@ -1,4 +1,4 @@
-use plotlars_core::components::Orientation;
+use plotlars_core::components::{BarMode, Orientation};
 use plotlars_core::ir::layout::LayoutIR;
 use plotlars_core::ir::trace::TraceIR;
 use plotters::prelude::*;
@@ -22,6 +22,14 @@ fn is_horizontal_legend(layout: &LayoutIR) -> bool {
         .is_some_and(|o| matches!(o, Orientation::Horizontal))
 }
 
+fn resolve_bar_mode(layout: &LayoutIR) -> &BarMode {
+    layout.bar_mode.as_ref().unwrap_or(&BarMode::Group)
+}
+
+fn is_stacked(mode: &BarMode) -> bool {
+    matches!(mode, BarMode::Stack | BarMode::Relative)
+}
+
 pub(super) fn render_bar_vertical<DB: DrawingBackend>(
     root: &DrawingArea<DB, plotters::coord::Shift>,
     layout: &LayoutIR,
@@ -29,10 +37,11 @@ pub(super) fn render_bar_vertical<DB: DrawingBackend>(
     unsupported: &mut Vec<String>,
 ) {
     let config = extract_layout_config(layout, unsupported);
+    let bar_mode = resolve_bar_mode(layout);
     let categories = collect_bar_categories(traces);
     let n_cats = categories.len();
     let n_groups = count_bar_groups(traces);
-    let (_, max_val) = compute_bar_ranges(traces);
+    let (_, max_val) = compute_bar_ranges(traces, is_stacked(bar_mode));
 
     let x_range = -0.5..(n_cats as f64 - 0.5);
     let y_hi = config
@@ -64,8 +73,18 @@ pub(super) fn render_bar_vertical<DB: DrawingBackend>(
         let mut mesh = chart.configure_mesh();
         mesh.x_labels(n_cats).x_label_formatter(&x_formatter);
 
-        let xvc = config.x_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
-        let yvc = config.y_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
+        let xvc = config
+            .x_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
+        let yvc = config
+            .y_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
         apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
 
         let y_fmt;
@@ -91,34 +110,66 @@ pub(super) fn render_bar_vertical<DB: DrawingBackend>(
     }
 
     let bar_total_width = 0.8;
-    let bar_width = if n_groups > 0 {
-        bar_total_width / n_groups as f64
-    } else {
-        bar_total_width
+    let bar_width = match bar_mode {
+        BarMode::Group => {
+            if n_groups > 0 {
+                bar_total_width / n_groups as f64
+            } else {
+                bar_total_width
+            }
+        }
+        _ => bar_total_width,
     };
+
     let mut has_legend = false;
     let mut legend_entries: Vec<LegendEntry> = Vec::new();
     let mut group_idx = 0usize;
+    let mut stack_bases = vec![0.0f64; n_cats];
 
     for trace in traces {
         if let TraceIR::BarPlot(ir) = trace {
             let labels = extract_strings(&ir.labels);
             let values = extract_f64(&ir.values);
-            let errors = ir.error.as_ref().map(extract_f64);
             let color = resolve_trace_color(&ir.marker, group_idx);
-            let style = color.filled();
-
-            let offset = (group_idx as f64 - (n_groups as f64 - 1.0) / 2.0) * bar_width;
+            let alpha = if matches!(bar_mode, BarMode::Overlay) {
+                0.6
+            } else {
+                1.0
+            };
+            let style = ShapeStyle {
+                color: color.to_rgba().mix(alpha),
+                filled: true,
+                stroke_width: 0,
+            };
 
             let rects: Vec<_> = labels
                 .iter()
                 .zip(values.iter())
                 .filter_map(|(label, &val)| {
                     let cat_idx = categories.iter().position(|c| c == label)?;
-                    let center = cat_idx as f64 + offset;
-                    let x0 = center - bar_width / 2.0;
-                    let x1 = center + bar_width / 2.0;
-                    Some(Rectangle::new([(x0, 0.0), (x1, val)], style))
+                    match bar_mode {
+                        BarMode::Group => {
+                            let offset =
+                                (group_idx as f64 - (n_groups as f64 - 1.0) / 2.0) * bar_width;
+                            let center = cat_idx as f64 + offset;
+                            let x0 = center - bar_width / 2.0;
+                            let x1 = center + bar_width / 2.0;
+                            Some(Rectangle::new([(x0, 0.0), (x1, val)], style))
+                        }
+                        BarMode::Stack | BarMode::Relative => {
+                            let base = stack_bases[cat_idx];
+                            let center = cat_idx as f64;
+                            let x0 = center - bar_width / 2.0;
+                            let x1 = center + bar_width / 2.0;
+                            Some(Rectangle::new([(x0, base), (x1, base + val)], style))
+                        }
+                        BarMode::Overlay => {
+                            let center = cat_idx as f64;
+                            let x0 = center - bar_width / 2.0;
+                            let x1 = center + bar_width / 2.0;
+                            Some(Rectangle::new([(x0, 0.0), (x1, val)], style))
+                        }
+                    }
                 })
                 .collect();
 
@@ -132,13 +183,31 @@ pub(super) fn render_bar_vertical<DB: DrawingBackend>(
                 legend_entries.push(LegendEntry {
                     name: name.clone(),
                     color,
-                    opacity: 1.0,
+                    opacity: alpha,
                     kind: SwatchKind::Rect,
                 });
             }
 
-            // Draw error bars
-            if let Some(errors) = errors {
+            if is_stacked(bar_mode) {
+                for (label, &val) in labels.iter().zip(values.iter()) {
+                    if let Some(cat_idx) = categories.iter().position(|c| c == label) {
+                        stack_bases[cat_idx] += val;
+                    }
+                }
+            }
+
+            group_idx += 1;
+        }
+    }
+
+    // Draw error bars on top of all bars so they are never obscured
+    let mut err_stack_bases = vec![0.0f64; n_cats];
+    let mut err_group_idx = 0usize;
+    for trace in traces {
+        if let TraceIR::BarPlot(ir) = trace {
+            let labels = extract_strings(&ir.labels);
+            let values = extract_f64(&ir.values);
+            if let Some(errors) = ir.error.as_ref().map(extract_f64) {
                 let cap_half_w = bar_width * 0.15;
                 let err_style = ShapeStyle {
                     color: BLACK.to_rgba(),
@@ -146,24 +215,29 @@ pub(super) fn render_bar_vertical<DB: DrawingBackend>(
                     stroke_width: 1,
                 };
                 let mut err_lines: Vec<PathElement<(f64, f64)>> = Vec::new();
-                for ((label, &val), &err) in
-                    labels.iter().zip(values.iter()).zip(errors.iter())
-                {
+                for ((label, &val), &err) in labels.iter().zip(values.iter()).zip(errors.iter()) {
                     if let Some(cat_idx) = categories.iter().position(|c| c == label) {
-                        let center = cat_idx as f64 + offset;
-                        let lo = val - err;
-                        let hi = val + err;
-                        // Vertical bar
+                        let (center, bar_top) = match bar_mode {
+                            BarMode::Group => {
+                                let offset = (err_group_idx as f64 - (n_groups as f64 - 1.0) / 2.0)
+                                    * bar_width;
+                                (cat_idx as f64 + offset, val)
+                            }
+                            BarMode::Stack | BarMode::Relative => {
+                                (cat_idx as f64, err_stack_bases[cat_idx] + val)
+                            }
+                            BarMode::Overlay => (cat_idx as f64, val),
+                        };
+                        let lo = bar_top - err;
+                        let hi = bar_top + err;
                         err_lines.push(PathElement::new(
                             vec![(center, lo), (center, hi)],
                             err_style,
                         ));
-                        // Top cap
                         err_lines.push(PathElement::new(
                             vec![(center - cap_half_w, hi), (center + cap_half_w, hi)],
                             err_style,
                         ));
-                        // Bottom cap
                         err_lines.push(PathElement::new(
                             vec![(center - cap_half_w, lo), (center + cap_half_w, lo)],
                             err_style,
@@ -173,12 +247,16 @@ pub(super) fn render_bar_vertical<DB: DrawingBackend>(
                 chart.draw_series(err_lines).unwrap();
             }
 
-            group_idx += 1;
-        }
-    }
+            if is_stacked(bar_mode) {
+                for (label, &val) in labels.iter().zip(values.iter()) {
+                    if let Some(cat_idx) = categories.iter().position(|c| c == label) {
+                        err_stack_bases[cat_idx] += val;
+                    }
+                }
+            }
 
-    if layout.bar_mode.is_some() {
-        plotlars_core::policy::report_unsupported("plotters", "BarPlot", "bar_mode", unsupported);
+            err_group_idx += 1;
+        }
     }
 
     if has_legend {
@@ -196,10 +274,11 @@ pub(super) fn render_bar_horizontal<DB: DrawingBackend>(
     unsupported: &mut Vec<String>,
 ) {
     let config = extract_layout_config(layout, unsupported);
+    let bar_mode = resolve_bar_mode(layout);
     let categories = collect_bar_categories(traces);
     let n_cats = categories.len();
     let n_groups = count_bar_groups(traces);
-    let (_, max_val) = compute_bar_ranges(traces);
+    let (_, max_val) = compute_bar_ranges(traces, is_stacked(bar_mode));
 
     let x_hi = config
         .x_range
@@ -231,8 +310,18 @@ pub(super) fn render_bar_horizontal<DB: DrawingBackend>(
         let mut mesh = chart.configure_mesh();
         mesh.y_labels(n_cats).y_label_formatter(&y_formatter);
 
-        let xvc = config.x_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
-        let yvc = config.y_axis.as_ref().and_then(|a| a.value_color.as_ref()).map(convert_rgb).unwrap_or(BLACK);
+        let xvc = config
+            .x_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
+        let yvc = config
+            .y_axis
+            .as_ref()
+            .and_then(|a| a.value_color.as_ref())
+            .map(convert_rgb)
+            .unwrap_or(BLACK);
         apply_mesh_axis_config(&mut mesh, &config, &xvc, &yvc);
 
         let x_fmt;
@@ -258,34 +347,66 @@ pub(super) fn render_bar_horizontal<DB: DrawingBackend>(
     }
 
     let bar_total_width = 0.8;
-    let bar_width = if n_groups > 0 {
-        bar_total_width / n_groups as f64
-    } else {
-        bar_total_width
+    let bar_width = match bar_mode {
+        BarMode::Group => {
+            if n_groups > 0 {
+                bar_total_width / n_groups as f64
+            } else {
+                bar_total_width
+            }
+        }
+        _ => bar_total_width,
     };
+
     let mut has_legend = false;
     let mut legend_entries: Vec<LegendEntry> = Vec::new();
     let mut group_idx = 0usize;
+    let mut stack_bases = vec![0.0f64; n_cats];
 
     for trace in traces {
         if let TraceIR::BarPlot(ir) = trace {
             let labels = extract_strings(&ir.labels);
             let values = extract_f64(&ir.values);
-            let errors = ir.error.as_ref().map(extract_f64);
             let color = resolve_trace_color(&ir.marker, group_idx);
-            let style = color.filled();
-
-            let offset = (group_idx as f64 - (n_groups as f64 - 1.0) / 2.0) * bar_width;
+            let alpha = if matches!(bar_mode, BarMode::Overlay) {
+                0.6
+            } else {
+                1.0
+            };
+            let style = ShapeStyle {
+                color: color.to_rgba().mix(alpha),
+                filled: true,
+                stroke_width: 0,
+            };
 
             let rects: Vec<_> = labels
                 .iter()
                 .zip(values.iter())
                 .filter_map(|(label, &val)| {
                     let cat_idx = categories.iter().position(|c| c == label)?;
-                    let center = cat_idx as f64 + offset;
-                    let y0 = center - bar_width / 2.0;
-                    let y1 = center + bar_width / 2.0;
-                    Some(Rectangle::new([(0.0, y0), (val, y1)], style))
+                    match bar_mode {
+                        BarMode::Group => {
+                            let offset =
+                                (group_idx as f64 - (n_groups as f64 - 1.0) / 2.0) * bar_width;
+                            let center = cat_idx as f64 + offset;
+                            let y0 = center - bar_width / 2.0;
+                            let y1 = center + bar_width / 2.0;
+                            Some(Rectangle::new([(0.0, y0), (val, y1)], style))
+                        }
+                        BarMode::Stack | BarMode::Relative => {
+                            let base = stack_bases[cat_idx];
+                            let center = cat_idx as f64;
+                            let y0 = center - bar_width / 2.0;
+                            let y1 = center + bar_width / 2.0;
+                            Some(Rectangle::new([(base, y0), (base + val, y1)], style))
+                        }
+                        BarMode::Overlay => {
+                            let center = cat_idx as f64;
+                            let y0 = center - bar_width / 2.0;
+                            let y1 = center + bar_width / 2.0;
+                            Some(Rectangle::new([(0.0, y0), (val, y1)], style))
+                        }
+                    }
                 })
                 .collect();
 
@@ -299,13 +420,31 @@ pub(super) fn render_bar_horizontal<DB: DrawingBackend>(
                 legend_entries.push(LegendEntry {
                     name: name.clone(),
                     color,
-                    opacity: 1.0,
+                    opacity: alpha,
                     kind: SwatchKind::Rect,
                 });
             }
 
-            // Draw error bars (horizontal direction for horizontal bars)
-            if let Some(errors) = errors {
+            if is_stacked(bar_mode) {
+                for (label, &val) in labels.iter().zip(values.iter()) {
+                    if let Some(cat_idx) = categories.iter().position(|c| c == label) {
+                        stack_bases[cat_idx] += val;
+                    }
+                }
+            }
+
+            group_idx += 1;
+        }
+    }
+
+    // Draw error bars on top of all bars so they are never obscured
+    let mut err_stack_bases = vec![0.0f64; n_cats];
+    let mut err_group_idx = 0usize;
+    for trace in traces {
+        if let TraceIR::BarPlot(ir) = trace {
+            let labels = extract_strings(&ir.labels);
+            let values = extract_f64(&ir.values);
+            if let Some(errors) = ir.error.as_ref().map(extract_f64) {
                 let cap_half_h = bar_width * 0.15;
                 let err_style = ShapeStyle {
                     color: BLACK.to_rgba(),
@@ -313,24 +452,29 @@ pub(super) fn render_bar_horizontal<DB: DrawingBackend>(
                     stroke_width: 1,
                 };
                 let mut err_lines: Vec<PathElement<(f64, f64)>> = Vec::new();
-                for ((label, &val), &err) in
-                    labels.iter().zip(values.iter()).zip(errors.iter())
-                {
+                for ((label, &val), &err) in labels.iter().zip(values.iter()).zip(errors.iter()) {
                     if let Some(cat_idx) = categories.iter().position(|c| c == label) {
-                        let center = cat_idx as f64 + offset;
-                        let lo = val - err;
-                        let hi = val + err;
-                        // Horizontal bar
+                        let (center, bar_end) = match bar_mode {
+                            BarMode::Group => {
+                                let offset = (err_group_idx as f64 - (n_groups as f64 - 1.0) / 2.0)
+                                    * bar_width;
+                                (cat_idx as f64 + offset, val)
+                            }
+                            BarMode::Stack | BarMode::Relative => {
+                                (cat_idx as f64, err_stack_bases[cat_idx] + val)
+                            }
+                            BarMode::Overlay => (cat_idx as f64, val),
+                        };
+                        let lo = bar_end - err;
+                        let hi = bar_end + err;
                         err_lines.push(PathElement::new(
                             vec![(lo, center), (hi, center)],
                             err_style,
                         ));
-                        // Right cap
                         err_lines.push(PathElement::new(
                             vec![(hi, center - cap_half_h), (hi, center + cap_half_h)],
                             err_style,
                         ));
-                        // Left cap
                         err_lines.push(PathElement::new(
                             vec![(lo, center - cap_half_h), (lo, center + cap_half_h)],
                             err_style,
@@ -340,7 +484,15 @@ pub(super) fn render_bar_horizontal<DB: DrawingBackend>(
                 chart.draw_series(err_lines).unwrap();
             }
 
-            group_idx += 1;
+            if is_stacked(bar_mode) {
+                for (label, &val) in labels.iter().zip(values.iter()) {
+                    if let Some(cat_idx) = categories.iter().position(|c| c == label) {
+                        err_stack_bases[cat_idx] += val;
+                    }
+                }
+            }
+
+            err_group_idx += 1;
         }
     }
 

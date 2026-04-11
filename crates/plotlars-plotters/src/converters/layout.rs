@@ -24,6 +24,11 @@ pub(crate) struct LayoutConfig {
     pub y_label_y: Option<f64>,
     pub x_axis: Option<Axis>,
     pub y_axis: Option<Axis>,
+    pub y2_axis: Option<Axis>,
+    pub y2_label: Option<String>,
+    pub y2_label_font: String,
+    pub y2_label_size: u32,
+    pub y2_label_color: Rgb,
     pub legend: Option<Legend>,
     pub legend_title: Option<String>,
     pub x_range: Option<(f64, f64)>,
@@ -136,10 +141,37 @@ pub(crate) fn extract_layout_config(
         }
     });
 
-    let (x_axis, y_axis) = match &layout.axes_2d {
-        Some(axes) => (axes.x_axis.clone(), axes.y_axis.clone()),
-        None => (None, None),
+    let (x_axis, y_axis, y2_axis) = match &layout.axes_2d {
+        Some(axes) => (
+            axes.x_axis.clone(),
+            axes.y_axis.clone(),
+            axes.y2_axis.clone(),
+        ),
+        None => (None, None, None),
     };
+
+    let y2_label = layout.y2_title.as_ref().map(|t| t.content.clone());
+    let y2_label_font = layout
+        .y2_title
+        .as_ref()
+        .map(|t| {
+            if t.font.is_empty() {
+                "sans-serif".to_string()
+            } else {
+                t.font.clone()
+            }
+        })
+        .unwrap_or_else(|| "sans-serif".to_string());
+    let y2_label_size = layout
+        .y2_title
+        .as_ref()
+        .map(|t| if t.size == 12 { 15 } else { t.size as u32 })
+        .unwrap_or(15);
+    let y2_label_color = layout
+        .y2_title
+        .as_ref()
+        .map(|t| t.color)
+        .unwrap_or(Rgb(0, 0, 0));
 
     let legend = layout.legend.clone();
     let legend_title = layout.legend_title.as_ref().map(|t| t.content.clone());
@@ -167,9 +199,6 @@ pub(crate) fn extract_layout_config(
         });
 
     // Report unsupported layout fields
-    if layout.y2_title.is_some() {
-        report_unsupported("plotters", "Layout", "y2_title", unsupported);
-    }
     if layout.z_title.is_some() {
         report_unsupported("plotters", "Layout", "z_title", unsupported);
     }
@@ -214,6 +243,11 @@ pub(crate) fn extract_layout_config(
         y_label_y,
         x_axis,
         y_axis,
+        y2_axis,
+        y2_label,
+        y2_label_font,
+        y2_label_size,
+        y2_label_color,
         legend,
         legend_title,
         x_range,

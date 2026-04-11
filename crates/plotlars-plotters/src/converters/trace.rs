@@ -81,6 +81,23 @@ pub(crate) fn compute_numeric_ranges(traces: &[TraceIR]) -> (f64, f64, f64, f64)
                 }
                 continue;
             }
+            TraceIR::CandlestickPlot(ir) => {
+                let n = extract_strings(&ir.dates).len();
+                if n > 0 {
+                    x_min = x_min.min(-0.5);
+                    x_max = x_max.max(n as f64 - 0.5);
+                }
+                let ohlc = extract_f64(&ir.open)
+                    .into_iter()
+                    .chain(extract_f64(&ir.high))
+                    .chain(extract_f64(&ir.low))
+                    .chain(extract_f64(&ir.close));
+                for v in ohlc {
+                    y_min = y_min.min(v);
+                    y_max = y_max.max(v);
+                }
+                continue;
+            }
             _ => continue,
         };
         for (x, y) in &pairs {
@@ -111,24 +128,55 @@ pub(crate) fn compute_numeric_ranges(traces: &[TraceIR]) -> (f64, f64, f64, f64)
     }
 }
 
-pub(crate) fn compute_bar_ranges(traces: &[TraceIR]) -> (usize, f64) {
-    let mut n_categories = 0usize;
-    let mut max_val = 0.0f64;
+pub(crate) fn compute_bar_ranges(traces: &[TraceIR], stacked: bool) -> (usize, f64) {
+    let categories = collect_bar_categories(traces);
+    let n_categories = categories.len();
 
-    for trace in traces {
-        if let TraceIR::BarPlot(ir) = trace {
-            let labels = extract_strings(&ir.labels);
-            n_categories = n_categories.max(labels.len());
-            let vals = extract_f64(&ir.values);
-            let errs: Vec<f64> = ir.error.as_ref().map(extract_f64).unwrap_or_default();
-            for (i, v) in vals.iter().enumerate() {
-                let e = errs.get(i).copied().unwrap_or(0.0);
-                max_val = max_val.max(v + e);
+    if stacked {
+        let mut pos_sums = vec![0.0f64; n_categories];
+        let mut neg_sums = vec![0.0f64; n_categories];
+        for trace in traces {
+            if let TraceIR::BarPlot(ir) = trace {
+                let labels = extract_strings(&ir.labels);
+                let vals = extract_f64(&ir.values);
+                let errs: Vec<f64> = ir.error.as_ref().map(extract_f64).unwrap_or_default();
+                for (i, (label, &val)) in labels.iter().zip(vals.iter()).enumerate() {
+                    if let Some(cat_idx) = categories.iter().position(|c| c == label) {
+                        let e = errs.get(i).copied().unwrap_or(0.0);
+                        if val >= 0.0 {
+                            pos_sums[cat_idx] += val;
+                            pos_sums[cat_idx] = pos_sums[cat_idx].max(pos_sums[cat_idx] + e);
+                        } else {
+                            neg_sums[cat_idx] += val;
+                        }
+                    }
+                }
             }
         }
+        let max_pos = pos_sums.iter().cloned().fold(0.0f64, f64::max);
+        let min_neg = neg_sums.iter().cloned().fold(0.0f64, f64::min);
+        (
+            n_categories,
+            if min_neg < 0.0 {
+                max_pos.max(-min_neg)
+            } else {
+                max_pos
+            },
+        )
+    } else {
+        let mut max_val = 0.0f64;
+        for trace in traces {
+            if let TraceIR::BarPlot(ir) = trace {
+                let vals = extract_f64(&ir.values);
+                let errs: Vec<f64> = ir.error.as_ref().map(extract_f64).unwrap_or_default();
+                for (i, v) in vals.iter().enumerate() {
+                    let e = errs.get(i).copied().unwrap_or(0.0);
+                    max_val = max_val.max(v + e);
+                }
+            }
+        }
+        (n_categories, max_val)
     }
-
-    (n_categories, max_val)
 }
 
 pub(crate) fn collect_bar_categories(traces: &[TraceIR]) -> Vec<String> {
@@ -228,6 +276,18 @@ pub(crate) fn is_horizontal_bar(traces: &[TraceIR]) -> bool {
             false
         }
     })
+}
+
+/// Collect date labels from the first CandlestickPlot trace with string date data.
+pub(crate) fn collect_candlestick_labels(traces: &[TraceIR]) -> Vec<String> {
+    for trace in traces {
+        if let TraceIR::CandlestickPlot(ir) = trace {
+            if matches!(ir.dates, ColumnData::String(_)) {
+                return extract_strings(&ir.dates);
+            }
+        }
+    }
+    vec![]
 }
 
 pub(crate) fn histogram_max_count(traces: &[TraceIR]) -> f64 {
