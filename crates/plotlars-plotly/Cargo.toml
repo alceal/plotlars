@@ -6,14 +6,14 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
-publish = false
+
 description = "Plotly backend for plotlars"
 
 [lib]
 doctest = false
 
 [dependencies]
-plotlars-core = { path = "../plotlars-core" }
+plotlars-core = { path = "../plotlars-core", version = "0.12.0" }
 bon.workspace = true
 image.workspace = true
 plotly.workspace = true
