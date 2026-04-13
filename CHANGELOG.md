@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2026-04-13
+
+### ⚠️ BREAKING CHANGES
+
+- Restructured as a Cargo workspace (`plotlars-core`, `plotlars-plotly`, `plotlars-plotters`, `plotlars` facade)
+- Introduced intermediate representation (IR) layer decoupling plot definitions from rendering backends
+
+### 🚀 Features
+
+- **Plotters backend**: Alternative rendering backend using the plotters crate for static image output (PNG/SVG)
+  - Supported plot types: scatter, line, bar, box, histogram, heatmap, candlestick, and time series
+  - Log, category, and date axis scales with configurable axis placement
+  - Dual y2-axis support
+  - Custom legend renderer
+- **File loaders**: Load DataFrames directly from CSV, Excel, JSON, and Parquet files
+- **`try_build`**: Fallible builder method returning `Result<T, PlotlarsError>` for all plot types
+- **`PlotlarsError`**: Unified error type for data validation and file loading errors
+- **Polars re-export**: Access polars types directly via `plotlars::polars`
+
+### 🐛 Bug Fixes
+
+- Fix custom plot/axis titles not respecting per-axis font, color, size, and position settings
+- Fix faceted z-scale normalization and subplot legend color extraction
+- Fix `LinePlot` and `TimeSeriesPlot` missing `legend_group` for faceted legend toggle
+- Fix `SubplotGrid` legend colors extracted from IR instead of serialized JSON
+- Tighten API visibility to prevent accidental exposure of internal types
+
+### 🧪 Tests
+
+- Add comprehensive test suite (357+ tests)
+- Remove snapshot pipeline, replaced by e2e test suite
+
 ## [0.11.8] - 2026-03-19
 
 ### 🚀 Features

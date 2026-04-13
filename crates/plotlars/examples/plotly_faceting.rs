@@ -83,10 +83,13 @@ fn contourplot_example() {
     let functions: Vec<(&str, SurfaceFn)> = vec![
         ("Gaussian", Box::new(|x, y| (-x * x - y * y).exp())),
         ("Saddle", Box::new(|x, y| x * x - y * y)),
-        ("Ripple", Box::new(|x, y| {
-            let r = (x * x + y * y).sqrt();
-            (r * 2.0).sin() / (r + 0.1)
-        })),
+        (
+            "Ripple",
+            Box::new(|x, y| {
+                let r = (x * x + y * y).sqrt();
+                (r * 2.0).sin() / (r + 0.1)
+            }),
+        ),
         ("Paraboloid", Box::new(|x, y| x * x + y * y)),
         ("Wave", Box::new(|x, y| (x * 2.0).sin() * (y * 2.0).cos())),
         ("Diagonal", Box::new(|x, y| ((x + y) * 2.0).sin())),
