@@ -1,0 +1,46 @@
+/// An enumeration representing different styles of lines that can be used in plots.
+///
+/// # Example
+///
+/// ```rust
+/// use polars::prelude::*;
+/// use plotlars::{Legend, Line, Plot, Rgb, TimeSeriesPlot};
+///
+/// let dataset = LazyCsvReader::new(PlRefPath::new("data/revenue_and_cost.csv"))
+///     .finish()
+///     .unwrap()
+///     .select([
+///         col("Date").cast(DataType::String),
+///         col("Revenue").cast(DataType::Int32),
+///         col("Cost").cast(DataType::Int32),
+///     ])
+///     .collect()
+///     .unwrap();
+///
+/// TimeSeriesPlot::builder()
+///     .data(&dataset)
+///     .x("Date")
+///     .y("Revenue")
+///     .additional_series(vec!["Cost"])
+///     .size(8)
+///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
+///     .lines(vec![Line::Dash, Line::Solid])
+///     .legend(
+///         &Legend::new()
+///             .x(0.05)
+///             .y(0.9)
+///     )
+///     .build()
+///     .plot();
+/// ```
+///
+/// ![Example](https://imgur.com/y6ZyypZ.png)
+#[derive(Clone, Copy)]
+pub enum Line {
+    Solid,
+    Dot,
+    Dash,
+    LongDash,
+    DashDot,
+    LongDashDot,
+}

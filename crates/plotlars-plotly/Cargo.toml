@@ -1,0 +1,28 @@
+[package]
+name = "plotlars-plotly"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+description = "Plotly backend for plotlars"
+
+[lib]
+doctest = false
+
+[dependencies]
+plotlars-core = { path = "../plotlars-core" }
+bon.workspace = true
+image.workspace = true
+plotly.workspace = true
+polars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[features]
+export-chrome = ["plotly/static_export_chromedriver"]
+export-firefox = ["plotly/static_export_geckodriver"]
+export-download = ["plotly/static_export_wd_download"]
+export-default = ["plotly/static_export_default"]

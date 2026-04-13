@@ -1,0 +1,20 @@
+[package]
+name = "plotlars-plotters"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+description = "Plotters backend for plotlars"
+
+[lib]
+doctest = false
+
+[dependencies]
+plotlars-core = { path = "../plotlars-core" }
+plotters.workspace = true
+
+[dev-dependencies]
+polars.workspace = true

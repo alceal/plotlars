@@ -1,0 +1,27 @@
+[package]
+name = "plotlars-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+description = "Core types and traits for plotlars"
+
+[lib]
+doctest = false
+
+[features]
+format-json = ["polars/json"]
+format-excel = ["dep:calamine"]
+
+[dependencies]
+bon.workspace = true
+calamine = { version = "0.26", optional = true }
+image.workspace = true
+indexmap.workspace = true
+ordered-float.workspace = true
+polars.workspace = true
+serde.workspace = true
+serde_json.workspace = true

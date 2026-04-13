@@ -17,12 +17,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose
-#    - name: Run tests
-#      run: cargo test --verbose
+      run: |
+        cargo build --workspace --exclude plotlars --verbose
+        cargo build -p plotlars --features plotly --verbose
+        cargo build -p plotlars --features plotters --verbose
+    - name: Build examples
+      run: |
+        cargo build -p plotlars --features plotly --examples
+        cargo build -p plotlars --features plotters --examples
     - name: Format
-      run: cargo fmt
+      run: cargo fmt --all -- --check
     - name: Clippy
-      run: cargo clippy
+      run: |
+        cargo clippy --workspace --exclude plotlars --all-targets -- -D warnings
+        cargo clippy -p plotlars --features plotly --all-targets -- -D warnings
+        cargo clippy -p plotlars --features plotters -- -D warnings
+    - name: Test
+      run: cargo test --workspace --exclude plotlars
+    - name: Test IO features
+      run: cargo test -p plotlars-core --features format-json,format-excel
+    - name: Clippy IO features
+      run: cargo clippy -p plotlars-core --features format-json,format-excel --all-targets -- -D warnings
     - name: Machete
       uses: bnjbvr/cargo-machete@main

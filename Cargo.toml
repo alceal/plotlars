@@ -1,33 +1,27 @@
-[package]
-name = "plotlars"
-version = "0.11.8"
-authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
+[workspace]
+members = [
+    "crates/plotlars-core",
+    "crates/plotlars-plotly",
+    "crates/plotlars-plotters",
+    "crates/plotlars",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.12.0"
 edition = "2021"
 rust-version = "1.86.0"
-description = "Plotlars is a Rust library designed to facilitate the integration between the Polars data analysis library and visualization libraries."
-documentation = "https://docs.rs/plotlars/latest/plotlars/"
-readme = "README.md"
-homepage = "https://github.com/alceal/plotlars"
-repository = "https://github.com/alceal/plotlars"
 license = "MIT"
-keywords = ["chart", "plot", "plotly", "polars", "visualization"]
-categories = ["visualization"]
+repository = "https://github.com/alceal/plotlars"
+authors = ["Alberto Cebada Aleu <contact@albertocebada.com>"]
 
-[lib]
-doctest = false
-
-[dependencies]
+[workspace.dependencies]
 bon = "3.9.1"
 image = "0.25.10"
 indexmap = "2.13.0"
 ordered-float = "5.1.0"
-plotly = "0.14.1"
-polars = { version = "0.53.0", features = ["lazy", "dtype-categorical", "timezones"] }
+polars = { version = "0.53.0", features = ["lazy", "dtype-categorical", "timezones", "parquet"] }
 serde = "1.0.228"
 serde_json = "1.0.149"
-
-[features]
-export-chrome = ["plotly/static_export_chromedriver"]
-export-firefox = ["plotly/static_export_geckodriver"]
-export-download = ["plotly/static_export_wd_download"]
-export-default = ["plotly/static_export_default"]
+plotly = "0.14.1"
+plotters = "0.3"

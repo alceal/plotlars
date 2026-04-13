@@ -1,0 +1,176 @@
+use bon::bon;
+
+use crate::{
+    components::{Axis, Text},
+    ir::layout::LayoutIR,
+    ir::trace::{Array2dPlotIR, TraceIR},
+};
+
+/// A structure representing a 2D array plot.
+///
+/// The `Array2dPlot` struct allows for visualizing 2D arrays of RGB color values as images or heatmaps.
+/// Each element in the 2D array corresponds to a pixel, with its color defined by an `[u8; 3]` RGB triplet.
+/// This struct supports customizable titles, axis labels, and axis configurations for better presentation.
+///
+/// # Arguments
+///
+/// * `data` - A 2D vector of RGB triplets (`&[Vec<[u8; 3]>]`) representing pixel colors for the plot.
+/// * `plot_title` - An optional `Text` struct specifying the title of the plot.
+/// * `x_title` - An optional `Text` struct specifying the title of the x-axis.
+/// * `y_title` - An optional `Text` struct specifying the title of the y-axis.
+/// * `x_axis` - An optional reference to an `Axis` struct for customizing the x-axis.
+/// * `y_axis` - An optional reference to an `Axis` struct for customizing the y-axis.
+///
+/// # Example
+///
+/// ## Basic 2D Array Plot
+///
+/// ```rust
+/// use plotlars::{Array2dPlot, Plot, Text};
+///
+/// let data = vec![
+///     vec![[255, 0, 0], [0, 255, 0], [0, 0, 255]],
+///     vec![[0, 0, 255], [255, 0, 0], [0, 255, 0]],
+///     vec![[0, 255, 0], [0, 0, 255], [255, 0, 0]],
+/// ];
+///
+/// Array2dPlot::builder()
+///     .data(&data)
+///     .plot_title(
+///         Text::from("Array2D Plot")
+///             .font("Arial")
+///             .size(18)
+///     )
+///     .build()
+///     .plot();
+/// ```
+///
+/// ![Example](https://imgur.com/LMrqAaT.png)
+#[allow(dead_code)]
+#[derive(Clone)]
+pub struct Array2dPlot {
+    traces: Vec<TraceIR>,
+    layout: LayoutIR,
+}
+
+#[bon]
+impl Array2dPlot {
+    #[builder(on(String, into), on(Text, into))]
+    pub fn new(
+        data: &[Vec<[u8; 3]>],
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+    ) -> Self {
+        let ir_trace = TraceIR::Array2dPlot(Array2dPlotIR {
+            data: data.to_vec(),
+        });
+        let traces = vec![ir_trace];
+
+        let layout = LayoutIR {
+            title: plot_title,
+            x_title,
+            y_title,
+            y2_title: None,
+            z_title: None,
+            legend_title: None,
+            legend: None,
+            dimensions: None,
+            bar_mode: None,
+            box_mode: None,
+            box_gap: None,
+            margin_bottom: None,
+            axes_2d: Some(crate::ir::layout::Axes2dIR {
+                x_axis: x_axis.cloned(),
+                y_axis: y_axis.cloned(),
+                y2_axis: None,
+            }),
+            scene_3d: None,
+            polar: None,
+            mapbox: None,
+            grid: None,
+            annotations: vec![],
+        };
+
+        Self { traces, layout }
+    }
+}
+
+#[bon]
+impl Array2dPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = Array2dPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &[Vec<[u8; 3]>],
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(data, plot_title, x_title, y_title, x_axis, y_axis)
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl crate::Plot for Array2dPlot {
+    fn ir_traces(&self) -> &[TraceIR] {
+        &self.traces
+    }
+
+    fn ir_layout(&self) -> &LayoutIR {
+        &self.layout
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Plot;
+
+    fn pixel_data() -> Vec<Vec<[u8; 3]>> {
+        vec![
+            vec![[255, 0, 0], [0, 255, 0]],
+            vec![[0, 0, 255], [255, 255, 0]],
+        ]
+    }
+
+    #[test]
+    fn test_basic_one_trace() {
+        let data = pixel_data();
+        let plot = Array2dPlot::builder().data(&data).build();
+        assert_eq!(plot.ir_traces().len(), 1);
+    }
+
+    #[test]
+    fn test_trace_variant() {
+        let data = pixel_data();
+        let plot = Array2dPlot::builder().data(&data).build();
+        assert!(matches!(plot.ir_traces()[0], TraceIR::Array2dPlot(_)));
+    }
+
+    #[test]
+    fn test_layout_no_axes_by_default() {
+        let data = pixel_data();
+        let plot = Array2dPlot::builder().data(&data).build();
+        let axes = plot.ir_layout().axes_2d.as_ref().unwrap();
+        assert!(axes.x_axis.is_none());
+        assert!(axes.y_axis.is_none());
+    }
+}

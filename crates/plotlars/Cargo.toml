@@ -1,0 +1,178 @@
+[package]
+name = "plotlars"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Plotlars is a Rust library designed to facilitate the integration between the Polars data analysis library and visualization libraries."
+documentation = "https://docs.rs/plotlars/latest/plotlars/"
+readme = "../../README.md"
+homepage = "https://github.com/alceal/plotlars"
+keywords = ["chart", "plot", "plotly", "polars", "visualization"]
+categories = ["visualization"]
+
+[lib]
+doctest = false
+
+[dependencies]
+plotlars-core = { path = "../plotlars-core" }
+plotlars-plotly = { path = "../plotlars-plotly", optional = true }
+plotlars-plotters = { path = "../plotlars-plotters", optional = true }
+polars.workspace = true
+
+[features]
+plotly = ["dep:plotlars-plotly"]
+plotters = ["dep:plotlars-plotters"]
+export-chrome = ["plotly", "plotlars-plotly/export-chrome"]
+export-firefox = ["plotly", "plotlars-plotly/export-firefox"]
+export-download = ["plotly", "plotlars-plotly/export-download"]
+export-default = ["plotly", "plotlars-plotly/export-default"]
+format-json = ["plotlars-core/format-json"]
+format-excel = ["plotlars-core/format-excel"]
+
+# ── Plotly examples ─────────────────────────────────────────────────────
+
+[[example]]
+name = "plotly_array2dplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_barplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_boxplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_candlestick"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_contourplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_density_mapbox"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_dimensions"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_export_image"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_faceting"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_heatmap"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_histogram"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_image"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_lineplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_mesh3d"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_ohlc"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_piechart"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_sankeydiagram"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_scatter3dplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_scattergeo"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_scattermap"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_scatterplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_scatterpolar"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_subplot_grid"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_surfaceplot"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_table"
+required-features = ["plotly"]
+
+[[example]]
+name = "plotly_timeseriesplot"
+required-features = ["plotly"]
+
+# ── Plotters examples ───────────────────────────────────────────────────
+
+[[example]]
+name = "plotters_boxplot"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_candlestick"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_barplot"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_heatmap"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_histogram"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_lineplot"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_scatterplot"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_showcase"
+required-features = ["plotters"]
+
+[[example]]
+name = "plotters_timeseriesplot"
+required-features = ["plotters"]
