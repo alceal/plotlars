@@ -22,7 +22,9 @@ jobs:
         cargo build -p plotlars --features plotly --verbose
         cargo build -p plotlars --features plotters --verbose
     - name: Build examples
-      run: cargo build -p plotlars --features plotly --examples
+      run: |
+        cargo build -p plotlars --features plotly --examples
+        cargo build -p plotlars --features plotters --examples
     - name: Format
       run: cargo fmt --all -- --check
     - name: Clippy
@@ -32,5 +34,9 @@ jobs:
         cargo clippy -p plotlars --features plotters -- -D warnings
     - name: Test
       run: cargo test --workspace --exclude plotlars
+    - name: Test IO features
+      run: cargo test -p plotlars-core --features format-json,format-excel
+    - name: Clippy IO features
+      run: cargo clippy -p plotlars-core --features format-json,format-excel --all-targets -- -D warnings
     - name: Machete
       uses: bnjbvr/cargo-machete@main

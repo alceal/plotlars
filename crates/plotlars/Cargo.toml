@@ -30,6 +30,8 @@ export-chrome = ["plotly", "plotlars-plotly/export-chrome"]
 export-firefox = ["plotly", "plotlars-plotly/export-firefox"]
 export-download = ["plotly", "plotlars-plotly/export-download"]
 export-default = ["plotly", "plotlars-plotly/export-default"]
+format-json = ["plotlars-core/format-json"]
+format-excel = ["plotlars-core/format-excel"]
 
 # ── Plotly examples ─────────────────────────────────────────────────────
 

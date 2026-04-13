@@ -141,6 +141,60 @@ impl CandlestickPlot {
     }
 }
 
+#[bon]
+impl CandlestickPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = CandlestickPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        dates: &str,
+        open: &str,
+        high: &str,
+        low: &str,
+        close: &str,
+        increasing: Option<&Direction>,
+        decreasing: Option<&Direction>,
+        whisker_width: Option<f64>,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                dates,
+                open,
+                high,
+                low,
+                close,
+                increasing,
+                decreasing,
+                whisker_width,
+                plot_title,
+                x_title,
+                y_title,
+                x_axis,
+                y_axis,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
 impl crate::Plot for CandlestickPlot {
     fn ir_traces(&self) -> &[TraceIR] {
         &self.traces

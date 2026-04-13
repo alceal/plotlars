@@ -20,6 +20,27 @@ compile_error!(
 pub use plotlars_core::policy::{set_unsupported_option_policy, UnsupportedOptionPolicy};
 pub use plotlars_core::Plot as PlotData;
 
+// I/O re-exports
+pub use plotlars_core::io::{CsvReader, ParquetReader, PlotlarsError};
+
+#[cfg(feature = "format-json")]
+pub use plotlars_core::io::JsonReader;
+
+#[cfg(feature = "format-excel")]
+pub use plotlars_core::io::ExcelReader;
+
+/// Re-exported Polars prelude for advanced data manipulation.
+///
+/// Users who need to filter, cast, join, or otherwise transform DataFrames
+/// can import from here instead of adding `polars` to their `Cargo.toml`:
+///
+/// ```rust
+/// use plotlars::polars::prelude::*;
+/// ```
+pub mod polars {
+    pub use polars::prelude;
+}
+
 // Component re-exports
 pub use plotlars_core::components::arrangement::Arrangement;
 pub use plotlars_core::components::axis::{Axis, AxisSide, AxisType};

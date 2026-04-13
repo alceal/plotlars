@@ -139,7 +139,67 @@ impl ScatterMap {
 
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl ScatterMap {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = ScatterMapTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        latitude: &str,
+        longitude: &str,
+        center: Option<[f64; 2]>,
+        zoom: Option<u8>,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        opacity: Option<f64>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                latitude,
+                longitude,
+                center,
+                zoom,
+                group,
+                sort_groups_by,
+                opacity,
+                size,
+                color,
+                colors,
+                shape,
+                shapes,
+                plot_title,
+                legend_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl ScatterMap {
     #[allow(clippy::too_many_arguments)]
     fn create_ir_traces(
         data: &DataFrame,

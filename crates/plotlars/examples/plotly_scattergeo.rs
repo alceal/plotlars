@@ -1,10 +1,11 @@
-use plotlars::{Mode, Plot, Rgb, ScatterGeo, Shape, Text};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, Mode, Plot, Rgb, ScatterGeo, Shape, Text};
 
 fn main() {
-    let cities = LazyCsvReader::new(PlRefPath::new("data/us_cities_regions.csv"))
+    let cities = CsvReader::new("data/us_cities_regions.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([col("city"), col("lat"), col("lon")])
         .limit(5)
         .collect()
@@ -19,10 +20,8 @@ fn main() {
         .build()
         .plot();
 
-    let cities_with_regions = LazyCsvReader::new(PlRefPath::new("data/us_cities_regions.csv"))
+    let cities_with_regions = CsvReader::new("data/us_cities_regions.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     ScatterGeo::builder()
@@ -56,11 +55,7 @@ fn main() {
         .plot();
 
     // Example 3: ScatterGeo with lines connecting cities (flight paths)
-    let flight_path = LazyCsvReader::new(PlRefPath::new("data/flight_path.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let flight_path = CsvReader::new("data/flight_path.csv").finish().unwrap();
 
     ScatterGeo::builder()
         .data(&flight_path)
@@ -78,11 +73,7 @@ fn main() {
         .plot();
 
     // Example 4: World cities with custom styling
-    let world_cities = LazyCsvReader::new(PlRefPath::new("data/world_cities.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let world_cities = CsvReader::new("data/world_cities.csv").finish().unwrap();
 
     ScatterGeo::builder()
         .data(&world_cities)

@@ -254,7 +254,77 @@ impl BoxPlot {
 
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl BoxPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = BoxPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        labels: &str,
+        values: &str,
+        orientation: Option<Orientation>,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        box_points: Option<bool>,
+        point_offset: Option<f64>,
+        jitter: Option<f64>,
+        opacity: Option<f64>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        legend_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                labels,
+                values,
+                orientation,
+                group,
+                sort_groups_by,
+                facet,
+                facet_config,
+                box_points,
+                point_offset,
+                jitter,
+                opacity,
+                color,
+                colors,
+                plot_title,
+                x_title,
+                y_title,
+                legend_title,
+                x_axis,
+                y_axis,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl BoxPlot {
     #[allow(clippy::too_many_arguments)]
     fn create_ir_traces(
         data: &DataFrame,

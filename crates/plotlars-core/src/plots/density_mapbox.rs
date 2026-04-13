@@ -128,6 +128,60 @@ impl DensityMapbox {
     }
 }
 
+#[bon]
+impl DensityMapbox {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = DensityMapboxTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        lat: &str,
+        lon: &str,
+        z: &str,
+        center: Option<[f64; 2]>,
+        zoom: Option<u8>,
+        radius: Option<u8>,
+        opacity: Option<f64>,
+        z_min: Option<f64>,
+        z_max: Option<f64>,
+        z_mid: Option<f64>,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                lat,
+                lon,
+                z,
+                center,
+                zoom,
+                radius,
+                opacity,
+                z_min,
+                z_max,
+                z_mid,
+                plot_title,
+                legend_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
 impl crate::Plot for DensityMapbox {
     fn ir_traces(&self) -> &[TraceIR] {
         &self.traces

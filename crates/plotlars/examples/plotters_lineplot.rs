@@ -1,5 +1,5 @@
+use plotlars::polars::prelude::*;
 use plotlars::{LinePlot, Plot, Rgb};
-use polars::prelude::*;
 
 fn main() {
     let x: Vec<f64> = (0..500)

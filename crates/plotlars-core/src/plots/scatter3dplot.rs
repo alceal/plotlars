@@ -207,7 +207,67 @@ impl Scatter3dPlot {
 
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl Scatter3dPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = Scatter3dPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        opacity: Option<f64>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        plot_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                x,
+                y,
+                z,
+                group,
+                sort_groups_by,
+                facet,
+                facet_config,
+                opacity,
+                size,
+                color,
+                colors,
+                shape,
+                shapes,
+                plot_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl Scatter3dPlot {
     fn get_scene_reference(index: usize) -> String {
         match index {
             0 => "scene".to_string(),

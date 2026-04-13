@@ -1,10 +1,13 @@
-use plotlars::{BarPlot, Histogram, LinePlot, Orientation, Plot, Rgb, ScatterPlot, TimeSeriesPlot};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{
+    BarPlot, CsvReader, Histogram, LinePlot, Orientation, Plot, Rgb, ScatterPlot, TimeSeriesPlot,
+};
 
 fn main() {
-    let penguins = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let penguins = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("flipper_length_mm").cast(DataType::Int16),
@@ -64,10 +67,8 @@ fn main() {
         .plot();
 
     // Bar Plot -- grouped by gender
-    let animals = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
+    let animals = CsvReader::new("data/animal_statistics.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     BarPlot::builder()
@@ -99,9 +100,10 @@ fn main() {
         .plot();
 
     // Time Series Plot -- revenue and cost
-    let revenue = LazyCsvReader::new(PlRefPath::new("data/revenue_and_cost.csv"))
+    let revenue = CsvReader::new("data/revenue_and_cost.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("Date").cast(DataType::String),
             col("Revenue").cast(DataType::Int32),

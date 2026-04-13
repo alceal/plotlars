@@ -1,11 +1,8 @@
-use plotlars::{BarPlot, Legend, Orientation, Plot, Rgb, Text};
-use polars::prelude::*;
+use plotlars::{BarPlot, CsvReader, Legend, Orientation, Plot, Rgb, Text};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
+    let dataset = CsvReader::new("data/animal_statistics.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     BarPlot::builder()

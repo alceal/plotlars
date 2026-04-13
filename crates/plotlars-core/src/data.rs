@@ -3,6 +3,8 @@ use polars::{
     prelude::{col, lit, DataType, IntoLazy},
 };
 
+use crate::io::PlotlarsError;
+
 #[doc(hidden)]
 pub fn get_unique_groups(
     data: &DataFrame,
@@ -46,27 +48,72 @@ pub(crate) fn filter_data_by_group(
 }
 
 pub(crate) fn get_numeric_column(data: &DataFrame, column_name: &str) -> Vec<Option<f32>> {
-    data.column(column_name)
-        .unwrap()
-        .clone()
-        .cast(&DataType::Float32)
-        .unwrap()
-        .f32()
-        .unwrap()
-        .to_vec()
+    try_get_numeric_column(data, column_name).unwrap()
 }
 
 pub(crate) fn get_string_column(data: &DataFrame, column_name: &str) -> Vec<Option<String>> {
-    data.column(column_name)
-        .unwrap()
-        .clone()
-        .cast(&DataType::String)
-        .unwrap()
+    try_get_string_column(data, column_name).unwrap()
+}
+
+pub(crate) fn try_get_numeric_column(
+    data: &DataFrame,
+    column_name: &str,
+) -> Result<Vec<Option<f32>>, PlotlarsError> {
+    let column = data
+        .column(column_name)
+        .map_err(|_| PlotlarsError::ColumnNotFound {
+            column: column_name.to_string(),
+            available: data
+                .get_column_names()
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+        })?;
+
+    let casted =
+        column
+            .clone()
+            .cast(&DataType::Float32)
+            .map_err(|_| PlotlarsError::TypeMismatch {
+                column: column_name.to_string(),
+                expected: "numeric".to_string(),
+                actual: column.dtype().to_string(),
+            })?;
+
+    Ok(casted.f32().unwrap().to_vec())
+}
+
+pub(crate) fn try_get_string_column(
+    data: &DataFrame,
+    column_name: &str,
+) -> Result<Vec<Option<String>>, PlotlarsError> {
+    let column = data
+        .column(column_name)
+        .map_err(|_| PlotlarsError::ColumnNotFound {
+            column: column_name.to_string(),
+            available: data
+                .get_column_names()
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+        })?;
+
+    let casted =
+        column
+            .clone()
+            .cast(&DataType::String)
+            .map_err(|_| PlotlarsError::TypeMismatch {
+                column: column_name.to_string(),
+                expected: "string-castable".to_string(),
+                actual: column.dtype().to_string(),
+            })?;
+
+    Ok(casted
         .str()
         .unwrap()
         .iter()
         .map(|x| x.map(|s| s.to_string()))
-        .collect::<Vec<Option<String>>>()
+        .collect())
 }
 
 #[cfg(test)]

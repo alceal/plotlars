@@ -253,7 +253,75 @@ impl ScatterPlot {
 
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl ScatterPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = ScatterPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        opacity: Option<f64>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        legend_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                x,
+                y,
+                group,
+                sort_groups_by,
+                facet,
+                facet_config,
+                opacity,
+                size,
+                color,
+                colors,
+                shape,
+                shapes,
+                plot_title,
+                x_title,
+                y_title,
+                legend_title,
+                x_axis,
+                y_axis,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl ScatterPlot {
     #[allow(clippy::too_many_arguments)]
     fn create_ir_traces(
         data: &DataFrame,

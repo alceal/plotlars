@@ -226,6 +226,77 @@ impl ScatterPolar {
 
         Self { traces, layout }
     }
+}
+
+#[bon]
+impl ScatterPolar {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = ScatterPolarTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        theta: &str,
+        r: &str,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        mode: Option<Mode>,
+        opacity: Option<f64>,
+        fill: Option<Fill>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        width: Option<f64>,
+        line: Option<LineStyle>,
+        lines: Option<Vec<LineStyle>>,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                theta,
+                r,
+                group,
+                sort_groups_by,
+                facet,
+                facet_config,
+                mode,
+                opacity,
+                fill,
+                size,
+                color,
+                colors,
+                shape,
+                shapes,
+                width,
+                line,
+                lines,
+                plot_title,
+                legend_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl ScatterPolar {
     fn get_polar_subplot_reference(index: usize) -> String {
         match index {
             0 => "polar".to_string(),

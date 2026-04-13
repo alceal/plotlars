@@ -1,12 +1,7 @@
-use plotlars::{HeatMap, Palette, Plot};
-use polars::prelude::*;
+use plotlars::{CsvReader, HeatMap, Palette, Plot};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/heatmap.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let dataset = CsvReader::new("data/heatmap.csv").finish().unwrap();
 
     HeatMap::builder()
         .data(&dataset)

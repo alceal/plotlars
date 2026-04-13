@@ -1,12 +1,7 @@
-use plotlars::{Cell, Header, Plot, Rgb, Table, Text};
-use polars::prelude::*;
+use plotlars::{Cell, CsvReader, Header, Plot, Rgb, Table, Text};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/employee_data.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let dataset = CsvReader::new("data/employee_data.csv").finish().unwrap();
 
     let header = Header::new()
         .values(vec![

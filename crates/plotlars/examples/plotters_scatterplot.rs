@@ -1,10 +1,11 @@
-use plotlars::{Plot, Rgb, ScatterPlot};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, Plot, Rgb, ScatterPlot};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("flipper_length_mm").cast(DataType::Int16),

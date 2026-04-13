@@ -1,12 +1,7 @@
-use plotlars::{Plot, ScatterMap, Text};
-use polars::prelude::*;
+use plotlars::{CsvReader, Plot, ScatterMap, Text};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/cities.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let dataset = CsvReader::new("data/cities.csv").finish().unwrap();
 
     ScatterMap::builder()
         .data(&dataset)

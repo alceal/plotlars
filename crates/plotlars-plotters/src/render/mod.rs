@@ -178,8 +178,7 @@ fn apply_svg_dash_patterns(svg: &mut String, dashes: &[numeric::DashEntry]) {
                 let needle = format!("stroke=\"{hex}\"");
                 if let Some(off) = tag.find(&needle) {
                     let edit_start = tag_start + off;
-                    let replacement =
-                        format!("stroke=\"{hex}\" stroke-dasharray=\"{pattern}\"");
+                    let replacement = format!("stroke=\"{hex}\" stroke-dasharray=\"{pattern}\"");
                     edits.push((edit_start, needle.len(), replacement));
                     break;
                 }

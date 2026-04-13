@@ -1,12 +1,7 @@
-use plotlars::{DensityMapbox, Plot, Text};
-use polars::prelude::*;
+use plotlars::{CsvReader, DensityMapbox, Plot, Text};
 
 fn main() {
-    let data = LazyCsvReader::new(PlRefPath::new("data/us_city_density.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let data = CsvReader::new("data/us_city_density.csv").finish().unwrap();
 
     DensityMapbox::builder()
         .data(&data)

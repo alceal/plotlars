@@ -1,9 +1,9 @@
+use plotlars::polars::prelude::*;
 use plotlars::{
-    Arrangement, BarPlot, BoxPlot, ContourPlot, FacetConfig, FacetScales, HeatMap, Histogram,
-    Lighting, Line, LinePlot, Mesh3D, Mode, Palette, PieChart, Plot, Rgb, SankeyDiagram,
+    Arrangement, BarPlot, BoxPlot, ContourPlot, CsvReader, FacetConfig, FacetScales, HeatMap,
+    Histogram, Lighting, Line, LinePlot, Mesh3D, Mode, Palette, PieChart, Plot, Rgb, SankeyDiagram,
     Scatter3dPlot, ScatterPlot, ScatterPolar, Shape, SurfacePlot, Text, TimeSeriesPlot,
 };
-use polars::prelude::*;
 
 fn main() {
     barplot_example();
@@ -23,12 +23,7 @@ fn main() {
 }
 
 fn barplot_example() {
-    let regional_data = CsvReadOptions::default()
-        .with_has_header(true)
-        .try_into_reader_with_file_path(Some("data/regional_sales.csv".into()))
-        .unwrap()
-        .finish()
-        .unwrap();
+    let regional_data = CsvReader::new("data/regional_sales.csv").finish().unwrap();
 
     let facet_config = FacetConfig::new().cols(4).rows(2).h_gap(0.05).v_gap(0.30);
 
@@ -47,9 +42,10 @@ fn barplot_example() {
 }
 
 fn boxplot_example() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("island"),
@@ -241,12 +237,7 @@ fn heatmap_example() {
 }
 
 fn histogram_example() {
-    let csv_path = "data/temperature_seasonal.csv";
-
-    let df = CsvReadOptions::default()
-        .with_has_header(true)
-        .try_into_reader_with_file_path(Some(csv_path.into()))
-        .unwrap()
+    let df = CsvReader::new("data/temperature_seasonal.csv")
         .finish()
         .unwrap();
 
@@ -393,12 +384,7 @@ fn mesh3d_example() {
 }
 
 fn piechart_example() {
-    let dataset = CsvReadOptions::default()
-        .with_has_header(true)
-        .try_into_reader_with_file_path(Some("data/industry_region.csv".into()))
-        .unwrap()
-        .finish()
-        .unwrap();
+    let dataset = CsvReader::new("data/industry_region.csv").finish().unwrap();
 
     let facet_config = FacetConfig::new()
         .cols(3)
@@ -426,10 +412,7 @@ fn piechart_example() {
 }
 
 fn sankeydiagram_example() {
-    let dataset = CsvReadOptions::default()
-        .with_has_header(true)
-        .try_into_reader_with_file_path(Some("data/energy_transition.csv".into()))
-        .unwrap()
+    let dataset = CsvReader::new("data/energy_transition.csv")
         .finish()
         .unwrap();
 
@@ -480,9 +463,10 @@ fn sankeydiagram_example() {
 }
 
 fn scatterplot_example() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),
@@ -516,9 +500,10 @@ fn scatterplot_example() {
 }
 
 fn scatter3d_example() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),
@@ -550,12 +535,7 @@ fn scatter3d_example() {
 }
 
 fn scatterpolar_example() {
-    let dataset = CsvReadOptions::default()
-        .with_has_header(true)
-        .try_into_reader_with_file_path(Some("data/wind_patterns.csv".into()))
-        .unwrap()
-        .finish()
-        .unwrap();
+    let dataset = CsvReader::new("data/wind_patterns.csv").finish().unwrap();
 
     let facet_config = FacetConfig::new()
         .highlight_facet(true)
@@ -583,10 +563,7 @@ fn scatterpolar_example() {
 }
 
 fn timeseriesplot_example() {
-    let dataset = CsvReadOptions::default()
-        .with_has_header(true)
-        .try_into_reader_with_file_path(Some("data/financial_timeseries.csv".into()))
-        .unwrap()
+    let dataset = CsvReader::new("data/financial_timeseries.csv")
         .finish()
         .unwrap();
 

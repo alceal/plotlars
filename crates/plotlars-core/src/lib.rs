@@ -4,6 +4,7 @@ pub mod ir;
 pub mod components;
 pub mod data;
 pub mod faceting;
+pub mod io;
 pub mod plots;
 pub mod policy;
 

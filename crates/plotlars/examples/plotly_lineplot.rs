@@ -1,5 +1,5 @@
+use plotlars::polars::prelude::*;
 use plotlars::{Axis, Line, LinePlot, Plot, Rgb, Text, TickDirection};
-use polars::prelude::*;
 
 fn main() {
     let x_values: Vec<f64> = (0..1000)

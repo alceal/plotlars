@@ -8,14 +8,14 @@
     feature = "export-firefox",
     feature = "export-default"
 ))]
-use plotlars::{Axis, BoxPlot, Legend, Orientation, Plot, Rgb, Text};
+use plotlars::{Axis, BoxPlot, CsvReader, Legend, Orientation, Plot, Rgb, Text};
 
 #[cfg(any(
     feature = "export-chrome",
     feature = "export-firefox",
     feature = "export-default"
 ))]
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
 
 #[cfg(any(
     feature = "export-chrome",
@@ -24,8 +24,9 @@ use polars::prelude::*;
 ))]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load penguins dataset
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()?
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),

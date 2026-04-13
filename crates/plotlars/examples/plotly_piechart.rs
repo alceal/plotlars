@@ -1,10 +1,11 @@
-use plotlars::{PieChart, Plot, Text};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, PieChart, Plot, Text};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([col("species")])
         .collect()
         .unwrap();

@@ -1,10 +1,11 @@
-use plotlars::{Histogram, Plot, Rgb};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, Histogram, Plot, Rgb};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([col("species"), col("body_mass_g").cast(DataType::Int16)])
         .collect()
         .unwrap();

@@ -1,12 +1,7 @@
-use plotlars::{Axis, OhlcPlot, Plot};
-use polars::prelude::*;
+use plotlars::{Axis, CsvReader, OhlcPlot, Plot};
 
 fn main() {
-    let stock_data = LazyCsvReader::new(PlRefPath::new("data/stock_prices.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let stock_data = CsvReader::new("data/stock_prices.csv").finish().unwrap();
 
     OhlcPlot::builder()
         .data(&stock_data)

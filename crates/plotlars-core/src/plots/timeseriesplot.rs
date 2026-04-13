@@ -312,7 +312,83 @@ impl TimeSeriesPlot {
 
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl TimeSeriesPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = TimeSeriesPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        additional_series: Option<Vec<&str>>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        with_shape: Option<bool>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        width: Option<f64>,
+        line: Option<LineStyle>,
+        lines: Option<Vec<LineStyle>>,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        y2_title: Option<Text>,
+        legend_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+        y2_axis: Option<&Axis>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                x,
+                y,
+                additional_series,
+                facet,
+                facet_config,
+                size,
+                color,
+                colors,
+                with_shape,
+                shape,
+                shapes,
+                width,
+                line,
+                lines,
+                plot_title,
+                x_title,
+                y_title,
+                y2_title,
+                legend_title,
+                x_axis,
+                y_axis,
+                y2_axis,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl TimeSeriesPlot {
     #[allow(clippy::too_many_arguments)]
     fn create_ir_traces(
         data: &DataFrame,

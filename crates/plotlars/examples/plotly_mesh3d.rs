@@ -1,5 +1,5 @@
+use plotlars::polars::prelude::*;
 use plotlars::{ColorBar, IntensityMode, Lighting, Mesh3D, Palette, Plot, Rgb, Text};
-use polars::prelude::*;
 
 fn main() {
     example_basic_mesh();

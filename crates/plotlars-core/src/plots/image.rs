@@ -88,7 +88,40 @@ impl Image {
         // Build plotly types from IR for backward compatibility
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl Image {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = ImageTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        path: &str,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(path, plot_title, x_title, y_title, x_axis, y_axis)
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl Image {
     fn create_ir_trace(path: &str) -> TraceIR {
         let im: image::ImageBuffer<image::Rgb<u8>, Vec<u8>> =
             image::open(path).unwrap().into_rgb8();

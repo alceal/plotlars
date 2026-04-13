@@ -1,10 +1,11 @@
-use plotlars::{BoxPlot, Plot, Rgb};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{BoxPlot, CsvReader, Plot, Rgb};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([col("species"), col("body_mass_g").cast(DataType::Float64)])
         .collect()
         .unwrap();

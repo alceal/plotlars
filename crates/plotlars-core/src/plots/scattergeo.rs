@@ -151,7 +151,71 @@ impl ScatterGeo {
         };
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl ScatterGeo {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = ScatterGeoTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        lat: &str,
+        lon: &str,
+        mode: Option<Mode>,
+        text: Option<&str>,
+        group: Option<&str>,
+        sort_groups_by: Option<fn(&str, &str) -> std::cmp::Ordering>,
+        opacity: Option<f64>,
+        size: Option<usize>,
+        color: Option<Rgb>,
+        colors: Option<Vec<Rgb>>,
+        shape: Option<Shape>,
+        shapes: Option<Vec<Shape>>,
+        line_width: Option<f64>,
+        line_color: Option<Rgb>,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                lat,
+                lon,
+                mode,
+                text,
+                group,
+                sort_groups_by,
+                opacity,
+                size,
+                color,
+                colors,
+                shape,
+                shapes,
+                line_width,
+                line_color,
+                plot_title,
+                legend_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl ScatterGeo {
     #[allow(clippy::too_many_arguments)]
     fn create_ir_traces(
         data: &DataFrame,

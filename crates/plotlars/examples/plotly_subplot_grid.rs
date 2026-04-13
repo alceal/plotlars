@@ -1,10 +1,10 @@
+use plotlars::polars::prelude::*;
 use plotlars::{
-    Arrangement, Axis, BarPlot, BoxPlot, CandlestickPlot, ColorBar, Direction, HeatMap, Histogram,
-    Legend, Line, Mode, Orientation, Palette, Rgb, SankeyDiagram, Scatter3dPlot, ScatterGeo,
-    ScatterMap, ScatterPlot, ScatterPolar, Shape, SubplotGrid, Text, TickDirection, TimeSeriesPlot,
-    ValueExponent,
+    Arrangement, Axis, BarPlot, BoxPlot, CandlestickPlot, ColorBar, CsvReader, Direction, HeatMap,
+    Histogram, Legend, Line, Mode, Orientation, Palette, Rgb, SankeyDiagram, Scatter3dPlot,
+    ScatterGeo, ScatterMap, ScatterPlot, ScatterPolar, Shape, SubplotGrid, Text, TickDirection,
+    TimeSeriesPlot, ValueExponent,
 };
-use polars::prelude::*;
 
 fn main() {
     regular_grid_example();
@@ -13,10 +13,8 @@ fn main() {
 }
 
 fn regular_grid_example() {
-    let dataset1 = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
+    let dataset1 = CsvReader::new("data/animal_statistics.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     let plot1 = BarPlot::builder()
@@ -39,9 +37,10 @@ fn regular_grid_example() {
         )
         .build();
 
-    let dataset2 = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset2 = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),
@@ -81,11 +80,12 @@ fn regular_grid_example() {
         .legend(&Legend::new().x(0.98).y(0.95))
         .build();
 
-    let dataset3 = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
-        .with_has_header(true)
-        .with_try_parse_dates(true)
+    let dataset3 = CsvReader::new("data/debilt_2023_temps.csv")
+        .has_header(true)
+        .try_parse_dates(true)
         .finish()
         .unwrap()
+        .lazy()
         .with_columns(vec![
             (col("tavg") / lit(10)).alias("avg"),
             (col("tmin") / lit(10)).alias("min"),
@@ -141,9 +141,10 @@ fn regular_grid_example() {
 }
 
 fn irregular_grid_example() {
-    let dataset1 = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset1 = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),
@@ -174,11 +175,7 @@ fn irregular_grid_example() {
         .legend(&Legend::new().x(0.87).y(1.2))
         .build();
 
-    let dataset2 = LazyCsvReader::new(PlRefPath::new("data/stock_prices.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let dataset2 = CsvReader::new("data/stock_prices.csv").finish().unwrap();
 
     let increasing = Direction::new()
         .line_color(Rgb(0, 200, 100))
@@ -203,11 +200,7 @@ fn irregular_grid_example() {
         .y_axis(&Axis::new().show_axis(true).show_grid(true))
         .build();
 
-    let dataset3 = LazyCsvReader::new(PlRefPath::new("data/heatmap.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let dataset3 = CsvReader::new("data/heatmap.csv").finish().unwrap();
 
     let plot3 = HeatMap::builder()
         .data(&dataset3)
@@ -247,10 +240,8 @@ fn irregular_grid_example() {
 
 fn mixed_grid_example() {
     // 2D cartesian scatter (baseline)
-    let penguins = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let penguins = CsvReader::new("data/penguins.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap()
         .lazy()
         .select([
@@ -285,10 +276,8 @@ fn mixed_grid_example() {
         .build();
 
     // Polar subplot
-    let polar_df = LazyCsvReader::new(PlRefPath::new("data/product_comparison_polar.csv"))
+    let polar_df = CsvReader::new("data/product_comparison_polar.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     let polar = ScatterPolar::builder()
@@ -303,10 +292,8 @@ fn mixed_grid_example() {
         .build();
 
     // Domain-based subplot (Sankey)
-    let sankey_df = LazyCsvReader::new(PlRefPath::new("data/energy_transition.csv"))
+    let sankey_df = CsvReader::new("data/energy_transition.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     let sankey = SankeyDiagram::builder()
@@ -320,11 +307,7 @@ fn mixed_grid_example() {
         .build();
 
     // Mapbox subplot
-    let map_df = LazyCsvReader::new(PlRefPath::new("data/cities.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let map_df = CsvReader::new("data/cities.csv").finish().unwrap();
 
     let scatter_map = ScatterMap::builder()
         .data(&map_df)
@@ -338,11 +321,7 @@ fn mixed_grid_example() {
         .build();
 
     // Geo subplot
-    let geo_df = LazyCsvReader::new(PlRefPath::new("data/world_cities.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let geo_df = CsvReader::new("data/world_cities.csv").finish().unwrap();
 
     let scatter_geo = ScatterGeo::builder()
         .data(&geo_df)

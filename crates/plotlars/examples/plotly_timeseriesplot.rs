@@ -1,10 +1,11 @@
-use plotlars::{Axis, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{Axis, CsvReader, Legend, Line, Plot, Rgb, Shape, Text, TimeSeriesPlot};
 
 fn main() {
-    let revenue_dataset = LazyCsvReader::new(PlRefPath::new("data/revenue_and_cost.csv"))
+    let revenue_dataset = CsvReader::new("data/revenue_and_cost.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("Date").cast(DataType::String),
             col("Revenue").cast(DataType::Int32),
@@ -43,11 +44,12 @@ fn main() {
         .build()
         .plot();
 
-    let temperature_dataset = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
-        .with_has_header(true)
-        .with_try_parse_dates(true)
+    let temperature_dataset = CsvReader::new("data/debilt_2023_temps.csv")
+        .has_header(true)
+        .try_parse_dates(true)
         .finish()
         .unwrap()
+        .lazy()
         .with_columns(vec![
             (col("tavg") / lit(10)).alias("tavg"),
             (col("tmin") / lit(10)).alias("tmin"),

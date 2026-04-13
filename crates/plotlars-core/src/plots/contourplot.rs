@@ -202,6 +202,71 @@ impl ContourPlot {
 
         Self { traces, layout }
     }
+}
+
+#[bon]
+impl ContourPlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = ContourPlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        color_bar: Option<&ColorBar>,
+        color_scale: Option<Palette>,
+        reverse_scale: Option<bool>,
+        show_scale: Option<bool>,
+        show_lines: Option<bool>,
+        coloring: Option<Coloring>,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        x_axis: Option<&Axis>,
+        y_axis: Option<&Axis>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                x,
+                y,
+                z,
+                facet,
+                facet_config,
+                color_bar,
+                color_scale,
+                reverse_scale,
+                show_scale,
+                show_lines,
+                coloring,
+                plot_title,
+                x_title,
+                y_title,
+                x_axis,
+                y_axis,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl ContourPlot {
     #[allow(clippy::too_many_arguments)]
     fn create_ir_traces(
         data: &DataFrame,

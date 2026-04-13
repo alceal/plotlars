@@ -1,5 +1,5 @@
-use plotlars::{Fill, Legend, Line, Mode, Plot, Rgb, ScatterPolar, Shape, Text};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, Fill, Legend, Line, Mode, Plot, Rgb, ScatterPolar, Shape, Text};
 
 fn main() {
     // Example 1: Basic scatter polar plot with markers only
@@ -78,10 +78,8 @@ fn styled_scatter_polar() {
 }
 
 fn grouped_scatter_polar() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/product_comparison_polar.csv"))
+    let dataset = CsvReader::new("data/product_comparison_polar.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     ScatterPolar::builder()

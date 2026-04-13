@@ -1,10 +1,11 @@
-use plotlars::{Plot, Rgb, TimeSeriesPlot};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, Plot, Rgb, TimeSeriesPlot};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/revenue_and_cost.csv"))
+    let dataset = CsvReader::new("data/revenue_and_cost.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("Date").cast(DataType::String),
             col("Revenue").cast(DataType::Int32),

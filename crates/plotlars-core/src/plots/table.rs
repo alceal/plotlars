@@ -145,6 +145,37 @@ impl Table {
     }
 }
 
+#[bon]
+impl Table {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = TableTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        columns: Vec<&str>,
+        header: Option<&Header>,
+        cell: Option<&Cell>,
+        column_width: Option<f64>,
+        plot_title: Option<Text>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(data, columns, header, cell, column_width, plot_title)
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
 impl crate::Plot for Table {
     fn ir_traces(&self) -> &[TraceIR] {
         &self.traces

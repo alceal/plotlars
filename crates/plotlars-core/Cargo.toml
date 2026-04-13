@@ -12,8 +12,13 @@ description = "Core types and traits for plotlars"
 [lib]
 doctest = false
 
+[features]
+format-json = ["polars/json"]
+format-excel = ["dep:calamine"]
+
 [dependencies]
 bon.workspace = true
+calamine = { version = "0.26", optional = true }
 image.workspace = true
 indexmap.workspace = true
 ordered-float.workspace = true

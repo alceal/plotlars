@@ -1,13 +1,14 @@
+use plotlars::polars::prelude::*;
 use plotlars::{
-    Axis, BarPlot, BoxPlot, Dimensions, Legend, Line, Orientation, Rgb, ScatterPlot, Shape,
-    SubplotGrid, Text, TickDirection, TimeSeriesPlot,
+    Axis, BarPlot, BoxPlot, CsvReader, Dimensions, Legend, Line, Orientation, Rgb, ScatterPlot,
+    Shape, SubplotGrid, Text, TickDirection, TimeSeriesPlot,
 };
-use polars::prelude::*;
 
 fn main() {
-    let penguins_dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let penguins_dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),
@@ -17,11 +18,12 @@ fn main() {
         .collect()
         .unwrap();
 
-    let temperature_dataset = LazyCsvReader::new(PlRefPath::new("data/debilt_2023_temps.csv"))
-        .with_has_header(true)
-        .with_try_parse_dates(true)
+    let temperature_dataset = CsvReader::new("data/debilt_2023_temps.csv")
+        .has_header(true)
+        .try_parse_dates(true)
         .finish()
         .unwrap()
+        .lazy()
         .with_columns(vec![
             (col("tavg") / lit(10)).alias("tavg"),
             (col("tmin") / lit(10)).alias("tmin"),
@@ -30,10 +32,8 @@ fn main() {
         .collect()
         .unwrap();
 
-    let animals_dataset = LazyCsvReader::new(PlRefPath::new("data/animal_statistics.csv"))
+    let animals_dataset = CsvReader::new("data/animal_statistics.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     let axis = Axis::new()

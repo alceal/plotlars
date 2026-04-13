@@ -161,6 +161,57 @@ impl PieChart {
         };
         Self { traces, layout }
     }
+}
+
+#[bon]
+impl PieChart {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = PieChartTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        labels: &str,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        hole: Option<f64>,
+        pull: Option<f64>,
+        rotation: Option<f64>,
+        colors: Option<Vec<Rgb>>,
+        plot_title: Option<Text>,
+        legend_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                labels,
+                facet,
+                facet_config,
+                hole,
+                pull,
+                rotation,
+                colors,
+                plot_title,
+                legend_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl PieChart {
     fn create_ir_traces(
         data: &DataFrame,
         labels: &str,

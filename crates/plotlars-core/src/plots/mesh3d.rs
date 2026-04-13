@@ -241,7 +241,89 @@ impl Mesh3D {
 
         Self { traces, layout }
     }
+}
 
+#[bon]
+impl Mesh3D {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = Mesh3DTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        i: Option<&str>,
+        j: Option<&str>,
+        k: Option<&str>,
+        intensity: Option<&str>,
+        intensity_mode: Option<IntensityMode>,
+        color: Option<Rgb>,
+        color_bar: Option<&ColorBar>,
+        color_scale: Option<Palette>,
+        _reverse_scale: Option<bool>,
+        _show_scale: Option<bool>,
+        opacity: Option<f64>,
+        flat_shading: Option<bool>,
+        lighting: Option<&Lighting>,
+        light_position: Option<(i32, i32, i32)>,
+        delaunay_axis: Option<&str>,
+        contour: Option<bool>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        plot_title: Option<Text>,
+        x_title: Option<Text>,
+        y_title: Option<Text>,
+        z_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                x,
+                y,
+                z,
+                i,
+                j,
+                k,
+                intensity,
+                intensity_mode,
+                color,
+                color_bar,
+                color_scale,
+                _reverse_scale,
+                _show_scale,
+                opacity,
+                flat_shading,
+                lighting,
+                light_position,
+                delaunay_axis,
+                contour,
+                facet,
+                facet_config,
+                plot_title,
+                x_title,
+                y_title,
+                z_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl Mesh3D {
     fn get_integer_column(data: &DataFrame, column: &str) -> Vec<usize> {
         let column_data = data.column(column).expect("Column not found");
 

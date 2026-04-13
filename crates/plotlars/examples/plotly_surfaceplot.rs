@@ -1,5 +1,5 @@
+use plotlars::polars::prelude::*;
 use plotlars::{ColorBar, Palette, Plot, SurfacePlot, Text};
-use polars::prelude::*;
 use std::iter;
 
 fn main() {

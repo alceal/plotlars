@@ -1,11 +1,8 @@
-use plotlars::{CandlestickPlot, Direction, Plot, Rgb};
-use polars::prelude::*;
+use plotlars::{CandlestickPlot, CsvReader, Direction, Plot, Rgb};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/financial_timeseries.csv"))
+    let dataset = CsvReader::new("data/financial_timeseries.csv")
         .finish()
-        .unwrap()
-        .collect()
         .unwrap();
 
     let increasing = Direction::new()

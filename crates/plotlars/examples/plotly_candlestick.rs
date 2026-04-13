@@ -1,12 +1,7 @@
-use plotlars::{Axis, CandlestickPlot, Direction, Plot, Rgb};
-use polars::prelude::*;
+use plotlars::{Axis, CandlestickPlot, CsvReader, Direction, Plot, Rgb};
 
 fn main() {
-    let stock_data = LazyCsvReader::new(PlRefPath::new("data/stock_prices.csv"))
-        .finish()
-        .unwrap()
-        .collect()
-        .unwrap();
+    let stock_data = CsvReader::new("data/stock_prices.csv").finish().unwrap();
 
     let increasing = Direction::new()
         .line_color(Rgb(0, 200, 100))

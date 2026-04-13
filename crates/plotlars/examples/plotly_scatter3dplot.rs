@@ -1,10 +1,11 @@
-use plotlars::{Legend, Plot, Rgb, Scatter3dPlot, Shape};
-use polars::prelude::*;
+use plotlars::polars::prelude::*;
+use plotlars::{CsvReader, Legend, Plot, Rgb, Scatter3dPlot, Shape};
 
 fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
+    let dataset = CsvReader::new("data/penguins.csv")
         .finish()
         .unwrap()
+        .lazy()
         .select([
             col("species"),
             col("sex").alias("gender"),

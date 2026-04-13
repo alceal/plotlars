@@ -225,6 +225,63 @@ impl SurfacePlot {
 
         Self { traces, layout }
     }
+}
+
+#[bon]
+impl SurfacePlot {
+    #[builder(
+        start_fn = try_builder,
+        finish_fn = try_build,
+        builder_type = SurfacePlotTryBuilder,
+        on(String, into),
+        on(Text, into),
+    )]
+    pub fn try_new(
+        data: &DataFrame,
+        x: &str,
+        y: &str,
+        z: &str,
+        color_bar: Option<&ColorBar>,
+        color_scale: Option<Palette>,
+        reverse_scale: Option<bool>,
+        show_scale: Option<bool>,
+        lighting: Option<&Lighting>,
+        opacity: Option<f64>,
+        facet: Option<&str>,
+        facet_config: Option<&FacetConfig>,
+        plot_title: Option<Text>,
+        legend: Option<&Legend>,
+    ) -> Result<Self, crate::io::PlotlarsError> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            Self::__orig_new(
+                data,
+                x,
+                y,
+                z,
+                color_bar,
+                color_scale,
+                reverse_scale,
+                show_scale,
+                lighting,
+                opacity,
+                facet,
+                facet_config,
+                plot_title,
+                legend,
+            )
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .cloned()
+                .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
+                .unwrap_or_else(|| "unknown error".to_string());
+            crate::io::PlotlarsError::PlotBuild { message: msg }
+        })
+    }
+}
+
+impl SurfacePlot {
     fn unique_ordered(v: Vec<Option<f32>>) -> Vec<f32> {
         IndexSet::<OrderedFloat<f32>>::from_iter(v.into_iter().flatten().map(OrderedFloat))
             .into_iter()
