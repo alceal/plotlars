@@ -17,6 +17,13 @@ use crate::{
 /// through varied marker shapes, colors, sizes, opacity levels, and comprehensive layout customization, including
 /// titles, axis labels, and legends.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

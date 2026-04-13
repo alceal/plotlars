@@ -15,6 +15,13 @@ use polars::frame::DataFrame;
 /// lighting effects. It can handle both auto-triangulated point clouds and
 /// explicitly defined mesh connectivity through triangle indices.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the mesh data.

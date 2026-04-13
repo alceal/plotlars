@@ -18,6 +18,13 @@ use crate::{
 /// for data, layout, and aesthetics. It supports both vertical and horizontal orientations, grouping
 /// of data, error bars, and customizable markers and colors.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| Yes       |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

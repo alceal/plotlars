@@ -16,6 +16,13 @@ use crate::{
 /// for data selection, layout configuration, and aesthetic adjustments. It supports grouping of data,
 /// opacity settings, and customizable markers and colors.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| Yes       |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

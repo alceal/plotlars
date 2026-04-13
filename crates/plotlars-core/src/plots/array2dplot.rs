@@ -12,6 +12,13 @@ use crate::{
 /// Each element in the 2D array corresponds to a pixel, with its color defined by an `[u8; 3]` RGB triplet.
 /// This struct supports customizable titles, axis labels, and axis configurations for better presentation.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A 2D vector of RGB triplets (`&[Vec<[u8; 3]>]`) representing pixel colors for the plot.

@@ -17,6 +17,13 @@ use crate::{
 /// coloring, size, opacity, and map configuration such as zoom level and center coordinates.
 /// This struct is ideal for displaying spatial data distributions, such as city locations or geospatial datasets.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

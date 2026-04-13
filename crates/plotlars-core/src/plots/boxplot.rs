@@ -17,6 +17,13 @@ use crate::{
 /// and vertical orientations, grouping of data, display of individual data points with jitter and offset,
 /// opacity settings, and customizable markers and colors.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| Yes       |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

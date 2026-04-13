@@ -17,6 +17,13 @@ use polars::frame::DataFrame;
 /// reverse or hide the color scale, and set custom titles for both the plot and its axes in
 /// order to improve the readability of complex surfaces.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

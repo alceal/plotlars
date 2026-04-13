@@ -13,6 +13,13 @@ use crate::{
 /// The `Table` struct allows for the creation and customization of tables with support
 /// for custom headers, cell formatting, column widths, and various styling options.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be displayed.

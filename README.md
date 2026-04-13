@@ -14,11 +14,13 @@
     </a>
 </p>
 
-Plotlars is a versatile Rust library that acts as a wrapper around the Plotly
-crate, bridging the gap between the powerful Polars data analysis library and
-Plotly. It simplifies the process of creating visualizations from data frames,
-allowing developers to focus on data insights rather than the intricacies of
-plot creation.
+Plotlars is a versatile Rust library that bridges the gap between the powerful
+Polars data analysis library and visualization backends. It supports two
+rendering backends: [Plotly](https://github.com/plotly/plotly.rs) for
+interactive HTML-based charts and [Plotters](https://github.com/plotters-rs/plotters)
+for static image output (PNG/SVG). Plotlars simplifies the process of creating
+visualizations from data frames, allowing developers to focus on data insights
+rather than the intricacies of plot creation.
 
 ## Implemented Plots Overview
 
@@ -135,41 +137,41 @@ plot creation.
 
 ### Plot Types Reference
 
-| Plot Type | Required Params | Facet | Group |
-|---|---|---|---|
-| [Array2dPlot](https://docs.rs/plotlars/latest/plotlars/struct.Array2dPlot.html) | data | -- | -- |
-| [BarPlot](https://docs.rs/plotlars/latest/plotlars/struct.BarPlot.html) | data, labels, values | Yes | Yes |
-| [BoxPlot](https://docs.rs/plotlars/latest/plotlars/struct.BoxPlot.html) | data, labels, values | Yes | Yes |
-| [CandlestickPlot](https://docs.rs/plotlars/latest/plotlars/struct.CandlestickPlot.html) | data, dates, open, high, low, close | -- | -- |
-| [ContourPlot](https://docs.rs/plotlars/latest/plotlars/struct.ContourPlot.html) | data, x, y, z | Yes | -- |
-| [DensityMapbox](https://docs.rs/plotlars/latest/plotlars/struct.DensityMapbox.html) | data, lat, lon, z | -- | -- |
-| [HeatMap](https://docs.rs/plotlars/latest/plotlars/struct.HeatMap.html) | data, x, y, z | Yes | -- |
-| [Histogram](https://docs.rs/plotlars/latest/plotlars/struct.Histogram.html) | data, x | Yes | Yes |
-| [Image](https://docs.rs/plotlars/latest/plotlars/struct.Image.html) | path | -- | -- |
-| [LinePlot](https://docs.rs/plotlars/latest/plotlars/struct.LinePlot.html) | data, x, y | Yes | -- |
-| [Mesh3D](https://docs.rs/plotlars/latest/plotlars/struct.Mesh3D.html) | data, x, y, z | Yes | -- |
-| [OhlcPlot](https://docs.rs/plotlars/latest/plotlars/struct.OhlcPlot.html) | data, dates, open, high, low, close | -- | -- |
-| [PieChart](https://docs.rs/plotlars/latest/plotlars/struct.PieChart.html) | data, labels | Yes | -- |
-| [SankeyDiagram](https://docs.rs/plotlars/latest/plotlars/struct.SankeyDiagram.html) | data, sources, targets, values | Yes | -- |
-| [Scatter3dPlot](https://docs.rs/plotlars/latest/plotlars/struct.Scatter3dPlot.html) | data, x, y, z | Yes | Yes |
-| [ScatterGeo](https://docs.rs/plotlars/latest/plotlars/struct.ScatterGeo.html) | data, lat, lon | -- | Yes |
-| [ScatterMap](https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html) | data, latitude, longitude | -- | Yes |
-| [ScatterPlot](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html) | data, x, y | Yes | Yes |
-| [ScatterPolar](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPolar.html) | data, theta, r | Yes | Yes |
-| [SubplotGrid](https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html) | plots | -- | -- |
-| [SurfacePlot](https://docs.rs/plotlars/latest/plotlars/struct.SurfacePlot.html) | data, x, y, z | Yes | -- |
-| [Table](https://docs.rs/plotlars/latest/plotlars/struct.Table.html) | data, columns | -- | -- |
-| [TimeSeriesPlot](https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html) | data, x, y | Yes | -- |
+| Plot Type | Required Params | Facet | Group | Plotly | Plotters |
+|---|---|---|---|---|---|
+| [Array2dPlot](https://docs.rs/plotlars/latest/plotlars/struct.Array2dPlot.html) | data | -- | -- | Yes | -- |
+| [BarPlot](https://docs.rs/plotlars/latest/plotlars/struct.BarPlot.html) | data, labels, values | Yes | Yes | Yes | Yes |
+| [BoxPlot](https://docs.rs/plotlars/latest/plotlars/struct.BoxPlot.html) | data, labels, values | Yes | Yes | Yes | Yes |
+| [CandlestickPlot](https://docs.rs/plotlars/latest/plotlars/struct.CandlestickPlot.html) | data, dates, open, high, low, close | -- | -- | Yes | Yes |
+| [ContourPlot](https://docs.rs/plotlars/latest/plotlars/struct.ContourPlot.html) | data, x, y, z | Yes | -- | Yes | -- |
+| [DensityMapbox](https://docs.rs/plotlars/latest/plotlars/struct.DensityMapbox.html) | data, lat, lon, z | -- | -- | Yes | -- |
+| [HeatMap](https://docs.rs/plotlars/latest/plotlars/struct.HeatMap.html) | data, x, y, z | Yes | -- | Yes | Yes |
+| [Histogram](https://docs.rs/plotlars/latest/plotlars/struct.Histogram.html) | data, x | Yes | Yes | Yes | Yes |
+| [Image](https://docs.rs/plotlars/latest/plotlars/struct.Image.html) | path | -- | -- | Yes | -- |
+| [LinePlot](https://docs.rs/plotlars/latest/plotlars/struct.LinePlot.html) | data, x, y | Yes | -- | Yes | Yes |
+| [Mesh3D](https://docs.rs/plotlars/latest/plotlars/struct.Mesh3D.html) | data, x, y, z | Yes | -- | Yes | -- |
+| [OhlcPlot](https://docs.rs/plotlars/latest/plotlars/struct.OhlcPlot.html) | data, dates, open, high, low, close | -- | -- | Yes | -- |
+| [PieChart](https://docs.rs/plotlars/latest/plotlars/struct.PieChart.html) | data, labels | Yes | -- | Yes | -- |
+| [SankeyDiagram](https://docs.rs/plotlars/latest/plotlars/struct.SankeyDiagram.html) | data, sources, targets, values | Yes | -- | Yes | -- |
+| [Scatter3dPlot](https://docs.rs/plotlars/latest/plotlars/struct.Scatter3dPlot.html) | data, x, y, z | Yes | Yes | Yes | -- |
+| [ScatterGeo](https://docs.rs/plotlars/latest/plotlars/struct.ScatterGeo.html) | data, lat, lon | -- | Yes | Yes | -- |
+| [ScatterMap](https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html) | data, latitude, longitude | -- | Yes | Yes | -- |
+| [ScatterPlot](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html) | data, x, y | Yes | Yes | Yes | Yes |
+| [ScatterPolar](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPolar.html) | data, theta, r | Yes | Yes | Yes | -- |
+| [SubplotGrid](https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html) | plots | -- | -- | Yes | -- |
+| [SurfacePlot](https://docs.rs/plotlars/latest/plotlars/struct.SurfacePlot.html) | data, x, y, z | Yes | -- | Yes | -- |
+| [Table](https://docs.rs/plotlars/latest/plotlars/struct.Table.html) | data, columns | -- | -- | Yes | -- |
+| [TimeSeriesPlot](https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html) | data, x, y | Yes | -- | Yes | Yes |
 
 ## Motivation
 
 The creation of Plotlars was driven by the need to simplify the process of
 creating complex plots in Rust, particularly when working with the powerful
 Polars data manipulation library. Generating visualizations often requires
-extensive boilerplate code and deep knowledge of both the plotting library
-(Plotly) and the data structure. This complexity can be a significant hurdle,
-especially for users who need to focus on analyzing and interpreting data rather
- than wrestling with intricate plotting logic.
+extensive boilerplate code and deep knowledge of both the plotting library and
+the data structure. This complexity can be a significant hurdle, especially for
+users who need to focus on analyzing and interpreting data rather than wrestling
+with intricate plotting logic.
 
 To illustrate this, consider the following example where a scatter plot is
 created **without Plotlars**:
@@ -254,22 +256,23 @@ Now, compare that to the same plot created **using Plotlars**:
 
 ```rust
 use plotlars::{
+    CsvReader,
     ScatterPlot,
     Plot,
     Rgb,
+    polars::prelude::*,
 };
 
-use polars::prelude::*;
-
-fn main() {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
-        .finish().unwrap()
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let dataset = CsvReader::new("data/penguins.csv")
+        .finish()?
+        .lazy()
         .select([
             col("species"),
             col("flipper_length_mm").cast(DataType::Int16),
             col("body_mass_g").cast(DataType::Int16),
         ])
-        .collect().unwrap();
+        .collect()?;
 
     ScatterPlot::builder()
         .data(&dataset)
@@ -289,6 +292,8 @@ fn main() {
         .legend_title("Species")
         .build()
         .plot();
+
+    Ok(())
 }
 ```
 
@@ -304,36 +309,88 @@ errors and makes the code more readable and maintainable.
 
 ## Installation
 
+Plotlars requires exactly one backend feature to be enabled:
+
 ```bash
-cargo add plotlars
+# Interactive HTML charts (Plotly)
+cargo add plotlars --features plotly
+
+# Static image output (Plotters)
+cargo add plotlars --features plotters
+```
+
+Optional features for file loading:
+
+```bash
+# JSON file support
+cargo add plotlars --features plotly,format-json
+
+# Excel file support
+cargo add plotlars --features plotly,format-excel
 ```
 
 ## Running the examples
 
-Plotlars comes with several ready‑to‑use demo programs in the `examples/` directory.
-You can build and execute any of them with Cargo’s `--example` flag:
+Plotlars comes with several ready-to-use demo programs. Examples are prefixed by
+backend (`plotly_` or `plotters_`) and require the corresponding feature:
 
 ```bash
-cargo run --example barplot
+# Plotly examples
+cargo run --features plotly --example plotly_barplot
+
+# Plotters examples
+cargo run --features plotters --example plotters_barplot
 ```
 
-Replace `barplot` with the file name (without the `.rs` extension) of the example you want to run.
+Replace `plotly_barplot` with the example name (without the `.rs` extension) you want to run.
 
 ## Features
 
-- Seamless Integration with Polars: Leverage the power of Polars for efficient
-  data manipulation and analysis.
-- Support for Multiple Plot Types: Easily create bar, line, scatter, and other
-  plot types.
-- Customization: Modify plot appearance with an intuitive API.
+- **Dual backends**: Choose between Plotly (interactive HTML) and Plotters (static PNG/SVG)
+- **Seamless Polars integration**: Build plots directly from DataFrames with no manual extraction
+- **22 plot types**: Bar, line, scatter, box, histogram, heatmap, 3D, geo, polar, and more
+- **Faceting and subplots**: Split data by category or compose multi-plot grids
+- **File loaders**: Read CSV, Parquet, JSON, and Excel files directly into DataFrames
+- **Error handling**: Use `try_build` for fallible construction with `PlotlarsError`
+- **Polars re-export**: Access polars via `plotlars::polars` without adding it to your `Cargo.toml`
 
 ## Exporting Plots
 
-Plotlars supports exporting plots to static image files in various formats (PNG, JPG, WEBP, SVG) through the `write_image` method.
+### Plotters backend
 
-### Prerequisites
+The plotters backend renders directly to static images. Use `save` to write
+PNG or SVG files (format is inferred from the extension), or `to_svg` for an
+in-memory SVG string:
 
-To use image export functionality, you need to enable one of the export features and have the corresponding WebDriver installed:
+```rust
+use plotlars::{CsvReader, ScatterPlot, Plot};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let dataset = CsvReader::new("data/penguins.csv").finish()?;
+
+    let plot = ScatterPlot::builder()
+        .data(&dataset)
+        .x("body_mass_g")
+        .y("flipper_length_mm")
+        .plot_title("Penguin Data")
+        .build();
+
+    // Save as PNG or SVG (format inferred from extension)
+    plot.save("output.png");
+    plot.save("output.svg");
+
+    // Or get an SVG string directly
+    let svg = plot.to_svg();
+
+    Ok(())
+}
+```
+
+### Plotly backend
+
+The plotly backend produces interactive HTML charts. To export them as static
+images (PNG, JPG, WEBP, SVG) via the `write_image` method, enable one of the
+export features and install the corresponding WebDriver:
 
 - **Default** (recommended - uses any available driver):
   ```bash
@@ -344,24 +401,19 @@ To use image export functionality, you need to enable one of the export features
   ```bash
   cargo add plotlars --features export-chrome
   ```
-  Install ChromeDriver: https://chromedriver.chromium.org/
+  Install ChromeDriver: <https://chromedriver.chromium.org/>
 
 - **Firefox**:
   ```bash
   cargo add plotlars --features export-firefox
   ```
-  Install GeckoDriver: https://github.com/mozilla/geckodriver/releases
-
-### Usage
+  Install GeckoDriver: <https://github.com/mozilla/geckodriver/releases>
 
 ```rust
-use plotlars::{ScatterPlot, Plot};
-use polars::prelude::*;
+use plotlars::{CsvReader, ScatterPlot, Plot};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let dataset = LazyCsvReader::new(PlRefPath::new("data/penguins.csv"))
-        .finish()?
-        .collect()?;
+    let dataset = CsvReader::new("data/penguins.csv").finish()?;
 
     let plot = ScatterPlot::builder()
         .data(&dataset)
@@ -399,8 +451,10 @@ This project is licensed under the MIT License. See the LICENSE.txt file for det
 
 - [Polars](https://github.com/pola-rs/polars): For providing a fast and
   efficient data manipulation library.
-- [Plotly](https://github.com/plotly/plotly.rs): For the inspiration and ideas
-  behind visualization libraries.
+- [Plotly](https://github.com/plotly/plotly.rs): For interactive visualization
+  capabilities.
+- [Plotters](https://github.com/plotters-rs/plotters): For static rendering
+  capabilities.
 - [Evcxr](https://github.com/evcxr/evcxr): For enabling the use of Rust in
   Jupyter Notebooks.
 - Rust Community: For the support and development of an amazing programming

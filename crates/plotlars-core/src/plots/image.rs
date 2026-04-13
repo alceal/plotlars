@@ -12,6 +12,13 @@ use crate::{
 /// or standalone images within a plotting context. It supports customizable titles, axis labels, legend configuration,
 /// and layout adjustments for better presentation.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `path` - A string slice specifying the file path of the image to be displayed.

@@ -16,6 +16,13 @@ use crate::{
 /// with a third dimension (z) representing the intensity at each point. This is useful for visualizing
 /// population density, heat maps of activity, or any geographic concentration of values.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

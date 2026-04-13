@@ -15,6 +15,13 @@ use crate::{
 /// features such as labels, hole size for donut-style charts, slice pulling, rotation, faceting, and customizable plot titles.
 /// It is ideal for visualizing proportions and distributions in categorical data.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

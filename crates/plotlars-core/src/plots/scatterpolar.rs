@@ -20,6 +20,13 @@ use crate::{
 /// customization of marker shapes, colors, sizes, line styles, and comprehensive layout customization
 /// including titles and legends.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

@@ -19,6 +19,13 @@ use polars::frame::DataFrame;
 /// plot title and axis labels can also be configured through the builder API,
 /// allowing you to embed the surface seamlessly in complex dashboards.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` – A reference to the `DataFrame` that supplies the data.

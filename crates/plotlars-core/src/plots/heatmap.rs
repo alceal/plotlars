@@ -15,6 +15,13 @@ use polars::frame::DataFrame;
 /// scale, adjust the color bar, and set titles for the plot and axes, as well as format ticks and scales
 /// for improved data readability.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| Yes       |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

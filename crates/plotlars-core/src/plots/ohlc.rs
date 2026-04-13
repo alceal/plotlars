@@ -16,6 +16,13 @@ use crate::{
 /// styling for increasing/decreasing values, hover information, and comprehensive layout customization
 /// including range selectors and sliders for interactive time navigation.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

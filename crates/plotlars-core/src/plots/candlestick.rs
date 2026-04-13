@@ -16,6 +16,13 @@ use crate::{
 /// values, whisker width configuration, hover information, and comprehensive layout customization
 /// including range selectors and sliders for interactive time navigation.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| Yes       |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

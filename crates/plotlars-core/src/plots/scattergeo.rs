@@ -18,6 +18,13 @@ use crate::{
 /// It supports plotting data points on a map using latitude and longitude coordinates, with customization
 /// for markers, lines, text labels, and comprehensive layout options.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` - A reference to the `DataFrame` containing the data to be plotted.

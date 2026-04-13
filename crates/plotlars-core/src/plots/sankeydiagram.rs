@@ -20,6 +20,13 @@ use polars::frame::DataFrame;
 /// publication-quality flow visualizations. Faceting support allows creating multiple Sankey
 /// diagrams in a grid layout for comparing flows across categories.
 ///
+/// # Backend Support
+///
+/// | Backend | Supported |
+/// |---------|-----------|
+/// | Plotly  | Yes       |
+/// | Plotters| --        |
+///
 /// # Arguments
 ///
 /// * `data` – A reference to the `DataFrame` containing the data to be plotted.
