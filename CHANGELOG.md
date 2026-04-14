@@ -2,12 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.12.0] - 2026-04-13
+## [0.12.0] - 2026-04-14
 
 ### ⚠️ BREAKING CHANGES
 
 - Restructured as a Cargo workspace (`plotlars-core`, `plotlars-plotly`, `plotlars-plotters`, `plotlars` facade)
 - Introduced intermediate representation (IR) layer decoupling plot definitions from rendering backends
+- Removed `with_shape` parameter from `LinePlot` and `TimeSeriesPlot`; marker mode is now inferred automatically from the presence of `shape` or `shapes`
+- `Axis::value_range` now takes `(min: f64, max: f64)` instead of `Vec<f64>`; the field type is `Option<[f64; 2]>`
 
 ### 🚀 Features
 
