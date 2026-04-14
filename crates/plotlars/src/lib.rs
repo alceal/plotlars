@@ -1,4 +1,10 @@
-#![doc = include_str!("../../../README.md")]
+//! Plotlars bridges [Polars](https://pola.rs/) DataFrames with visualization backends.
+//!
+//! Two mutually exclusive backends are supported via Cargo features:
+//! - `plotly` — interactive HTML charts (all 22 plot types)
+//! - `plotters` — static PNG/SVG output (8 plot types)
+//!
+//! See the [README](https://github.com/alceal/plotlars) for full documentation and examples.
 #![allow(clippy::needless_doctest_main)]
 
 // ── Section 1: Compile-time guards ──────────────────────────────────────
