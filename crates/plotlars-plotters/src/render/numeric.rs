@@ -237,13 +237,7 @@ pub(super) fn render_numeric<DB: DrawingBackend>(
             .y2_axis
             .as_ref()
             .and_then(|a| a.value_range.as_ref())
-            .and_then(|r| {
-                if r.len() >= 2 {
-                    Some((r[0], r[1]))
-                } else {
-                    None
-                }
-            })
+            .map(|r| (r[0], r[1]))
         {
             y2_min = y2_range.0;
             y2_max = y2_range.1;

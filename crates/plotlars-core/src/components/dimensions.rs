@@ -85,8 +85,8 @@
 ///     .x_title(Text::from("body mass (g)").size(13))
 ///     .y_title(Text::from("flipper length (mm)").size(13).x(-0.11))
 ///     .legend_title(Text::from("Species").size(12))
-///     .x_axis(&axis.clone().value_range(vec![2500.0, 6500.0]))
-///     .y_axis(&axis.clone().value_range(vec![170.0, 240.0]))
+///     .x_axis(&axis.clone().value_range(2500.0, 6500.0))
+///     .y_axis(&axis.clone().value_range(170.0, 240.0))
 ///     .legend(&Legend::new().x(0.85).y(0.4))
 ///     .build();
 ///
