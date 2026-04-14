@@ -75,8 +75,8 @@ fn regular_grid_example() {
         .x_title(Text::from("body mass (g)").y(-0.4))
         .y_title(Text::from("flipper length (mm)").x(-0.078).y(0.5))
         .legend_title("species")
-        .x_axis(&axis.clone().value_range(vec![2500.0, 6500.0]))
-        .y_axis(&axis.clone().value_range(vec![170.0, 240.0]))
+        .x_axis(&axis.clone().value_range(2500.0, 6500.0))
+        .y_axis(&axis.clone().value_range(170.0, 240.0))
         .legend(&Legend::new().x(0.98).y(0.95))
         .build();
 

@@ -148,24 +148,12 @@ pub(crate) fn extract_layout_config(
     let x_range = x_axis
         .as_ref()
         .and_then(|a| a.value_range.as_ref())
-        .and_then(|r| {
-            if r.len() >= 2 {
-                Some((r[0], r[1]))
-            } else {
-                None
-            }
-        });
+        .map(|r| (r[0], r[1]));
 
     let y_range = y_axis
         .as_ref()
         .and_then(|a| a.value_range.as_ref())
-        .and_then(|r| {
-            if r.len() >= 2 {
-                Some((r[0], r[1]))
-            } else {
-                None
-            }
-        });
+        .map(|r| (r[0], r[1]));
 
     // Report unsupported layout fields
     if layout.z_title.is_some() {

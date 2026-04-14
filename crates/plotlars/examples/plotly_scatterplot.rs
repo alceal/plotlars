@@ -40,8 +40,8 @@ fn main() {
         .x_title("body mass (g)")
         .y_title("flipper length (mm)")
         .legend_title("species")
-        .x_axis(&axis.clone().value_range(vec![2500.0, 6500.0]))
-        .y_axis(&axis.clone().value_range(vec![170.0, 240.0]))
+        .x_axis(&axis.clone().value_range(2500.0, 6500.0))
+        .y_axis(&axis.clone().value_range(170.0, 240.0))
         .legend(&Legend::new().x(0.85).y(0.15))
         .build()
         .plot();

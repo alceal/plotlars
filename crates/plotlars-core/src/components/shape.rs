@@ -51,11 +51,11 @@
 ///     .legend_title("species")
 ///     .x_axis(
 ///         &axis.clone()
-///             .value_range(vec![2500.0, 6500.0])
+///             .value_range(2500.0, 6500.0)
 ///     )
 ///     .y_axis(
 ///         &axis.clone()
-///             .value_range(vec![170.0, 240.0])
+///             .value_range(170.0, 240.0)
 ///     )
 ///     .legend(
 ///         &Legend::new()

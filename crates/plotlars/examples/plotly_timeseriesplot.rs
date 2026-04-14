@@ -22,7 +22,6 @@ fn main() {
         .size(8)
         .colors(vec![Rgb(0, 0, 255), Rgb(255, 0, 0)])
         .lines(vec![Line::Dash, Line::Solid])
-        .with_shape(true)
         .shapes(vec![Shape::Circle, Shape::Square])
         .plot_title(Text::from("Time Series Plot").font("Arial").size(18))
         .legend(&Legend::new().x(0.05).y(0.9))

@@ -39,9 +39,8 @@ use crate::{
 /// * `size` - An optional `usize` specifying the size of the markers or line thickness.
 /// * `color` - An optional `Rgb` value specifying the color of the markers. This is used when `group` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors for the markers. This is used when `group` is specified to differentiate between groups.
-/// * `with_shape` - An optional `bool` indicating whether to use shapes for markers in the plot.
-/// * `shape` - An optional `Shape` specifying the shape of the markers. This is used when `group` is not specified.
-/// * `shapes` - An optional vector of `Shape` values specifying multiple shapes for the markers when plotting multiple groups.
+/// * `shape` - An optional `Shape` specifying the shape of the markers. When set, markers are automatically displayed on the plot. This is used when `group` is not specified.
+/// * `shapes` - An optional vector of `Shape` values specifying multiple shapes for the markers when plotting multiple groups. When set, markers are automatically displayed on the plot.
 /// * `width` - An optional `f64` specifying the width of the plotted lines.
 /// * `line` - An optional `LineStyle` specifying the style of the line. This is used when `additional_series` is not specified.
 /// * `lines` - An optional vector of `LineStyle` enums specifying the styles of lines for each plotted series. This is used when `additional_series` is specified to differentiate between multiple series.
@@ -86,7 +85,6 @@ use crate::{
 ///         Line::Dash,
 ///         Line::Solid,
 ///     ])
-///     .with_shape(true)
 ///     .shapes(vec![
 ///         Shape::Circle,
 ///         Shape::Square,
@@ -187,7 +185,6 @@ impl TimeSeriesPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -291,7 +288,6 @@ impl TimeSeriesPlot {
                     size,
                     color,
                     colors,
-                    with_shape,
                     shape,
                     shapes,
                     width,
@@ -308,7 +304,6 @@ impl TimeSeriesPlot {
                 size,
                 color,
                 colors,
-                with_shape,
                 shape,
                 shapes,
                 width,
@@ -340,7 +335,6 @@ impl TimeSeriesPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -367,7 +361,6 @@ impl TimeSeriesPlot {
                 size,
                 color,
                 colors,
-                with_shape,
                 shape,
                 shapes,
                 width,
@@ -406,7 +399,6 @@ impl TimeSeriesPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -415,7 +407,7 @@ impl TimeSeriesPlot {
     ) -> Vec<TraceIR> {
         let mut traces = Vec::new();
 
-        let mode = Self::resolve_mode(with_shape);
+        let mode = Self::resolve_mode(shape, shapes.as_ref());
 
         let marker_ir = MarkerIR {
             opacity: None,
@@ -492,7 +484,6 @@ impl TimeSeriesPlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -547,13 +538,7 @@ impl TimeSeriesPlot {
 
         let mut traces = Vec::new();
 
-        let mode_for_facet = Some(with_shape.map_or(Mode::Lines, |ws| {
-            if ws {
-                Mode::LinesMarkers
-            } else {
-                Mode::Lines
-            }
-        }));
+        let mode_for_facet = Self::resolve_mode(shape, shapes.as_ref());
 
         if config.highlight_facet {
             for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
@@ -740,8 +725,12 @@ impl TimeSeriesPlot {
         }
     }
 
-    fn resolve_mode(with_shape: Option<bool>) -> Option<Mode> {
-        with_shape.map(|ws| if ws { Mode::LinesMarkers } else { Mode::Lines })
+    fn resolve_mode(shape: Option<Shape>, shapes: Option<&Vec<Shape>>) -> Option<Mode> {
+        if shape.is_some() || shapes.is_some() {
+            Some(Mode::LinesMarkers)
+        } else {
+            Some(Mode::Lines)
+        }
     }
 }
 
