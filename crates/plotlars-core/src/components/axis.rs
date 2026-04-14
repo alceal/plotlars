@@ -427,7 +427,6 @@ mod tests {
 ///     .size(8)
 ///     .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
 ///     .lines(vec![Line::Dash, Line::Solid])
-///     .with_shape(true)
 ///     .shapes(vec![Shape::Circle, Shape::Square])
 ///     .plot_title(
 ///         Text::from("Time Series Plot")

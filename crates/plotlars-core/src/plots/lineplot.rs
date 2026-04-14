@@ -41,9 +41,8 @@ use crate::{
 /// * `size` - An optional `usize` specifying the size of the markers or the thickness of the lines.
 /// * `color` - An optional `Rgb` value specifying the color of the markers and lines. This is used when `additional_lines` is not specified.
 /// * `colors` - An optional vector of `Rgb` values specifying the colors for the markers and lines. This is used when `additional_lines` is specified to differentiate between multiple lines.
-/// * `with_shape` - An optional `bool` indicating whether to display markers with shapes on the plot.
-/// * `shape` - An optional `Shape` specifying the shape of the markers.
-/// * `shapes` - An optional vector of `Shape` values specifying multiple shapes for the markers when plotting multiple lines.
+/// * `shape` - An optional `Shape` specifying the shape of the markers. When set, markers are automatically displayed on the plot.
+/// * `shapes` - An optional vector of `Shape` values specifying multiple shapes for the markers when plotting multiple lines. When set, markers are automatically displayed on the plot.
 /// * `width` - An optional `f64` specifying the width of the plotted lines.
 /// * `line` - An optional `Line` specifying the type of the line (e.g., solid, dashed). This is used when `additional_lines` is not specified.
 /// * `lines` - An optional vector of `Line` enums specifying the types of lines (e.g., solid, dashed) for each plotted line. This is used when `additional_lines` is specified to differentiate between multiple lines.
@@ -90,7 +89,6 @@ use crate::{
 ///         Line::Dot,
 ///     ])
 ///     .width(3.0)
-///     .with_shape(false)
 ///     .plot_title(
 ///         Text::from("Line Plot")
 ///             .font("Arial")
@@ -144,7 +142,6 @@ impl LinePlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -248,7 +245,6 @@ impl LinePlot {
                     size,
                     color,
                     colors,
-                    with_shape,
                     shape,
                     shapes,
                     width,
@@ -264,7 +260,6 @@ impl LinePlot {
                 size,
                 color,
                 colors,
-                with_shape,
                 shape,
                 shapes,
                 width,
@@ -296,7 +291,6 @@ impl LinePlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -323,7 +317,6 @@ impl LinePlot {
                 size,
                 color,
                 colors,
-                with_shape,
                 shape,
                 shapes,
                 width,
@@ -361,7 +354,6 @@ impl LinePlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -370,7 +362,7 @@ impl LinePlot {
     ) -> Vec<TraceIR> {
         let mut traces = Vec::new();
 
-        let mode = Self::resolve_mode(with_shape);
+        let mode = Self::resolve_mode(shape, shapes.as_ref());
 
         let marker_ir = MarkerIR {
             opacity: None,
@@ -439,7 +431,6 @@ impl LinePlot {
         size: Option<usize>,
         color: Option<Rgb>,
         colors: Option<Vec<Rgb>>,
-        with_shape: Option<bool>,
         shape: Option<Shape>,
         shapes: Option<Vec<Shape>>,
         width: Option<f64>,
@@ -500,13 +491,7 @@ impl LinePlot {
 
         let mut traces = Vec::new();
 
-        let mode_for_facet = Some(with_shape.map_or(Mode::Lines, |ws| {
-            if ws {
-                Mode::LinesMarkers
-            } else {
-                Mode::Lines
-            }
-        }));
+        let mode_for_facet = Self::resolve_mode(shape, shapes.as_ref());
 
         if config.highlight_facet {
             for (facet_idx, facet_value) in facet_categories.iter().enumerate() {
@@ -690,8 +675,12 @@ impl LinePlot {
         }
     }
 
-    fn resolve_mode(with_shape: Option<bool>) -> Option<Mode> {
-        with_shape.map(|ws| if ws { Mode::LinesMarkers } else { Mode::Lines })
+    fn resolve_mode(shape: Option<Shape>, shapes: Option<&Vec<Shape>>) -> Option<Mode> {
+        if shape.is_some() || shapes.is_some() {
+            Some(Mode::LinesMarkers)
+        } else {
+            Some(Mode::Lines)
+        }
     }
 }
 

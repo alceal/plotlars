@@ -241,7 +241,6 @@ fn lineplot_example() {
         .x_title("x")
         .y_title("sin(x)")
         .width(2.5)
-        .with_shape(false)
         .color(Rgb(255, 69, 0))
         .build()
         .plot();
@@ -552,7 +551,6 @@ fn timeseriesplot_example() {
         .y_title("Amount ($)")
         .legend_title("Metric")
         .width(2.0)
-        .with_shape(false)
         .colors(vec![Rgb(255, 105, 180), Rgb(30, 144, 255)])
         .lines(vec![Line::Solid, Line::Dash])
         .build()

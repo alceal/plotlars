@@ -32,7 +32,6 @@ fn main() {
         .colors(vec![Rgb(255, 0, 0), Rgb(0, 255, 0)])
         .lines(vec![Line::Solid, Line::Dot])
         .width(3.0)
-        .with_shape(false)
         .plot_title(Text::from("Line Plot").font("Arial").size(18))
         .x_axis(
             &Axis::new()
