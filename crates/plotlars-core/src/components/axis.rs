@@ -61,7 +61,7 @@ pub struct Axis {
     pub axis_position: Option<f64>,
     pub axis_type: Option<AxisType>,
     pub value_color: Option<Rgb>,
-    pub value_range: Option<Vec<f64>>,
+    pub value_range: Option<[f64; 2]>,
     pub value_thousands: Option<bool>,
     pub value_exponent: Option<ValueExponent>,
     pub tick_values: Option<Vec<f64>>,
@@ -141,11 +141,12 @@ impl Axis {
 
     /// Sets the range of values displayed on the axis.
     ///
-    /// # Argument
+    /// # Arguments
     ///
-    /// * `range` - A vector of `f64` values representing the range of the axis.
-    pub fn value_range(mut self, range: Vec<f64>) -> Self {
-        self.value_range = Some(range);
+    /// * `min` - The minimum value of the axis range.
+    /// * `max` - The maximum value of the axis range.
+    pub fn value_range(mut self, min: f64, max: f64) -> Self {
+        self.value_range = Some([min, max]);
         self
     }
 
@@ -371,7 +372,7 @@ mod tests {
 
     #[test]
     fn test_value_range() {
-        let a = Axis::new().value_range(vec![0.0, 100.0]);
+        let a = Axis::new().value_range(0.0, 100.0);
         let range = a.value_range.unwrap();
         assert!((range[0] - 0.0).abs() < 1e-6);
         assert!((range[1] - 100.0).abs() < 1e-6);
@@ -390,7 +391,7 @@ mod tests {
             .show_axis(true)
             .show_grid(false)
             .show_line(true)
-            .value_range(vec![1.0, 50.0])
+            .value_range(1.0, 50.0)
             .tick_labels(vec!["x", "y", "z"]);
         assert_eq!(a.show_axis, Some(true));
         assert_eq!(a.show_grid, Some(false));

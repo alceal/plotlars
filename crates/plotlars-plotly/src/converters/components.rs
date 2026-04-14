@@ -550,7 +550,7 @@ fn set_axis_format(mut axis: AxisPlotly, format: &Axis, overlaying: Option<&str>
     }
 
     if let Some(range) = &format.value_range {
-        axis = axis.range(range.to_owned());
+        axis = axis.range(range.to_vec());
     }
 
     if let Some(thousands) = format.value_thousands {
