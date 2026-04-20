@@ -9,7 +9,7 @@
     <a href="https://crates.io/crates/plotlars">
     <img alt="Downloads" src="https://img.shields.io/crates/d/plotlars">
     </a>
-    <a href="https://github.com/your-repo/plotlars/blob/main/LICENSE">
+    <a href="https://github.com/alceal/plotlars/blob/main/LICENSE">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg">
     </a>
 </p>

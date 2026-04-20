@@ -2910,7 +2910,7 @@ dependencies = [
 
 [[package]]
 name = "plotlars"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "plotlars-core",
  "plotlars-plotly",
@@ -2920,7 +2920,7 @@ dependencies = [
 
 [[package]]
 name = "plotlars-core"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "bon",
  "calamine",
@@ -2934,7 +2934,7 @@ dependencies = [
 
 [[package]]
 name = "plotlars-plotly"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "bon",
  "image 0.25.10",
@@ -2947,7 +2947,7 @@ dependencies = [
 
 [[package]]
 name = "plotlars-plotters"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "plotlars-core",
  "plotters",

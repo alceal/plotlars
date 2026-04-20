@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.1] - 2026-04-20
+
+### 🐛 Bug Fixes
+
+- Switch `ParquetReader` to the eager polars reader to bypass an out-of-bounds slice in `polars-stream 0.53.0`'s parquet row-group fetch that was aborting CI test runs
+
 ## [0.12.0] - 2026-04-14
 
 ### ⚠️ BREAKING CHANGES
