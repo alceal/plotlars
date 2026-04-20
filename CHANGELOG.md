@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.2] - 2026-04-20
+
+### 📚 Documentation
+
+- Fix [docs.rs](https://docs.rs/plotlars) build failure by declaring `[package.metadata.docs.rs]` with the `plotly`, `format-json`, and `format-excel` features enabled. Previous releases failed to build on docs.rs because the default feature set triggered the backend-required `compile_error!` guard.
+
 ## [0.12.1] - 2026-04-20
 
 ### 🐛 Bug Fixes

@@ -22,9 +22,9 @@ rustdoc-args = ["--cfg", "docsrs"]
 doctest = false
 
 [dependencies]
-plotlars-core = { path = "../plotlars-core", version = "0.12.1" }
-plotlars-plotly = { path = "../plotlars-plotly", version = "0.12.1", optional = true }
-plotlars-plotters = { path = "../plotlars-plotters", version = "0.12.1", optional = true }
+plotlars-core = { path = "../plotlars-core", version = "0.12.2" }
+plotlars-plotly = { path = "../plotlars-plotly", version = "0.12.2", optional = true }
+plotlars-plotters = { path = "../plotlars-plotters", version = "0.12.2", optional = true }
 polars.workspace = true
 
 [features]

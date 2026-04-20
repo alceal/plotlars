@@ -13,7 +13,7 @@ description = "Plotters backend for plotlars"
 doctest = false
 
 [dependencies]
-plotlars-core = { path = "../plotlars-core", version = "0.12.1" }
+plotlars-core = { path = "../plotlars-core", version = "0.12.2" }
 plotters.workspace = true
 
 [dev-dependencies]
