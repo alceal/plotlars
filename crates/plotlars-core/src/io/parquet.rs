@@ -1,6 +1,8 @@
+use std::fs::File;
 use std::path::{Path, PathBuf};
 
 use polars::frame::DataFrame;
+use polars::prelude::ParquetReader as PlParquetReader;
 use polars::prelude::*;
 
 use super::PlotlarsError;
@@ -55,25 +57,22 @@ impl ParquetReader {
     pub fn finish(self) -> Result<DataFrame, PlotlarsError> {
         let path_str = self.path.display().to_string();
 
-        let mut args = ScanArgsParquet::default();
-
-        if let Some(n) = self.n_rows {
-            args.n_rows = Some(n);
-        }
-
-        let mut lf = LazyFrame::scan_parquet(PlRefPath::new(&path_str), args).map_err(|e| {
-            PlotlarsError::ParquetParse {
-                path: path_str.clone(),
-                source: Box::new(e),
-            }
+        let file = File::open(&self.path).map_err(|e| PlotlarsError::ParquetParse {
+            path: path_str.clone(),
+            source: Box::new(e),
         })?;
 
-        if let Some(cols) = self.columns {
-            let exprs: Vec<Expr> = cols.iter().map(col).collect();
-            lf = lf.select(exprs);
+        let mut reader = PlParquetReader::new(file);
+
+        if let Some(n) = self.n_rows {
+            reader = reader.with_slice(Some((0, n)));
         }
 
-        lf.collect().map_err(|e| PlotlarsError::ParquetParse {
+        if let Some(cols) = self.columns {
+            reader = reader.with_columns(Some(cols));
+        }
+
+        reader.finish().map_err(|e| PlotlarsError::ParquetParse {
             path: path_str,
             source: Box::new(e),
         })
