@@ -14,6 +14,10 @@ homepage = "https://github.com/alceal/plotlars"
 keywords = ["chart", "plot", "plotly", "polars", "visualization"]
 categories = ["visualization"]
 
+[package.metadata.docs.rs]
+features = ["plotly", "format-json", "format-excel"]
+rustdoc-args = ["--cfg", "docsrs"]
+
 [lib]
 doctest = false
 
