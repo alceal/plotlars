@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  POLARS_AUTO_NEW_STREAMING: "0"
 
 jobs:
   build:
