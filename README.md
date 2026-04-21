@@ -158,7 +158,6 @@ rather than the intricacies of plot creation.
 | [ScatterMap](https://docs.rs/plotlars/latest/plotlars/struct.ScatterMap.html) | data, latitude, longitude | -- | Yes | Yes | -- |
 | [ScatterPlot](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPlot.html) | data, x, y | Yes | Yes | Yes | Yes |
 | [ScatterPolar](https://docs.rs/plotlars/latest/plotlars/struct.ScatterPolar.html) | data, theta, r | Yes | Yes | Yes | -- |
-| [SubplotGrid](https://docs.rs/plotlars/latest/plotlars/struct.SubplotGrid.html) | plots | -- | -- | Yes | -- |
 | [SurfacePlot](https://docs.rs/plotlars/latest/plotlars/struct.SurfacePlot.html) | data, x, y, z | Yes | -- | Yes | -- |
 | [Table](https://docs.rs/plotlars/latest/plotlars/struct.Table.html) | data, columns | -- | -- | Yes | -- |
 | [TimeSeriesPlot](https://docs.rs/plotlars/latest/plotlars/struct.TimeSeriesPlot.html) | data, x, y | Yes | -- | Yes | Yes |
