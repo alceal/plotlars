@@ -83,8 +83,9 @@ impl ParquetReader {
 mod tests {
     use super::*;
 
-    fn create_test_parquet() -> PathBuf {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/test_data.parquet");
+    fn create_test_parquet(name: &str) -> PathBuf {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join(format!("../../target/plotlars_test_{name}.parquet"));
 
         let mut df = df!(
             "a" => [1, 2, 3],
@@ -99,7 +100,7 @@ mod tests {
 
     #[test]
     fn read_parquet_default() {
-        let path = create_test_parquet();
+        let path = create_test_parquet("default");
         let df = ParquetReader::new(&path).finish().unwrap();
         assert_eq!(df.height(), 3);
         assert_eq!(df.width(), 2);
@@ -107,7 +108,7 @@ mod tests {
 
     #[test]
     fn read_parquet_select_columns() {
-        let path = create_test_parquet();
+        let path = create_test_parquet("select_columns");
         let df = ParquetReader::new(&path)
             .columns(vec!["a"])
             .finish()
@@ -117,7 +118,7 @@ mod tests {
 
     #[test]
     fn read_parquet_n_rows() {
-        let path = create_test_parquet();
+        let path = create_test_parquet("n_rows");
         let df = ParquetReader::new(&path).n_rows(2).finish().unwrap();
         assert_eq!(df.height(), 2);
     }
