@@ -13,7 +13,7 @@ description = "Plotly backend for plotlars"
 doctest = false
 
 [dependencies]
-plotlars-core = { path = "../plotlars-core", version = "0.12.2" }
+plotlars-core = { path = "../plotlars-core", version = "0.12.3" }
 bon.workspace = true
 image.workspace = true
 plotly.workspace = true

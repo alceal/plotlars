@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.3] - 2026-04-21
+
+### 🐛 Bug Fixes
+
+- Give each parquet test a unique file path (`target/plotlars_test_<name>.parquet`). The three tests previously shared `target/test_data.parquet`, racing on concurrent truncate+rewrite under `cargo test`'s multi-threaded runner and producing SIGBUS aborts when the eager `ParquetReader`'s mmap'd pages were invalidated mid-read.
+
+### 🧹 Chores
+
+- Collapse two `if let Some(...) else if let Some(...)` color-resolver helpers in `SankeyDiagram` to `Option::or_else` + `Option::map`, silencing the new `clippy::manual_map` lint under rustc/clippy 1.95.
+
 ## [0.12.2] - 2026-04-20
 
 ### 📚 Documentation
