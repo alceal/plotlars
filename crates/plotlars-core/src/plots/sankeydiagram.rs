@@ -411,26 +411,14 @@ impl SankeyDiagram {
         node_color: Option<Rgb>,
         node_colors: Option<Vec<Rgb>>,
     ) -> Option<Vec<Rgb>> {
-        if let Some(colors) = node_colors {
-            Some(colors)
-        } else if let Some(color) = node_color {
-            Some(vec![color])
-        } else {
-            None
-        }
+        node_colors.or_else(|| node_color.map(|color| vec![color]))
     }
 
     fn resolve_link_colors(
         link_color: Option<Rgb>,
         link_colors: Option<Vec<Rgb>>,
     ) -> Option<Vec<Rgb>> {
-        if let Some(colors) = link_colors {
-            Some(colors)
-        } else if let Some(color) = link_color {
-            Some(vec![color])
-        } else {
-            None
-        }
+        link_colors.or_else(|| link_color.map(|color| vec![color]))
     }
     /// Calculates the grid cell positions for a subplot with reserved space for titles.
     ///
