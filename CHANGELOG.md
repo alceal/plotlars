@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.4] - 2026-06-01
+
+### 🧹 Chores
+
+- Bump transitive dependencies to clear open security advisories: `rustls-webpki` 0.103.12 → 0.103.13 (RUSTSEC-2026-0104, reachable panic in CRL parsing), `openssl` 0.10.76 → 0.10.80 (clears eight advisories including GHSA-xp3w-r5p5-63rr and the AES key-wrap overflows), and `tar` 0.4.45 → 0.4.46 (GHSA-3pv8-6f4r-ffg2, PAX header desynchronization).
+- Refresh `Cargo.lock` to the latest semver-compatible versions of all transitive dependencies (`cargo update`), including `rustls` 0.23.40, `tokio` 1.52.3, and `hyper` 1.10.1.
+
 ## [0.12.3] - 2026-04-21
 
 ### 🐛 Bug Fixes
