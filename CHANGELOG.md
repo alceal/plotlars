@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.6] - 2026-06-27
+
+### 📚 Documentation
+
+- Add a tip to the Installation section steering users to the re-exported `plotlars::polars` instead of adding `polars` to their own `Cargo.toml` (and, if they do, to pin a matching version) — avoiding the dependency-resolution conflict from [#73](https://github.com/alceal/plotlars/issues/73).
+
 ## [0.12.5] - 2026-06-27
 
 ### 🐛 Bug Fixes
