@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.5] - 2026-06-27
+
+### 🐛 Bug Fixes
+
+- Bump `polars` 0.53 → 0.54.4, resolving the dependency conflict reported in [#73](https://github.com/alceal/plotlars/issues/73): `polars-arrow 0.53` capped `chrono` at `<=0.4.41`, making `plotlars` impossible to use alongside crates that depend on `chrono` 0.4.42+. The `strings` feature is now enabled so `polars-plan` compiles the `StringExpr` IR that `polars-stream`'s datetime (`Strptime`) lowering references — without it the `timezones`/`dtype-datetime` feature set fails to build on polars 0.54.
+
+### 🧹 Chores
+
+- `Mesh3D`: adapt to polars 0.54 — `ChunkedArray` no longer implements `IntoIterator`; the integer-column reader now uses `.iter()`.
+- Bump `calamine` 0.26 → 0.35 (the `format-excel` reader needs no source changes).
+- Bump `bon` 3.9.1 → 3.9.3.
+
 ## [0.12.4] - 2026-06-01
 
 ### 🧹 Chores
