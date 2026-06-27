@@ -339,7 +339,7 @@ impl Mesh3D {
             .expect("Failed to cast to u32")
             .u32()
             .expect("Failed to extract u32 values")
-            .into_iter()
+            .iter()
             .map(|opt| opt.unwrap_or(0) as usize)
             .collect()
     }
