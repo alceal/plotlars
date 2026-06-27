@@ -329,6 +329,12 @@ cargo add plotlars --features plotly,format-json
 cargo add plotlars --features plotly,format-excel
 ```
 
+> **Tip:** You don't need to add `polars` to your own `Cargo.toml` — plotlars
+> re-exports a matching version, so you can import it via
+> `use plotlars::polars::prelude::*;`. If you do depend on `polars` directly,
+> pin it to the same version plotlars uses (currently `0.54`) to avoid
+> dependency-resolution conflicts.
+
 ## Running the examples
 
 Plotlars comes with several ready-to-use demo programs. Examples are prefixed by
